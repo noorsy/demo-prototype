@@ -310,16 +310,16 @@ const nodeTypes = {
 };
 
 function JourneyCanvas({ onNodeClick, selectedNode }) {
-  // Example sophisticated journey (vertical)
+  // Vertical journey with split after CONDITION
   const [nodes, setNodes, onNodesChange] = useNodesState([
     {
       id: "start",
       type: "comm",
-      position: { x: 100, y: 0 },
+      position: { x: 200, y: 0 },
       data: { label: "Start", type: "start" },
     },
     {
-      id: "voice",
+      id: "voice1",
       type: "comm",
       position: { x: 200, y: 120 },
       data: {
@@ -334,21 +334,25 @@ function JourneyCanvas({ onNodeClick, selectedNode }) {
       },
     },
     {
-      id: "delay",
-      type: "comm",
-      position: { x: 300, y: 240 },
-      data: { label: "Delay", type: "delay", duration: "2h" },
-    },
-    {
       id: "condition",
       type: "comm",
-      position: { x: 200, y: 360 },
-      data: { label: "If Paid", type: "condition", rule: "Payment received" },
+      position: { x: 200, y: 240 },
+      data: {
+        label: "Condition",
+        type: "condition",
+        rule: "Payment received?",
+      },
+    },
+    {
+      id: "voice2",
+      type: "comm",
+      position: { x: 80, y: 360 },
+      data: { label: "Voice", type: "voice", message: "Follow-up call" },
     },
     {
       id: "sms",
       type: "comm",
-      position: { x: 100, y: 480 },
+      position: { x: 320, y: 360 },
       data: { label: "SMS", type: "sms", message: "Send SMS here" },
     },
   ]);
@@ -356,32 +360,32 @@ function JourneyCanvas({ onNodeClick, selectedNode }) {
     {
       id: "e1-2",
       source: "start",
-      target: "voice",
-      animated: true,
+      target: "voice1",
+      animated: false,
       type: "straight",
       style: { stroke: "#000", strokeWidth: 3 },
     },
     {
       id: "e2-3",
-      source: "voice",
-      target: "delay",
-      animated: true,
+      source: "voice1",
+      target: "condition",
+      animated: false,
       type: "straight",
       style: { stroke: "#000", strokeWidth: 3 },
     },
     {
       id: "e3-4",
-      source: "delay",
-      target: "condition",
-      animated: true,
+      source: "condition",
+      target: "voice2",
+      animated: false,
       type: "straight",
       style: { stroke: "#000", strokeWidth: 3 },
     },
     {
-      id: "e4-5",
+      id: "e3-5",
       source: "condition",
       target: "sms",
-      animated: true,
+      animated: false,
       type: "straight",
       style: { stroke: "#000", strokeWidth: 3 },
     },
@@ -689,6 +693,171 @@ function NodePropertiesPanel({ node, onClose }) {
   );
 }
 
+const timelineEvents = [
+  {
+    type: "voice",
+    date: "19th March 2025, 10:30AM",
+    channel: "Voice",
+    label: "Voice Call",
+    color: "green",
+    summary:
+      "Customer acknowledged the reminder and promised to make payment by the due date.",
+    intent: "Promise to Pay",
+    sentiment: "Positive",
+    planned: false,
+  },
+  {
+    type: "sms",
+    date: "19th March 2025, 10:40AM",
+    channel: "SMS",
+    label: "SMS / Text",
+    color: "yellow",
+    planned: true,
+    plannedContent:
+      "Hi Sarah, thanks for your chat and for your commitment to pay. Glad you're feeling up to it! Payment link: [Payment Link] You'll receive a confirmation once the payment is processed.",
+    tonality: "Warmly Appreciative",
+    focus: "Payment_Link_Delivery",
+    aiRecommended: true,
+  },
+];
+
+function renderTimelineCard(event) {
+  if (event.type === "voice") {
+    return (
+      <>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="font-semibold text-green-700 text-base">
+            Past Communication
+          </span>
+          <span className="ml-2 bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold">
+            {event.channel}
+          </span>
+        </div>
+        <div className="text-sm text-zinc-700 mb-2">{event.summary}</div>
+        <div className="flex gap-4 mt-2">
+          <div className="flex items-center gap-1 text-xs text-zinc-500">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3"
+              />
+            </svg>
+            Intent: <span className="font-semibold ml-1">{event.intent}</span>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-zinc-500">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 17v-2a4 4 0 014-4h4"
+              />
+            </svg>
+            Sentiment:{" "}
+            <span className="font-semibold ml-1">{event.sentiment}</span>
+          </div>
+        </div>
+      </>
+    );
+  } else if (event.type === "scheduler") {
+    return (
+      <>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="font-semibold text-blue-700 text-base">
+            Scheduled Communication
+          </span>
+          <span className="ml-2 bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full text-xs font-semibold">
+            {event.channel}
+          </span>
+        </div>
+        <div className="text-sm text-zinc-700 mb-2">{event.summary}</div>
+        <div className="flex gap-4 mt-2">
+          <div className="flex items-center gap-1 text-xs text-zinc-500">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3"
+              />
+            </svg>
+            Decider: <span className="font-semibold ml-1">{event.decider}</span>
+          </div>
+        </div>
+      </>
+    );
+  } else if (event.type === "sms" && event.planned) {
+    return (
+      <>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="font-semibold text-yellow-700 text-base">
+            Planned Communication
+          </span>
+          <span className="ml-2 bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full text-xs font-semibold">
+            {event.channel}
+          </span>
+        </div>
+        <div className="text-sm text-zinc-700 mb-2">
+          <span className="font-semibold">Content:</span> {event.plannedContent}
+        </div>
+        <div className="flex gap-4 mt-2">
+          <div className="flex items-center gap-1 text-xs text-zinc-500">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3"
+              />
+            </svg>
+            Tonality:{" "}
+            <span className="font-semibold ml-1">{event.tonality}</span>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-zinc-500">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 17v-2a4 4 0 014-4h4"
+              />
+            </svg>
+            Focus: <span className="font-semibold ml-1">{event.focus}</span>
+          </div>
+        </div>
+      </>
+    );
+  }
+  return null;
+}
+
 export default function CreateCampaign() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
@@ -721,6 +890,8 @@ export default function CreateCampaign() {
   const [showAccountsModal, setShowAccountsModal] = useState(false);
   const [modalAccounts, setModalAccounts] = useState([]);
   const [modalSegment, setModalSegment] = useState(null);
+  const [showInspectModal, setShowInspectModal] = useState(false);
+  const [inspectAccount, setInspectAccount] = useState(null);
 
   function handleNext() {
     if (step === 2) {
@@ -752,38 +923,43 @@ export default function CreateCampaign() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  // Mock account data for modal
-  const mockAccounts = [
-    {
-      account_id: "A001",
-      customer_name: "John Doe",
-      amount_due: 1200,
-      dpd: 10,
-    },
-    {
-      account_id: "A002",
-      customer_name: "Jane Smith",
-      amount_due: 800,
-      dpd: 10,
-    },
-    {
-      account_id: "A003",
-      customer_name: "Sam Patel",
-      amount_due: 1500,
-      dpd: 10,
-    },
-  ];
+  // Replace mockAccounts with a larger sample and more attributes
+  const mockAccounts = Array.from({ length: 60 }, (_, i) => ({
+    account_id: `A${(1000 + i).toString()}`,
+    customer_name:
+      [
+        "John Doe",
+        "Jane Smith",
+        "Sam Patel",
+        "Alex Kim",
+        "Priya Singh",
+        "Maria Garcia",
+        "Chen Wei",
+        "Ahmed Ali",
+        "Emily Clark",
+        "David Lee",
+      ][i % 10] + ` ${i}`,
+    amount_due: Math.floor(Math.random() * 5000) + 500,
+    dpd: Math.floor(Math.random() * 120) + 1,
+    due_date: `2025-03-${(10 + (i % 20)).toString().padStart(2, "0")}`,
+    product_name: ["Auto Loan", "Mortgage", "Credit Card"][i % 3],
+    pay_off_amount: Math.floor(Math.random() * 7000) + 1000,
+    missed_installments: Math.floor(Math.random() * 6),
+    risk_score: ["Low", "Medium", "High"][i % 3],
+  }));
 
   return (
     <div className="min-h-screen font-inter">
-      <PageHeader
-        title="Create Campaign"
-        breadcrumbs={[
-          { label: "Home", href: "/" },
-          { label: "Campaigns", href: "/campaigns" },
-          { label: "Create Campaign" },
-        ]}
-      />
+      <div className="relative z-10">
+        <PageHeader
+          title="Create Campaign"
+          breadcrumbs={[
+            { label: "Home", href: "/" },
+            { label: "Campaigns", href: "/campaigns" },
+            { label: "Create Campaign" },
+          ]}
+        />
+      </div>
       <div className=" mx-auto bg-white  p-2 min-h-[calc(100vh-64px)] flex flex-col">
         <div className="mb-4">
           <div className="flex items-center gap-4 mb-2">
@@ -1106,51 +1282,6 @@ export default function CreateCampaign() {
                     </div>
                   </div>
                 ))}
-                {/* Modal for accounts */}
-                {showAccountsModal && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                    <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-2xl relative">
-                      <button
-                        className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-900 text-2xl"
-                        onClick={() => setShowAccountsModal(false)}
-                      >
-                        &times;
-                      </button>
-                      <div className="text-lg font-bold mb-4">
-                        Accounts in {modalSegment?.name}
-                      </div>
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full text-sm border border-zinc-100 rounded-xl">
-                          <thead>
-                            <tr className="bg-zinc-50 text-zinc-700">
-                              <th className="px-4 py-2">Account ID</th>
-                              <th className="px-4 py-2">Customer Name</th>
-                              <th className="px-4 py-2">Amount Due</th>
-                              <th className="px-4 py-2">DPD</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {modalAccounts.map((acc) => (
-                              <tr
-                                key={acc.account_id}
-                                className="even:bg-zinc-50"
-                              >
-                                <td className="px-4 py-2">{acc.account_id}</td>
-                                <td className="px-4 py-2">
-                                  {acc.customer_name}
-                                </td>
-                                <td className="px-4 py-2">
-                                  ${acc.amount_due.toLocaleString()}
-                                </td>
-                                <td className="px-4 py-2">{acc.dpd}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
               {/* Journey Canvas */}
               <div className="w-full md:w-[70%] flex flex-col items-left">
@@ -1361,6 +1492,194 @@ export default function CreateCampaign() {
           </div>
         </div>
       </div>
+      {/* Modal for accounts (root level, always overlays canvas/segments) */}
+      {showAccountsModal && (
+        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black bg-opacity-60">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full h-full max-w-7xl max-h-[95vh] overflow-auto relative flex flex-col">
+            <button
+              className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-900 text-3xl"
+              onClick={() => setShowAccountsModal(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <div className="text-2xl font-bold mb-6">
+              Accounts in {modalSegment?.name}
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm border border-zinc-100 rounded-xl">
+                <thead>
+                  <tr className="bg-zinc-50 text-zinc-700">
+                    <th className="px-4 py-2 text-left">Account ID</th>
+                    <th className="px-4 py-2 text-left">Customer Name</th>
+                    <th className="px-4 py-2 text-left">Amount Due</th>
+                    <th className="px-4 py-2 text-left">DPD</th>
+                    <th className="px-4 py-2 text-left">Due Date</th>
+                    <th className="px-4 py-2 text-left">Product Name</th>
+                    <th className="px-4 py-2 text-left">Pay Off Amount</th>
+                    <th className="px-4 py-2 text-left">Missed Installments</th>
+                    <th className="px-4 py-2 text-left">Risk Score</th>
+                    <th className="px-4 py-2 text-left">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {modalAccounts.map((acc) => (
+                    <tr key={acc.account_id} className="even:bg-zinc-50">
+                      <td className="px-4 py-2">{acc.account_id}</td>
+                      <td className="px-4 py-2">{acc.customer_name}</td>
+                      <td className="px-4 py-2">
+                        ${acc.amount_due.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2">{acc.dpd}</td>
+                      <td className="px-4 py-2">{acc.due_date}</td>
+                      <td className="px-4 py-2">{acc.product_name}</td>
+                      <td className="px-4 py-2">
+                        ${acc.pay_off_amount.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2">{acc.missed_installments}</td>
+                      <td className="px-4 py-2">{acc.risk_score}</td>
+                      <td className="px-4 py-2">
+                        <button
+                          className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 border border-blue-200 text-xs font-semibold"
+                          onClick={() => {
+                            setInspectAccount(acc);
+                            setShowInspectModal(true);
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                          Inspect
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Inspect modal remains as is, already at z-70 and root level */}
+      {showInspectModal && inspectAccount && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-70">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full h-full max-w-3xl max-h-[95vh] overflow-auto relative flex flex-col">
+            <button
+              className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-900 text-3xl"
+              onClick={() => setShowInspectModal(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <div className="text-2xl font-bold mb-6">
+              Account Timeline: {inspectAccount.account_id} -{" "}
+              {inspectAccount.customer_name}
+            </div>
+            {timelineEvents.map((event, idx) => (
+              <div key={idx} className="flex items-stretch relative">
+                {/* Left: Dot, line, and label */}
+                <div className="flex flex-col items-center w-28 min-w-[7rem] pr-2 relative">
+                  {/* Dot */}
+                  <span
+                    className={`w-4 h-4 rounded-full border-4 ${
+                      event.color === "green"
+                        ? "bg-green-500 border-green-200"
+                        : "bg-yellow-400 border-yellow-100"
+                    } z-10`}
+                  ></span>
+                  {/* Vertical line connecting dots */}
+                  {idx < timelineEvents.length - 1 && (
+                    <span
+                      className={`w-1 h-full bg-zinc-200 absolute left-1/2 top-4 z-0`}
+                    ></span>
+                  )}
+                  {/* Label */}
+                  <span className="mt-2 text-xs font-semibold text-zinc-500 text-center">
+                    {event.label}
+                  </span>
+                  {/* Channel icon */}
+                  <span className="mt-1">
+                    {event.channel === "Voice" && (
+                      <span className="inline-block bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold">
+                        <svg
+                          className="inline w-4 h-4 mr-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15.05 5.05a7 7 0 01.9 9.19l-1.41 1.41a2 2 0 01-2.83 0l-2.12-2.12a2 2 0 010-2.83l1.41-1.41a7 7 0 019.19-.9z"
+                          />
+                        </svg>
+                        Voice
+                      </span>
+                    )}
+                    {event.channel === "SMS" && (
+                      <span className="inline-block bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-xs font-semibold">
+                        <svg
+                          className="inline w-4 h-4 mr-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8s-9-3.582-9-8 4.03-8 9-8 9 3.582 9 8z"
+                          />
+                        </svg>
+                        SMS
+                      </span>
+                    )}
+                  </span>
+                </div>
+                {/* Right: Card */}
+                <div
+                  className={`flex-1 ml-2 mb-8 rounded-2xl shadow-lg border border-zinc-100 bg-white p-6 transition-all ${
+                    event.color === "green"
+                      ? "border-green-200 bg-green-50"
+                      : "border-yellow-200 bg-yellow-50"
+                  }`}
+                  style={{ minWidth: 0 }}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs text-zinc-400 font-semibold">
+                      {event.date}
+                    </span>
+                    {event.aiRecommended && (
+                      <span className="ml-auto bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs font-semibold">
+                        AI Recommended
+                      </span>
+                    )}
+                  </div>
+                  {renderTimelineCard(event)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

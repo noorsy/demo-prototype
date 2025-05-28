@@ -8,6 +8,7 @@ import {
   Database,
   UserCheck,
   Workflow,
+  ThumbsUp,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -21,6 +22,11 @@ const navLinks = [
     to: "/conversations",
   },
   { icon: <BarChart2 size={20} />, label: "Analytics", to: "/analytics" },
+  {
+    icon: <ThumbsUp size={20} />,
+    label: "Recommendations",
+    to: "/recommendations",
+  },
   {
     icon: <Database size={20} />,
     label: "Accounts Data",

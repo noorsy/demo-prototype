@@ -196,8 +196,98 @@ const dpdDisplayNames = {
   "Post-Chargeoff": "Post-Chargeoff",
 };
 
+const recommendedAttributes = [
+  {
+    name: "risk_score",
+    desc: "Enables risk-based segments (e.g., High/Medium/Low).",
+  },
+  {
+    name: "first_default_date / total_defaults_count",
+    desc: "Identifies first-time vs. repeat defaulters.",
+  },
+  {
+    name: "last_payment_date / last_payment_amount",
+    desc: "Provides payment history insights.",
+  },
+  { name: "language_preference", desc: "Enables multilingual outreach." },
+];
+
+const actualSegments = [
+  {
+    id: "SEG0: Vulnerable / Special Handling",
+    logic:
+      'Vulnerability_Flag IS TRUE OR account_notes CONTAIN keywords ("hardship", "illness", "dispute bureau", etc.)',
+    characteristics:
+      "Customer facing significant personal challenges; potential compliance/reputational risk.",
+    focus:
+      "Understanding, empathy, offering support/options, pausing standard collections.",
+  },
+  {
+    id: "SEG1: High Priority - Broken Promises (PTP Failures)",
+    logic:
+      "Number_of_Broken_PTPs_Last_6_Months >= 1 AND Days_Since_Last_Broken_PTP <= 7 (or other short timeframe)",
+    characteristics:
+      "Explicit commitment made and not met recently. Potentially willing but facing new obstacles.",
+    focus:
+      "Direct, reference broken promise, understand reason, secure new firm commitment, reiterate importance.",
+  },
+  {
+    id: "SEG2: High Potential / Active Engagement",
+    logic:
+      "Last_Customer_Response_Channel IS NOT NULL AND Days_Since_Last_Customer_Response <= 5 AND Last_Customer_Response_Sentiment IS Positive/Neutral",
+    characteristics:
+      "Recently engaged with client, potentially showing willingness to resolve.",
+    focus:
+      "Conversational, reference prior interaction, easy payment options, gratitude for engagement.",
+  },
+  {
+    id: "SEG3: Forgetful / Early Stage Delinquency",
+    logic:
+      "DPD >= 5 AND DPD <= 30 AND Number_of_Broken_PTPs_Last_12_Months == 0 AND (Payment_History_Shows_Previous_On_Time_Payments OR Client_Risk_Score IS Low OR Client_Risk_Score IS NULL)",
+    characteristics:
+      "Likely good payers who missed a payment. Low history of delinquency. No recent high-risk flags.",
+    focus:
+      'Gentle, helpful reminders. "Looks like your payment is overdue. Pay easily here..."',
+  },
+  {
+    id: "SEG4: Repeat Offenders / Consistent Late Payers",
+    logic:
+      "(DPD > 30) AND (Number_of_Previous_Delinquency_Cycles_Last_12_Months >= 2-3 OR Payment_History_Shows_Sporadic_Payments) OR (Number_of_Broken_PTPs_Last_12_Months >= 2 but not recent)",
+    characteristics:
+      "History of multiple delinquencies or broken promises over time.",
+    focus:
+      "More direct about overdue status, consequences (compliant), focus on payment plan or firm PTP.",
+  },
+  {
+    id: "SEG5: High Risk / Significant Delinquency (Non-PTP Breakers)",
+    logic: "(Client_Risk_Score IS High OR DPD > 60) AND NOT IN SEG1",
+    characteristics:
+      "Represents higher risk due to client scoring or prolonged delinquency, without a recent PTP break.",
+    focus:
+      "Professional, understand situation, negotiate payment plans/settlements, assertiveness based on risk/DPD.",
+  },
+  {
+    id: "SEG6: Long-Term Low Engagement",
+    logic:
+      "Days_Since_Last_Customer_Response > 60 AND DPD > 120 AND NOT IN SEG0 or SEG1",
+    characteristics:
+      "Significantly past due with no recent engagement for an extended period.",
+    focus:
+      "Standard reminder messages; less personalization. Focus on re-engagement.",
+  },
+  {
+    id: "SEG7: General Delinquency (Catch-All)",
+    logic:
+      "Accounts not fitting other segments AND DPD > Minimum_DPD_for_Action (e.g., 1 day)",
+    characteristics:
+      "Delinquent but doesn't meet specific criteria of other prioritized segments.",
+    focus: "Standard collection messaging, tone adjusted primarily by DPD.",
+  },
+];
+
 function AIMagicProgress({ tasksList, onComplete }) {
   const [current, setCurrent] = React.useState(0);
+  const [subtaskIdx, setSubtaskIdx] = React.useState(0);
   // Calculate progress
   const totalSubtasks = tasksList.reduce(
     (sum, t) => sum + t.subtasks.length,
@@ -205,19 +295,26 @@ function AIMagicProgress({ tasksList, onComplete }) {
   );
   const completedSubtasks =
     tasksList.slice(0, current).reduce((sum, t) => sum + t.subtasks.length, 0) +
-    (current < tasksList.length
-      ? 0
-      : tasksList[tasksList.length - 1].subtasks.length);
+    subtaskIdx;
   const progress = Math.min((completedSubtasks / totalSubtasks) * 100, 100);
 
   React.useEffect(() => {
     if (current < tasksList.length) {
-      const timeout = setTimeout(() => setCurrent(current + 1), 1200);
-      return () => clearTimeout(timeout);
+      if (subtaskIdx < tasksList[current].subtasks.length - 1) {
+        const timeout = setTimeout(() => setSubtaskIdx(subtaskIdx + 1), 900);
+        return () => clearTimeout(timeout);
+      } else {
+        const timeout = setTimeout(() => {
+          setCurrent(current + 1);
+          setSubtaskIdx(0);
+        }, 1200);
+        return () => clearTimeout(timeout);
+      }
     } else {
       setTimeout(onComplete, 1200);
     }
-  }, [current, tasksList.length, onComplete]);
+  }, [current, subtaskIdx, tasksList, onComplete]);
+
   return (
     <div className="h-full w-full flex items-center justify-center overflow-hidden">
       <div className="w-full max-w-lg flex flex-col items-center">
@@ -245,9 +342,9 @@ function AIMagicProgress({ tasksList, onComplete }) {
           <div className="text-xl font-extrabold text-zinc-900 text-center tracking-tight mb-1">
             AI Magic in Progress
           </div>
-          <div className="text-zinc-500 text-center max-w-xs mb-2 text-base">
-            Our AI is analyzing your portfolio data to create intelligent
-            segments for optimized collections.
+          <div className="text-zinc-500 text-center max-w-base mb-2 text-base">
+            Our AI is analyzing your attributes and dpd buckets to create
+            intelligent segments for optimized collections.
           </div>
           {/* Progress Bar */}
           <div className="w-full max-w-lg mx-auto mt-2 mb-2">
@@ -300,8 +397,11 @@ function AIMagicProgress({ tasksList, onComplete }) {
                       {task.title}
                     </div>
                     {state === "active" && (
-                      <div className="text-xs text-blue-600 mt-1">
-                        {idx === 1 ? "Finalizing..." : "In Progress..."}
+                      <div className="text-xs text-blue-600 mt-1 flex items-center gap-2">
+                        <span className="animate-pulse">
+                          {task.subtasks[subtaskIdx]}
+                        </span>
+                        <span className="inline-block w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
                       </div>
                     )}
                     {state === "done" && (
@@ -316,7 +416,7 @@ function AIMagicProgress({ tasksList, onComplete }) {
                 </div>
                 <div className="text-xs font-medium text-right">
                   {state === "active"
-                    ? "100%"
+                    ? `${subtaskIdx + 1}/${task.subtasks.length}`
                     : state === "done"
                     ? "Completed"
                     : "Pending"}
@@ -339,8 +439,12 @@ const secondaryBtn =
 export default function CreateAssistant() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
-    name: "",
-    desc: "",
+    name: "Q2 Auto Loan Recovery",
+    desc: "Automated campaign for Q2 auto loan collections.",
+    creditorName: "Acme Auto",
+    creditorPhone: "+1 555-123-4567",
+    creditorEmail: "contact@acmeauto.com",
+    creditorTimezone: "America/New_York",
     segment: "First-party",
     microSegment: "Auto Loan",
     channels: [],
@@ -358,6 +462,15 @@ export default function CreateAssistant() {
       { name: "Very Late Stage", from: 61, to: 90 },
       { name: "Pre-Chargeoff", from: 91, to: 120 },
       { name: "Post-Chargeoff", from: 121, to: 180 },
+    ],
+    businessHours: [
+      { day: "Monday", start: "09:00", end: "18:00" },
+      { day: "Tuesday", start: "09:00", end: "18:00" },
+      { day: "Wednesday", start: "09:00", end: "18:00" },
+      { day: "Thursday", start: "09:00", end: "18:00" },
+      { day: "Friday", start: "09:00", end: "18:00" },
+      { day: "Saturday", start: "10:00", end: "14:00" },
+      { day: "Sunday", start: "Closed", end: "Closed" },
     ],
   });
   const [aiMagic, setAiMagic] = useState(false);
@@ -433,73 +546,75 @@ export default function CreateAssistant() {
         style={{ minHeight: "calc(100vh - 64px)" }}
       >
         {/* Left: Stepper */}
-        <div className="w-1/3 py-8 pl-8 border-r border-zinc-100 bg-zinc-50 rounded-l-xl flex flex-col gap-8 min-h-full">
-          <div>
-            <div className="text-zinc-900 font-semibold text-xl mb-2">
-              Onboarding
-            </div>
-            <div className="text-zinc-500 text-xs mb-6">
-              to setup your assistant profile
-            </div>
-            <ol className="space-y-8">
-              {steps.map((stepObj, idx) => {
-                const isCompleted = step > idx + 1;
-                const isCurrent = step === idx + 1;
-                return (
-                  <li key={stepObj.title} className="flex items-start gap-4">
-                    <div className="flex flex-col items-center">
-                      <div
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg mb-2 transition-all border-2 ${
-                          isCompleted
-                            ? "bg-green-100 text-green-700 border-green-300"
-                            : isCurrent
-                            ? "bg-blue-50 text-blue-600 border-blue-400"
-                            : "bg-zinc-50 text-zinc-400 border-zinc-200"
-                        }`}
-                      >
-                        {isCompleted ? (
-                          <svg width="22" height="22" fill="none">
-                            <circle cx="11" cy="11" r="11" fill="#22C55E" />
-                            <path
-                              d="M7 12l3 3 5-5"
-                              stroke="#fff"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        ) : (
-                          <span className="text-lg">{stepObj.icon}</span>
+        <div className="w-1/3 py-4 pl-4 border-r border-zinc-100 bg-zinc-50 rounded-l-xl flex flex-col min-h-full">
+          <div className="sticky top-0 h-fit">
+            <div>
+              <div className="text-zinc-900 font-semibold text-lg mb-1">
+                Onboarding
+              </div>
+              <div className="text-zinc-500 text-[11px] mb-4">
+                to setup your assistant profile
+              </div>
+              <ol className="space-y-1">
+                {steps.map((stepObj, idx) => {
+                  const isCompleted = step > idx + 1;
+                  const isCurrent = step === idx + 1;
+                  return (
+                    <li key={stepObj.title} className="flex items-start gap-4">
+                      <div className="flex flex-col items-center">
+                        <div
+                          className={`w-8 h-8 flex items-center justify-center rounded-lg mb-2 transition-all border-2 ${
+                            isCompleted
+                              ? "bg-green-100 text-green-700 border-green-300"
+                              : isCurrent
+                              ? "bg-blue-50 text-blue-600 border-blue-400"
+                              : "bg-zinc-50 text-zinc-400 border-zinc-200"
+                          }`}
+                        >
+                          {isCompleted ? (
+                            <svg width="22" height="22" fill="none">
+                              <circle cx="11" cy="11" r="11" fill="#22C55E" />
+                              <path
+                                d="M7 12l3 3 5-5"
+                                stroke="#fff"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          ) : (
+                            <span className="text-lg">{stepObj.icon}</span>
+                          )}
+                        </div>
+                        {idx < steps.length - 1 && (
+                          <div
+                            className={`w-0.5 h-12 ${
+                              isCompleted ? "bg-green-200" : "bg-zinc-200"
+                            }`}
+                          />
                         )}
                       </div>
-                      {idx < steps.length - 1 && (
+                      <div>
                         <div
-                          className={`w-0.5 h-12 ${
-                            isCompleted ? "bg-green-200" : "bg-zinc-200"
+                          className={`font-medium text-sm ${
+                            isCurrent
+                              ? "text-blue-600 font-bold"
+                              : isCompleted
+                              ? "text-green-700 font-bold"
+                              : "text-zinc-400"
                           }`}
-                        />
-                      )}
-                    </div>
-                    <div>
-                      <div
-                        className={`font-medium text-sm ${
-                          isCurrent
-                            ? "text-blue-600 font-bold"
-                            : isCompleted
-                            ? "text-green-700 font-bold"
-                            : "text-zinc-400"
-                        }`}
-                      >
-                        {stepObj.title}
+                        >
+                          {stepObj.title}
+                        </div>
+                        <div className="text-xs text-zinc-400 mt-1 max-w-[180px]">
+                          {stepObj.desc}
+                        </div>
                       </div>
-                      <div className="text-xs text-zinc-400 mt-1 max-w-[180px]">
-                        {stepObj.desc}
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
           </div>
         </div>
         {/* Right: Step Content */}
@@ -521,8 +636,8 @@ export default function CreateAssistant() {
                   Assistant Details
                 </h2>
                 <div className="text-zinc-500 text-sm mb-4">
-                  Set up your assistant's name, description, segment, and
-                  communication channels.
+                  Set up your assistant's name, description, client, segment,
+                  and communication channels.
                 </div>
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-1">
@@ -547,6 +662,146 @@ export default function CreateAssistant() {
                       setForm((f) => ({ ...f, desc: e.target.value }))
                     }
                   />
+                </div>
+                {/* Client Information Section */}
+                <h3 className="text-base font-semibold mb-1">
+                  Creditor Details
+                </h3>
+                <div className="text-zinc-500 text-xs mb-2">
+                  Enter the creditor's contact information and timezone.
+                </div>
+                <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Creditor Name
+                    </label>
+                    <input
+                      className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
+                      value={form.creditorName}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, creditorName: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Phone Number
+                    </label>
+                    <input
+                      className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
+                      value={form.creditorPhone}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          creditorPhone: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
+                      value={form.creditorEmail}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          creditorEmail: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Timezone
+                    </label>
+                    <select
+                      className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
+                      value={form.creditorTimezone}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          creditorTimezone: e.target.value,
+                        }))
+                      }
+                    >
+                      <option value="America/New_York">America/New_York</option>
+                      <option value="America/Chicago">America/Chicago</option>
+                      <option value="America/Denver">America/Denver</option>
+                      <option value="America/Los_Angeles">
+                        America/Los_Angeles
+                      </option>
+                      <option value="Europe/London">Europe/London</option>
+                      <option value="Asia/Kolkata">Asia/Kolkata</option>
+                      <option value="Asia/Tokyo">Asia/Tokyo</option>
+                      <option value="Australia/Sydney">Australia/Sydney</option>
+                    </select>
+                  </div>
+                </div>
+                {/* Business Hours Section */}
+                <div className="mb-6">
+                  <h3 className="text-base font-semibold mb-1">
+                    Business Hours
+                  </h3>
+                  <div className="text-zinc-500 text-xs mb-2">
+                    Set your organization's business hours for each day.
+                  </div>
+                  <table className="min-w-full border-separate border-spacing-y-2 font-inter text-sm">
+                    <thead>
+                      <tr className="bg-zinc-50 text-zinc-700 text-sm">
+                        <th className="px-4 py-2 text-left">Day</th>
+                        <th className="px-4 py-2 text-left">Start Time</th>
+                        <th className="px-4 py-2 text-left">End Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {form.businessHours.map((row, idx) => (
+                        <tr
+                          key={row.day}
+                          className="bg-zinc-50 hover:bg-blue-50 transition rounded-xl"
+                        >
+                          <td className="px-4 py-2 font-medium text-zinc-900 whitespace-nowrap">
+                            {row.day}
+                          </td>
+                          <td className="px-4 py-2">
+                            <input
+                              type={row.start === "Closed" ? "text" : "time"}
+                              className="w-28 px-2 py-1 border border-zinc-200 rounded-md text-sm"
+                              value={row.start}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                setForm((f) => {
+                                  const hours = [...f.businessHours];
+                                  hours[idx].start = value;
+                                  return { ...f, businessHours: hours };
+                                });
+                              }}
+                              disabled={row.start === "Closed"}
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <input
+                              type={row.end === "Closed" ? "text" : "time"}
+                              className="w-28 px-2 py-1 border border-zinc-200 rounded-md text-sm"
+                              value={row.end}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                setForm((f) => {
+                                  const hours = [...f.businessHours];
+                                  hours[idx].end = value;
+                                  return { ...f, businessHours: hours };
+                                });
+                              }}
+                              disabled={row.end === "Closed"}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
                 <div className="mb-4 flex gap-4">
                   <div className="flex-1">
@@ -646,8 +901,10 @@ export default function CreateAssistant() {
                     <thead>
                       <tr className="bg-zinc-50 text-zinc-700 text-sm">
                         <th className="px-4 py-2 rounded-tl-xl">Auto-create</th>
-                        <th className="px-4 py-2">Attribute Name</th>
-                        <th className="px-4 py-2">Attribute Description</th>
+                        <th className="px-4 py-2 text-left">Attribute Name</th>
+                        <th className="px-4 py-2 text-left">
+                          Attribute Description
+                        </th>
                         <th className="px-4 py-2 rounded-tr-xl">Mandatory</th>
                       </tr>
                     </thead>
@@ -679,6 +936,49 @@ export default function CreateAssistant() {
                     </tbody>
                   </table>
                 </div>
+                <h4 className="text-base font-semibold mb-1 mt-6">
+                  Recommended Attributes
+                </h4>
+                <div className="text-zinc-500 text-xs mb-2">
+                  Adding these attributes will improve segmentation and campaign
+                  performance.
+                </div>
+                <table className="min-w-full border-separate border-spacing-y-2 font-inter text-sm">
+                  <thead>
+                    <tr className="bg-zinc-50 text-zinc-700 text-sm">
+                      <th className="px-4 py-2 text-center">Auto-create</th>
+                      <th className="px-4 py-2 text-left">Attribute Name</th>
+                      <th className="px-4 py-2 text-left">
+                        Attribute Description
+                      </th>
+                      <th className="px-4 py-2 text-center">Mandatory</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recommendedAttributes.map((attr) => (
+                      <tr
+                        key={attr.name}
+                        className="bg-zinc-50 hover:bg-blue-50 transition rounded-xl"
+                      >
+                        <td className="px-4 py-2 text-center">
+                          <input
+                            type="checkbox"
+                            checked={false}
+                            readOnly
+                            className="accent-blue-600"
+                          />
+                        </td>
+                        <td className="px-4 py-2 font-medium text-zinc-900">
+                          {attr.name}
+                        </td>
+                        <td className="px-4 py-2 text-zinc-600">{attr.desc}</td>
+                        <td className="px-4 py-2 text-center">
+                          <span className="text-xs text-zinc-400">No</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
                 <h3 className="text-base font-semibold mb-1">Data Source</h3>
                 <div className="text-zinc-500 text-xs mb-2">
                   Choose how you'll provide account data for the assistant.
@@ -750,7 +1050,58 @@ export default function CreateAssistant() {
                     </label>
                   ))}
                 </div>
-                <h3 className="text-base font-semibold mb-1">DPD Stages</h3>
+
+                {/* Account Upload Section */}
+                <div className="mt-4">
+                  <h3 className="text-base font-semibold mb-1">
+                    Upload Accounts
+                  </h3>
+                  <div className="text-zinc-500 text-xs mb-2">
+                    Upload your account data in CSV format to begin processing.
+                  </div>
+                  <div className="border border-zinc-200 rounded-lg p-4 bg-white flex items-center gap-4">
+                    <svg
+                      className="w-6 h-6 text-zinc-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                      />
+                    </svg>
+                    <div className="flex-1">
+                      <div className="text-sm text-zinc-900">
+                        Drag and drop your CSV file here or
+                      </div>
+                    </div>
+                    <input
+                      type="file"
+                      accept=".csv"
+                      className="hidden"
+                      id="account-upload"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          // Handle file upload
+                          console.log("File selected:", e.target.files[0]);
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="account-upload"
+                      className="px-4 py-2 bg-zinc-900 text-white rounded-lg text-sm font-medium cursor-pointer hover:bg-black transition"
+                    >
+                      Choose File
+                    </label>
+                  </div>
+                </div>
+
+                <h3 className="text-base font-semibold mb-1 mt-4">
+                  DPD Stages
+                </h3>
                 <div className="text-zinc-500 text-xs mb-2">
                   Define the delinquency stages (DPD buckets) for your
                   portfolio.
@@ -854,104 +1205,62 @@ export default function CreateAssistant() {
                       AI Generated Segments
                     </h2>
                     <div className="text-zinc-500 text-sm mb-4">
-                      Review and manage the segments generated by AI for each
-                      DPD stage.
+                      Review and manage the segments generated by AI for your
+                      portfolio.
                     </div>
                   </div>
-                  {/* DPD Tabs - standard horizontal tabs */}
-                  <div className="flex border-b border-zinc-200 mb-8">
-                    {form.dpds.map((dpd) => (
-                      <button
-                        key={dpd.name}
-                        onClick={() => setSelectedDPD(dpd.name)}
-                        className={`px-4 py-2 -mb-px font-semibold text-sm border-b-2 transition focus:outline-none ${
-                          selectedDPD === dpd.name
-                            ? "border-black text-black"
-                            : "border-transparent text-zinc-500 hover:text-black"
-                        }`}
-                        style={{ minWidth: 120 }}
+                  <div className="flex flex-col gap-6">
+                    {actualSegments.map((seg, idx) => (
+                      <div
+                        key={seg.id}
+                        className="bg-white border border-zinc-200 rounded-2xl p-6 flex flex-col gap-3 shadow-sm"
                       >
-                        {dpdDisplayNames[dpd.name] || dpd.name}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="text-lg font-semibold text-black">
-                      Segments for {dpdDisplayNames[selectedDPD] || selectedDPD}
-                    </div>
-                  </div>
-                  {segments[selectedDPD] && segments[selectedDPD].length > 0 ? (
-                    <div className="flex flex-col gap-6">
-                      {segments[selectedDPD].map((seg, idx) => (
-                        <div
-                          key={idx}
-                          className="bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-sm"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <div className="text-lg font-bold text-zinc-900 mb-2 truncate">
-                              {seg.name}
-                            </div>
-                            {/* Conditions as black/grey pills */}
-                            <div className="flex flex-wrap gap-2 mb-2">
-                              {seg.rules.split(" and ").map((cond, i) => (
-                                <span
-                                  key={i}
-                                  className="inline-block bg-zinc-900 text-white px-3 py-1 rounded-full text-xs font-semibold"
-                                >
-                                  {cond.trim()}
-                                </span>
-                              ))}
-                            </div>
-                            {/* Characteristics as subtle badges or comma list */}
-                            <div className="flex flex-wrap gap-2 items-center mb-2">
-                              <span className="text-xs text-zinc-500 font-medium">
-                                Characteristics:
-                              </span>
-                              {Array.isArray(seg.characteristics) ? (
-                                seg.characteristics.map((c, i) => (
-                                  <span
-                                    key={i}
-                                    className="inline-block bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded text-xs border border-zinc-200"
-                                  >
-                                    {c}
-                                  </span>
-                                ))
-                              ) : (
-                                <span className="inline-block bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded text-xs border border-zinc-200">
-                                  {seg.characteristics}
-                                </span>
-                              )}
-                            </div>
-                            {/* Messaging Focus */}
-                            <div className="text-xs text-zinc-500">
-                              <span className="font-medium">
-                                Messaging Focus:
-                              </span>{" "}
-                              <span className="text-zinc-700">{seg.focus}</span>
-                            </div>
+                        <div className="text-lg font-bold text-blue-800 mb-2 truncate">
+                          {seg.id}
+                        </div>
+                        <div className="flex flex-col gap-2 mb-2">
+                          <div className="flex items-start gap-2">
+                            <span className="text-xs font-semibold text-zinc-500 min-w-[120px]">
+                              Conditions
+                            </span>
+                            <span className="text-sm text-zinc-700 font-mono bg-blue-50 px-2 py-1 rounded break-words">
+                              {seg.logic}
+                            </span>
                           </div>
-                          {/* Actions */}
-                          <div className="flex flex-row gap-3 md:flex-col md:gap-2 md:items-end">
-                            <button className={primaryBtn}>Edit</button>
-                            <button className={secondaryBtn}>
-                              Go to Journey
-                            </button>
+                          <div className="flex items-start gap-2">
+                            <span className="text-xs font-semibold text-zinc-500 min-w-[120px]">
+                              Key Characteristics
+                            </span>
+                            <span className="text-sm text-zinc-700 bg-zinc-50 px-2 py-1 rounded break-words">
+                              {seg.characteristics}
+                            </span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-xs font-semibold text-zinc-500 min-w-[120px]">
+                              Messaging Focus
+                            </span>
+                            <span className="text-sm text-zinc-700 bg-green-50 px-2 py-1 rounded break-words">
+                              {seg.focus}
+                            </span>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-zinc-400 italic mt-8">
-                      No segments yet for this DPD bucket.
-                    </div>
-                  )}
+                        {/* Actions */}
+                        <div className="flex flex-row gap-3 mt-2 justify-end border-t border-zinc-200 pt-4">
+                          <button className={primaryBtn}>Edit</button>
+                          <button className={secondaryBtn}>
+                            Go to Journey
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 {/* Sticky Go to Dashboard button */}
                 <div className="sticky bottom-0 bg-white border-t border-zinc-200 p-4 z-10">
                   <div className="flex justify-end">
                     <button
                       className={primaryBtn}
-                      onClick={() => navigate("/dashboard")}
+                      onClick={() => navigate("/")}
                     >
                       Go to Dashboard
                     </button>

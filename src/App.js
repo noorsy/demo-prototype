@@ -7,6 +7,9 @@ import CreateAssistant from "./CreateAssistant";
 import Campaigns from "./Campaigns";
 import CreateCampaign from "./CreateCampaign";
 import Analytics from "./Analytics";
+import Onboarding from "./Onboarding";
+import Dashboard from "./Dashboard";
+import Recommendations from "./Recommendations";
 import "./App.css";
 
 const Placeholder = ({ title }) => (
@@ -16,43 +19,64 @@ const Placeholder = ({ title }) => (
 function App() {
   return (
     <Router>
-      <div className="app-layout font-inter bg-zinc-100 min-h-screen flex">
-        <Sidebar />
-        <div className="flex-1 flex flex-col p-2">
-          <div className="bg-white rounded-xl border border-zinc-200 flex-1 flex flex-col min-h-0 shadow-sm p-4">
-            <main className="flex-1 flex flex-col min-h-0">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/ai-agents" element={<AIAgents />} />
-                <Route path="/ai-agents/create" element={<CreateAssistant />} />
-                <Route path="/campaigns/create" element={<CreateCampaign />} />
-                <Route path="/campaigns" element={<Campaigns />} />
-                <Route
-                  path="/conversations"
-                  element={<Placeholder title="Conversations" />}
-                />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route
-                  path="/accounts-data"
-                  element={<Placeholder title="Accounts Data" />}
-                />
-                <Route
-                  path="/agent-portal"
-                  element={<Placeholder title="Agent Portal" />}
-                />
-                <Route
-                  path="/journeys"
-                  element={<Placeholder title="Journeys" />}
-                />
-                <Route
-                  path="/workflows"
-                  element={<Placeholder title="Workflows" />}
-                />
-              </Routes>
-            </main>
-          </div>
-        </div>
-      </div>
+      <Routes>
+        {/* Onboarding route is top-level, no sidebar */}
+        <Route path="/ai-agents/onboarding" element={<Onboarding />} />
+        {/* All other routes use the main app layout with sidebar */}
+        <Route
+          path="*"
+          element={
+            <div className="app-layout font-inter bg-zinc-100 min-h-screen flex">
+              <Sidebar />
+              <div className="flex-1 flex flex-col p-2">
+                <div className="bg-white rounded-xl border flex-1 flex flex-col min-h-0 p-4">
+                  <main className="flex-1 flex flex-col min-h-0">
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/ai-agents" element={<AIAgents />} />
+                      <Route
+                        path="/ai-agents/create"
+                        element={<CreateAssistant />}
+                      />
+                      <Route
+                        path="/campaigns/create"
+                        element={<CreateCampaign />}
+                      />
+                      <Route path="/campaigns" element={<Campaigns />} />
+                      <Route
+                        path="/conversations"
+                        element={<Placeholder title="Conversations" />}
+                      />
+                      <Route path="/analytics" element={<Analytics />} />
+                      <Route
+                        path="/accounts-data"
+                        element={<Placeholder title="Accounts Data" />}
+                      />
+                      <Route
+                        path="/agent-portal"
+                        element={<Placeholder title="Agent Portal" />}
+                      />
+                      <Route
+                        path="/journeys"
+                        element={<Placeholder title="Journeys" />}
+                      />
+                      <Route
+                        path="/workflows"
+                        element={<Placeholder title="Workflows" />}
+                      />
+                      <Route
+                        path="/recommendations"
+                        element={<Recommendations />}
+                      />
+                    </Routes>
+                  </main>
+                </div>
+              </div>
+            </div>
+          }
+        />
+      </Routes>
     </Router>
   );
 }
