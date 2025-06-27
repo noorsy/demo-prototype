@@ -10,6 +10,9 @@ import Analytics from "./Analytics";
 import Onboarding from "./Onboarding";
 import Dashboard from "./Dashboard";
 import Recommendations from "./Recommendations";
+import AccessManagement from "./AccessManagement";
+import InviteUser from "./InviteUser";
+import EditUser from "./EditUser";
 import "./App.css";
 
 const Placeholder = ({ title }) => (
@@ -68,6 +71,18 @@ function App() {
                       <Route
                         path="/recommendations"
                         element={<Recommendations />}
+                      />
+                      <Route
+                        path="/access-management"
+                        element={<AccessManagement />}
+                      />
+                      <Route
+                        path="/access-management/invite"
+                        element={<InviteUser />}
+                      />
+                      <Route
+                        path="/access-management/edit"
+                        element={<EditUser />}
                       />
                     </Routes>
                   </main>

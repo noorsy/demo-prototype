@@ -441,9 +441,9 @@ export default function CreateAssistant() {
   const [form, setForm] = useState({
     name: "Q2 Auto Loan Recovery",
     desc: "Automated campaign for Q2 auto loan collections.",
-    creditorName: "Acme Auto",
+    creditorName: "NuBank",
     creditorPhone: "+1 555-123-4567",
-    creditorEmail: "contact@acmeauto.com",
+    creditorEmail: "contact@nubank.com",
     creditorTimezone: "America/New_York",
     segment: "First-party",
     microSegment: "Auto Loan",

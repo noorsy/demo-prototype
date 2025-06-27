@@ -9,6 +9,7 @@ import {
   UserCheck,
   Workflow,
   ThumbsUp,
+  Users,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -35,6 +36,7 @@ const navLinks = [
   { icon: <UserCheck size={20} />, label: "Agent Portal", to: "/agent-portal" },
   { icon: <Workflow size={20} />, label: "Journeys", to: "/journeys" },
   { icon: <Workflow size={20} />, label: "Workflows", to: "/workflows" },
+  { icon: <Users size={20} />, label: "Access Management", to: "/access-management" },
 ];
 
 export default function Sidebar() {

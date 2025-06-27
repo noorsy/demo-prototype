@@ -392,9 +392,9 @@ const secondaryBtn =
 export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
-    creditorName: "Acme Auto",
+    creditorName: "NuBank",
     creditorPhone: "+1 555-123-4567",
-    creditorEmail: "contact@acmeauto.com",
+    creditorEmail: "contact@nubank.com",
     creditorTimezone: "America/New_York",
     segment: "First-party",
     microSegment: "Auto Loan",
@@ -467,7 +467,7 @@ export default function Onboarding() {
           <div className="max-w-2xl mx-auto text-center px-4">
             <div className="text-6xl mb-8">👋</div>
             <h1 className="text-4xl font-bold mb-4">
-              Welcome to skit.ai, {form.creditorName || "Acme Auto"}!
+              Welcome to skit.ai, {form.creditorName || "NuBank"}!
             </h1>
             <div className="text-xl text-gray-600 mb-8">
               We've customized Skit.ai for your needs.
