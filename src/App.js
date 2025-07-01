@@ -13,6 +13,7 @@ import Recommendations from "./Recommendations";
 import AccessManagement from "./AccessManagement";
 import InviteUser from "./InviteUser";
 import EditUser from "./EditUser";
+import SetupCreditor from "./SetupCreditor";
 import "./App.css";
 
 const Placeholder = ({ title }) => (
@@ -25,6 +26,8 @@ function App() {
       <Routes>
         {/* Onboarding route is top-level, no sidebar */}
         <Route path="/ai-agents/onboarding" element={<Onboarding />} />
+        {/* Setup Creditor route is also top-level, no sidebar */}
+        <Route path="/setup-creditor" element={<SetupCreditor />} />
         {/* All other routes use the main app layout with sidebar */}
         <Route
           path="*"

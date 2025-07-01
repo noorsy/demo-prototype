@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CheckCircleIcon,
@@ -6,6 +6,7 @@ import {
   FunnelIcon,
   ChatBubbleLeftRightIcon,
   UserCircleIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/24/solid";
 import logo from "./images/logo.png";
 
@@ -389,10 +390,337 @@ const primaryBtn =
 const secondaryBtn =
   "px-5 py-2 rounded-lg bg-zinc-200 text-zinc-900 font-inter text-sm font-semibold hover:bg-zinc-300 transition";
 
+// Place this outside the component, near the top of the file
+const attributeCategories = [
+  {
+    title: "I. Client Portfolio Data (Source: Client CRM / Lead File / Servicing System)",
+    groups: [
+      {
+        group: "A. Borrower & Co-Borrower Information",
+        items: [
+          "Primary Borrower Full Name",
+          "Primary Borrower Account Number / Client Internal ID",
+          "Primary Borrower Date of Birth / Age",
+          "Co-Borrower(s) Full Name(s) (if applicable)",
+          "Co-Borrower(s) Date(s) of Birth / Age(s) (if applicable)",
+          "Relationship between Borrowers (if known)",
+          "Language Preference (if known by client)",
+          "Vulnerable Customer Indicators (if provided by client, handle ethically)",
+          "Military Status / SCRA Protection Indicator (known by client)",
+          "Deceased Indicator (known by client)",
+          "Bankruptcy Filed Indicator (known by client, Chapter 7/13)",
+          "Cease & Desist / Litigious Customer Flag (from client system)",
+          "Fraud Indicator (from client system)",
+        ],
+      },
+      {
+        group: "B. Contact Information (Associated with Borrowers)",
+        items: [
+          "Primary Address (Street, City, State, ZIP)",
+          "Mailing Address (if different)",
+          "Garage Address (where vehicle is primarily kept, if different)",
+          "Address Type (Primary, Mailing, Previous, etc.)",
+          "Address Tenure (if known)",
+          "Primary Phone Number (Mobile)",
+          "Home Phone Number (Landline)",
+          "Work Phone Number",
+          "Other Phone Numbers on File",
+          "Phone Number Type (Mobile/Landline/Work designation by client)",
+          "Phone Number Source/Verification Notes (from client)",
+          "Primary Email Address",
+          "Secondary Email Address(es)",
+          "Email Address Source/Verification Notes (from client)",
+          "Client-defined Preferred Contact Method/Time (if available)",
+        ],
+      },
+      {
+        group: "C. Loan & Account Details (Core Auto Loan Data)",
+        items: [
+          "Loan Origination Date",
+          "Original Loan Amount",
+          "Current Outstanding Balance (Total)",
+          "Principal Balance",
+          "Accrued Interest Balance",
+          "Fees Balance (Late Fees, Other Fees)",
+          "Total Amount Due (Current Billing Cycle)",
+          "Past Due Amount",
+          "Days Past Due (DPD) - Critical",
+          "Loan Status in Client System (e.g., Delinquent, Grace, Pre-Charge Off, Pre-Repossession)",
+          "Original Loan Term (e.g., 60 months)",
+          "Remaining Loan Term (months)",
+          "Interest Rate / APR",
+          "Scheduled Monthly Payment Amount",
+          "Next Payment Due Date",
+          "Last Payment Date (Client System)",
+          "Last Payment Amount (Client System)",
+          "Payment Frequency (e.g., Monthly)",
+          "Billing Cycle Date",
+          "Grace Period Length (Days)",
+          "Loan Type / Product Code (e.g., New Auto Purchase, Used Auto Purchase, Refinance)",
+          "Security Type (Secured - Auto)",
+          "Account Open Date",
+        ],
+      },
+      {
+        group: "D. Collateral Details (Vehicle Information)",
+        items: [
+          "Vehicle Year",
+          "Vehicle Make",
+          "Vehicle Model",
+          "Vehicle Trim/Series",
+          "Vehicle Identification Number (VIN)",
+          "Vehicle License Plate Number & State (if known)",
+          "Original Vehicle Value / Purchase Price",
+          "Estimated Current Vehicle Value (if client provides updates, e.g., KBB/NADA)",
+          "Loan-to-Value (LTV) Ratio at Origination",
+          "Current Estimated LTV (if current value available)",
+          "GAP Insurance Coverage Indicator",
+          "Insurance Policy Information (Carrier, Policy #, Expiry - if tracked by client)",
+        ],
+      },
+      {
+        group: "E. Borrower Financial Profile (From Client Records)",
+        items: [
+          "Credit Score (e.g., FICO, VantageScore) at Origination",
+          "Updated Credit Score (if client performs periodic reviews and provides)",
+          "Client Internal Credit Tier/Grade at Origination",
+          "Stated Income at Origination",
+          "Verified Income at Origination (if applicable)",
+          "Employment Status at Origination",
+          "Employer Name at Origination (if known)",
+          "Debt-to-Income (DTI) Ratio at Origination",
+          "Payment Method on File (e.g., ACH, Card, Coupon Book)",
+          "Autopay / Recurring Payment Enrollment Status",
+        ],
+      },
+      {
+        group: "F. Account History & Client Operations Data",
+        items: [
+          "Payment History Rating (Client internal score, e.g., # times 30/60/90 DPD)",
+          "History of Returned Payments / NSF (Non-Sufficient Funds)",
+          "History of Broken Promises (Tracked in client system)",
+          "Date Account Placed into Collections / Assigned to Platform",
+          "Delinquency Reason Code (if provided by client)",
+          "Previous Collection Efforts / Notes (Summary or key flags if provided by client)",
+          "Client-defined Risk Score / Segmentation Code",
+          "Number of Previous Loan Modifications/Forbearances",
+          "Date of Last Loan Modification/Forbearance",
+          "Hardship Program Enrollment Status (in client system)",
+          "Repossession Status / History (if previously repossessed & reinstated)",
+          "Cosigner Delinquency History (if tracked separately by client)",
+        ],
+      },
+    ],
+  },
+  {
+    title: "II. Internal Interaction History (Source: Our AI Platform)",
+    groups: [
+      {
+        group: "A. Contact Attempt & Connectivity Metrics",
+        items: [
+          "Total Contact Attempts (Platform Lifetime)",
+          "Contact Attempts by Channel (Voice, SMS, Email)",
+          "Contact Attempts by Phone Number / Email Address",
+          "Contact Attempts by Day of Week",
+          "Contact Attempts by Time of Day (Hourly Buckets)",
+          "Date/Time of Last Attempt (Overall & by Channel)",
+          "Voice Call Outcome History (Answered, Busy, No Answer, Voicemail, Failed, System Error)",
+          "Answer Machine Detection (AMD) Results History",
+          "Right Party Contact (RPC) Success Rate (Overall & per Number)",
+          "Date/Time of Last Successful RPC",
+          "Voicemail Drop Success/Failure History",
+          "SMS Delivery Status History (Delivered, Failed, Unknown) per Number",
+          "SMS Delivery Error Codes (if available)",
+          "Email Delivery Status History (Sent, Delivered, Bounced, Spam Complaint) per Address",
+          "Email Bounce Reason Codes (Hard/Soft)",
+          "Connectivity Score per Contact Point (Phone/Email)",
+        ],
+      },
+      {
+        group: "B. Engagement & Responsiveness Metrics",
+        items: [
+          "Total Successful Conversations (Platform Lifetime)",
+          "Date/Time of Last Successful Conversation",
+          "Average Conversation Duration (Overall & RPC)",
+          "Longest Conversation Duration",
+          "Conversation Containment Rate (Handled by Bot vs. Escalated)",
+          "SMS Response Received (Yes/No History)",
+          "SMS Response Rate (Responses / Delivered Messages)",
+          "Email Open Rate History (Requires tracking pixel)",
+          "Email Click-Through Rate History (If links used & tracked)",
+          "Inbound Call Received (Yes/No History)",
+          "Inbound SMS Received (Yes/No History)",
+          "Inbound Email Received (Yes/No History)",
+          "Inferred Best Time to Contact (Based on successful interactions)",
+          "Inferred Best Channel to Contact (Based on successful interactions/responses)",
+          "Channel Responsiveness Score (Propensity to engage on Voice/SMS/Email)",
+          "Authentication Success Rate History",
+          "Date/Time of Last Successful Authentication",
+        ],
+      },
+      {
+        group: "C. Payment & Promise History (within Platform)",
+        items: [
+          "Number of Promises-to-Pay (PTP) Secured via Platform",
+          "Date/Time of Last PTP Secured",
+          "Amount of Last PTP Secured",
+          "Number of PTPs Kept (Payment received matching PTP terms)",
+          "Number of PTPs Broken",
+          "PTP Kept Rate (Platform specific)",
+          "Number of Payments Processed via Platform (if applicable)",
+          "Total Amount Collected via Platform (if applicable)",
+          "Date/Time of Last Payment via Platform",
+          "Payment Methods Used via Platform (if applicable)",
+        ],
+      },
+      {
+        group: "D. Conversational Insights (Platform Derived)",
+        items: [
+          "Historical Sentiment Score Trend (Positive/Negative/Neutral)",
+          "Detected Language History (if multilingual)",
+          "Frequency of Key Topics Mentioned (e.g., 'Payment', 'Hardship', 'Dispute', 'Vehicle', 'Insurance', 'Repossession')",
+          "Escalation History (# times escalated, reason codes if tracked)",
+          "Bot Version History interacted with",
+          "Specific Prompts/Flows Encountered History",
+        ],
+      },
+    ],
+  },
+  {
+    title: "III. External Enrichment Data (Source: Third-Party Providers & Public Records)",
+    groups: [
+      {
+        group: "A. Contact Data Validation & Enhancement",
+        items: [
+          "Phone Number Validation (Active/Inactive/Disconnected Status, Confidence Score)",
+          "Phone Number Type Identification (Mobile, Landline, VoIP, Business - Updated)",
+          "Phone Number Carrier & Original Provider Information",
+          "Phone Porting Status & Date",
+          "Do Not Call (DNC) Registry Status Check (Federal & State)",
+          "Phone Number Association Score to Individual/Address",
+          "Additional Phone Numbers Associated with Borrower/Address (Scored for likelihood)",
+          "Email Address Validation (Valid/Invalid/Risky/Accept-All, Syntax Check, Domain Check)",
+          "Email Address Hygiene (Known Spam Trap, Disposable Domain, Role Account)",
+          "Email Address Association Score to Individual",
+          "Additional Email Addresses Associated with Borrower (Scored for likelihood)",
+          "Address Verification / Standardization (CASS Certified, DPV, LACSLink)",
+          "Address Type (Residential, Business, PO Box, CMRA)",
+          "Address Deliverability Score / Vacancy Indicator",
+          "Address Change History / National Change of Address (NCOA) Linkage (Usually requires license)",
+          "Address Tenure / Length of Residence (Modeled)",
+          "Geocoding (Latitude/Longitude Coordinates)",
+          "Time Zone Identification based on verified Address/Phone",
+        ],
+      },
+      {
+        group: "B. Identity Verification & Contextual Data",
+        items: [
+          "Identity Verification Score / Confidence Level",
+          "Alias / Name Variation Information (AKAs, maiden names)",
+          "Date of Birth Verification / Range",
+          "Deceased Indicator Scrub (e.g., SSDI Match, State/Local Records - Verified)",
+          "Active Military Duty Scrub (SCRA Database Match - Verified)",
+          "Possible Relatives / Associates & Relationship Type (for skip tracing context)",
+          "Household Composition / Number of Adults/Children (Modeled)",
+          "Professional Licenses Held & Status (Public Records)",
+          "Voter Registration Information (Public Records)",
+          "Global Watchlist / Sanctions Screening (e.g., OFAC)",
+          "Incarceration Status Check (Public Records)",
+          "Social Media Profile Links (Publicly available - e.g., LinkedIn, sometimes others via providers like Spokeo) - Use ethically",
+          "Domain Name Registrations (Public Records)",
+        ],
+      },
+      {
+        group: "C. Property & Asset Indicators (Public Records & Modeled)",
+        items: [
+          "Home Ownership Indicator (Owner/Renter Status)",
+          "Property Ownership Records (Address, Assessed Value, Purchase Date/Price - Public)",
+          "Mortgage Holder Information (Lender Name, Estimated Loan Amount/Date - Public Records)",
+          "Number of Properties Owned",
+          "Property Type (Single Family, Condo, Multi-Family)",
+          "Property Characteristics (Square Footage, Year Built, Beds/Baths - Public Records)",
+          "Estimated Home Equity (Modeled)",
+          "Property Foreclosure Status / History (Public Records)",
+          "Property Tax Delinquency Status (Public Records)",
+          "Other Vehicle Registrations (Make, Model, Year - Public Records, State specific)",
+          "Watercraft / Boat Registrations (Public Records)",
+          "Aircraft Registrations (Public Records)",
+          "UCC Filings (Indicates other secured debts/assets - Public)",
+        ],
+      },
+      {
+        group: "D. Financial & Risk Indicators (Non-FCRA - Modeled or Public)",
+        items: [
+          "Estimated Income Model Score / Range (Often based on demographics, location, profession)",
+          "Estimated Salary Status / Range (Modeled, potentially inferred from job title/industry)",
+          "Employment Status Likelihood (Employed/Unemployed - Modeled)",
+          "Employer Name / Industry Type (Modeled or from self-reported sources like LinkedIn if available)",
+          "Propensity to Pay Score (Vendor-specific model predicting likelihood to resolve debt)",
+          "Collections Propensity Score (Likelihood of account needing collections)",
+          "Financial Stability Score (Vendor-specific model)",
+          "Economic Hardship Indicator Score (Modeled based on geo-demographics, etc.)",
+          "Wealth Indicator Score / Affluence Rating (Modeled)",
+          "Liens / Judgments Records (Dollar Amount, Filing Date - Public)",
+          "Civil Litigation Search Results (Plaintiff/Defendant - Public)",
+          "Corporate Affiliations / Business Ownership (Public Records)",
+          "Net Worth Estimate (Modeled)",
+          "Disposable Income Estimate (Modeled)",
+          "Presence of Derogatory Public Records (Summary flag)",
+        ],
+      },
+      {
+        group: "E. Behavioral & Contact Strategy Indicators (Vendor Models)",
+        items: [
+          "Best Time to Contact Score/Recommendation (Day of Week, Time of Day - e.g., TransUnion Contact Optimization)",
+          "Best Channel Preference Score (Voice vs. SMS vs. Email - Modeled)",
+          "Contact Frequency Recommendation (Modeled tolerance)",
+          "Likelihood to Answer Phone Score",
+          "Likelihood to Respond to SMS/Email Score",
+          "Communication Style Preference (e.g., Direct vs. Empathetic - Modeled, experimental)",
+          "Propensity for Self-Service / Digital Engagement Score",
+        ],
+      },
+      {
+        group: "F. Financial & Risk Indicators (FCRA Data - Requires Permissible Purpose)",
+        items: [
+          "Updated Credit Score / Range (e.g., FICO, VantageScore - if PP exists)",
+          "Credit Score Trend (Improving/Declining - if PP exists)",
+          "Bankruptcy Public Filings & Status (Verified - Chapter 7/13, Discharge/Dismissal)",
+          "Updated Tradeline Summary (e.g., Number of open/closed accounts, Total balance, Utilization - if PP exists)",
+          "Presence/Severity of Other Delinquencies (30/60/90+ DPD on other accounts - if PP exists)",
+          "Presence of Accounts in Collections (Other debts - if PP exists)",
+          "Credit Inquiry History (Number/type of recent inquiries - if PP exists)",
+          "Thin File / No Hit Indicator (Lack of credit history - if PP exists)",
+        ],
+      },
+    ],
+  },
+  {
+    title: "IV. Real-time Interaction Data (Source: Live Conversation Analysis)",
+    groups: [
+      {
+        group: "A. Real-time Interaction Data",
+        items: [
+          "Current Channel of Interaction (Voice, SMS, Email)",
+          "Live Sentiment Detection Score (Per utterance/message)",
+          "Live Emotion Detection (e.g., Anger, Frustration, Cooperation - Voice specific)",
+          "Live Keyword Spotting (Specific terms triggering rules/flows)",
+          "Speech Rate / Pace (Voice)",
+          "Silence / Hesitation Duration (Voice)",
+          "Background Noise Level / Type (Voice - call quality/environment indicator)",
+          "Caller Authentication Status (During call)",
+          "Current Step/Intent in Conversational Flow",
+          "Real-time System Confidence Score (e.g., NLU confidence)",
+        ],
+      },
+    ],
+  },
+];
+
 export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
-    creditorName: "NuBank",
+    creditorName: "",
     creditorPhone: "+1 555-123-4567",
     creditorEmail: "contact@nubank.com",
     creditorTimezone: "America/New_York",
@@ -414,6 +742,37 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [segments, setSegments] = useState(actualSegments);
   const [selectedDPD, setSelectedDPD] = useState("Early Stage");
+  const [showAllAttributes, setShowAllAttributes] = useState(false);
+  const [currentAttributes, setCurrentAttributes] = useState(attributes);
+  const [currentRecommendedAttributes, setCurrentRecommendedAttributes] = useState(recommendedAttributes);
+
+  useEffect(() => {
+    const storedName = localStorage.getItem("creditorName");
+    const storedEmail = localStorage.getItem("creditorEmail");
+    if (storedName) {
+      setForm(f => ({ 
+        ...f, 
+        creditorName: storedName,
+        creditorEmail: storedEmail || `contact@${storedName.toLowerCase().replace(/\s+/g, '')}.com`
+      }));
+    } else {
+      window.location.href = "/setup-creditor";
+    }
+  }, []);
+
+  // Function to add attribute to mandatory list
+  const addToMandatory = (attribute) => {
+    if (!currentAttributes.find(attr => attr.name === attribute.name)) {
+      setCurrentAttributes([...currentAttributes, { ...attribute, mandatory: true }]);
+    }
+  };
+
+  // Function to add attribute to recommended list
+  const addToRecommended = (attribute) => {
+    if (!currentRecommendedAttributes.find(attr => attr.name === attribute.name)) {
+      setCurrentRecommendedAttributes([...currentRecommendedAttributes, { ...attribute, mandatory: false }]);
+    }
+  };
 
   // Update steps: add Segments step after AI Magic
   const onboardingSteps = [
@@ -733,6 +1092,26 @@ export default function Onboarding() {
                   </div>
                   {/* Attributes Section */}
                   <div className="mb-6">
+                    {/* Info Banner for Attributes */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                      <div className="flex items-start">
+                        <div className="flex-shrink-0">
+                          <InformationCircleIcon className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="ml-3 flex-1">
+                          <h4 className="text-sm font-medium text-blue-900 mb-1">
+                            💡 Pro Tip: More Attributes = Better AI Predictions
+                          </h4>
+                          <p className="text-sm text-blue-700 mb-3">
+                            We are only showing a limited set of attributes here, but there are <strong>200+ more attributes</strong> available. The more attributes you provide, the better our AI algorithm can predict user patterns, create more accurate segments, and deliver personalized collection strategies for optimal results.
+                          </p>
+                          <button className="text-xs bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors font-medium">
+                            View All Available Attributes
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <h3 className="text-base font-semibold mb-1">
                       Required Attributes
                     </h3>
@@ -740,6 +1119,7 @@ export default function Onboarding() {
                       These attributes are required for onboarding your
                       accounts.
                     </div>
+                    
                     <table className="min-w-full border-separate border-spacing-y-2 font-inter text-sm mb-4">
                       <thead>
                         <tr className="bg-zinc-50 text-zinc-700 text-sm">
@@ -751,7 +1131,7 @@ export default function Onboarding() {
                         </tr>
                       </thead>
                       <tbody>
-                        {attributes.map((attr) => (
+                        {currentAttributes.map((attr) => (
                           <tr
                             key={attr.name}
                             className="bg-zinc-50 hover:bg-blue-50 transition rounded-xl"
@@ -790,7 +1170,7 @@ export default function Onboarding() {
                         </tr>
                       </thead>
                       <tbody>
-                        {recommendedAttributes.map((attr) => (
+                        {currentRecommendedAttributes.map((attr) => (
                           <tr
                             key={attr.name}
                             className="bg-zinc-50 hover:bg-blue-50 transition rounded-xl"
@@ -1061,6 +1441,114 @@ export default function Onboarding() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {showAllAttributes && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold">All Available Attributes</h2>
+                  <p className="text-blue-100 mt-1">Browse and add attributes to your mandatory or recommended lists</p>
+                </div>
+                <button
+                  className="text-white hover:text-blue-200 transition-colors p-2"
+                  onClick={() => setShowAllAttributes(false)}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="overflow-y-auto max-h-[calc(90vh-120px)] p-6">
+              {attributeCategories.map((category, catIndex) => (
+                <div key={category.title} className="mb-8">
+                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{category.title}</h3>
+                    <p className="text-sm text-gray-600">
+                      {category.title.includes("Client Portfolio") && "Data from your CRM, lead files, and servicing systems"}
+                      {category.title.includes("Internal Interaction") && "Data generated through our AI platform interactions"}
+                      {category.title.includes("External Enrichment") && "Data from third-party providers and public records"}
+                      {category.title.includes("Real-time Interaction") && "Data captured during live conversations"}
+                    </p>
+                  </div>
+
+                  {category.groups.map((group, groupIndex) => (
+                    <div key={group.group} className="mb-6 bg-white border border-gray-200 rounded-lg overflow-hidden">
+                      <div className="bg-gray-100 px-4 py-3 border-b border-gray-200">
+                        <h4 className="font-medium text-gray-800">{group.group}</h4>
+                      </div>
+                      <div className="divide-y divide-gray-100">
+                        {group.items.map((item, itemIndex) => {
+                          const isInMandatory = currentAttributes.find(attr => attr.name === item);
+                          const isInRecommended = currentRecommendedAttributes.find(attr => attr.name === item);
+                          
+                          return (
+                            <div key={item} className="px-4 py-3 hover:bg-gray-50 transition-colors">
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                  <div className="font-medium text-gray-900 text-sm">{item}</div>
+                                  {isInMandatory && (
+                                    <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-1">
+                                      ✓ Added to Mandatory
+                                    </span>
+                                  )}
+                                  {isInRecommended && !isInMandatory && (
+                                    <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mt-1">
+                                      ✓ Added to Recommended
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex gap-2 ml-4">
+                                  {!isInMandatory && (
+                                    <button
+                                      onClick={() => addToMandatory({ name: item, desc: item, mandatory: true })}
+                                      className="px-3 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition-colors"
+                                    >
+                                      Add to Mandatory
+                                    </button>
+                                  )}
+                                  {!isInRecommended && (
+                                    <button
+                                      onClick={() => addToRecommended({ name: item, desc: item, mandatory: false })}
+                                      className="px-3 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors"
+                                    >
+                                      Add to Recommended
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  <span className="font-medium">{currentAttributes.length}</span> Mandatory • 
+                  <span className="font-medium"> {currentRecommendedAttributes.length}</span> Recommended
+                </div>
+                <button
+                  onClick={() => setShowAllAttributes(false)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -244,10 +244,62 @@ function AIMagic({ tasks, onComplete }) {
 
 // Mock segments and journey for step 4
 const mockSegments = [
-  { name: "High Value Early", accounts: 1200 },
-  { name: "Repeat Early", accounts: 800 },
-  { name: "Mid Risk", accounts: 650 },
-  { name: "Late Stage", accounts: 300 },
+  { 
+    name: "SEG0: Vulnerable / Special Handling", 
+    accounts: 150,
+    logic: 'Vulnerability_Flag IS TRUE OR account_notes CONTAIN keywords ("hardship", "illness", "dispute bureau", etc.)',
+    characteristics: "Customer facing significant personal challenges; potential compliance/reputational risk.",
+    focus: "Understanding, empathy, offering support/options, pausing standard collections."
+  },
+  { 
+    name: "SEG1: High Priority - Broken Promises (PTP Failures)", 
+    accounts: 320,
+    logic: "Number_of_Broken_PTPs_Last_6_Months >= 1 AND Days_Since_Last_Broken_PTP <= 7 (or other short timeframe)",
+    characteristics: "Explicit commitment made and not met recently. Potentially willing but facing new obstacles.",
+    focus: "Direct, reference broken promise, understand reason, secure new firm commitment, reiterate importance."
+  },
+  { 
+    name: "SEG2: High Potential / Active Engagement", 
+    accounts: 450,
+    logic: "Last_Customer_Response_Channel IS NOT NULL AND Days_Since_Last_Customer_Response <= 5 AND Last_Customer_Response_Sentiment IS Positive/Neutral",
+    characteristics: "Recently engaged with client, potentially showing willingness to resolve.",
+    focus: "Conversational, reference prior interaction, easy payment options, gratitude for engagement."
+  },
+  { 
+    name: "SEG3: Forgetful / Early Stage Delinquency", 
+    accounts: 1200,
+    logic: "DPD >= 5 AND DPD <= 30 AND Number_of_Broken_PTPs_Last_12_Months == 0 AND (Payment_History_Shows_Previous_On_Time_Payments OR Client_Risk_Score IS Low OR Client_Risk_Score IS NULL)",
+    characteristics: "Likely good payers who missed a payment. Low history of delinquency. No recent high-risk flags.",
+    focus: 'Gentle, helpful reminders. "Looks like your payment is overdue. Pay easily here..."'
+  },
+  { 
+    name: "SEG4: Repeat Offenders / Consistent Late Payers", 
+    accounts: 800,
+    logic: "(DPD > 30) AND (Number_of_Previous_Delinquency_Cycles_Last_12_Months >= 2-3 OR Payment_History_Shows_Sporadic_Payments) OR (Number_of_Broken_PTPs_Last_12_Months >= 2 but not recent)",
+    characteristics: "History of multiple delinquencies or broken promises over time.",
+    focus: "More direct about overdue status, consequences (compliant), focus on payment plan or firm PTP."
+  },
+  { 
+    name: "SEG5: High Risk / Significant Delinquency (Non-PTP Breakers)", 
+    accounts: 650,
+    logic: "(Client_Risk_Score IS High OR DPD > 60) AND NOT IN SEG1",
+    characteristics: "Represents higher risk due to client scoring or prolonged delinquency, without a recent PTP break.",
+    focus: "Professional, understand situation, negotiate payment plans/settlements, assertiveness based on risk/DPD."
+  },
+  { 
+    name: "SEG6: Long-Term Low Engagement", 
+    accounts: 300,
+    logic: "Days_Since_Last_Customer_Response > 60 AND DPD > 120 AND NOT IN SEG0 or SEG1",
+    characteristics: "Significantly past due with no recent engagement for an extended period.",
+    focus: "Standard reminder messages; less personalization. Focus on re-engagement."
+  },
+  { 
+    name: "SEG7: General Delinquency (Catch-All)", 
+    accounts: 950,
+    logic: "Accounts not fitting other segments AND DPD > Minimum_DPD_for_Action (e.g., 1 day)",
+    characteristics: "Delinquent but doesn't meet specific criteria of other prioritized segments.",
+    focus: "Standard collection messaging, tone adjusted primarily by DPD."
+  },
 ];
 
 // Custom node component for journey
