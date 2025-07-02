@@ -28,7 +28,8 @@ const steps = [
     title: "Column Mapping",
     desc: "Map your data columns to the required system columns for campaign processing..",
   },
-  { title: "", desc: "" },
+  { title: "AI Analysis", desc: "AI is analyzing your portfolio data to create intelligent segments." },
+  { title: "Segmentation Mapping", desc: "Review AI-generated segments and handle unmatched accounts." },
   { title: "Segments & Journey", desc: "Review segments and journey." },
   { title: "Schedule", desc: "Set campaign schedule." },
 ];
@@ -910,6 +911,403 @@ function renderTimelineCard(event) {
   return null;
 }
 
+// Segmentation Results Component
+function SegmentationResults({ segments, unmatchedAccounts, onCreateSegment, onApplyDefault }) {
+  const totalAccounts = segments.reduce((sum, seg) => sum + seg.accounts, 0) + unmatchedAccounts.length;
+  const matchedAccounts = segments.reduce((sum, seg) => sum + seg.accounts, 0);
+  
+  // AI Recommendations for segment enhancements and new segments
+  const aiRecommendations = {
+    segmentEnhancements: [
+      {
+        segmentName: "SEG3: Forgetful / Early Stage Delinquency",
+        currentLogic: "DPD >= 5 AND DPD <= 30 AND Number_of_Broken_PTPs_Last_12_Months == 0",
+        suggestedEnhancement: "Include accounts with DPD 1-4 days and good payment history",
+        accountsToInclude: 320
+      },
+      {
+        segmentName: "SEG2: High Potential / Active Engagement",
+        currentLogic: "Last_Customer_Response_Channel IS NOT NULL AND Days_Since_Last_Customer_Response <= 5",
+        suggestedEnhancement: "Extend to accounts with responses within 10 days and positive sentiment",
+        accountsToInclude: 180
+      }
+    ],
+    newSegmentSuggestions: [
+      {
+        name: "SEG8: New Customer / First-Time Delinquent",
+        logic: "DPD >= 1 AND DPD <= 15 AND has_payment_history == false AND previous_engagement == false",
+        accounts: 450,
+        characteristics: "First-time customers who missed their first payment",
+        focus: "Educational approach, payment reminders, account setup assistance"
+      },
+      {
+        name: "SEG9: Self-Employed / Variable Income",
+        logic: "employment_status == 'Self-employed' AND income_level == 'Variable' AND DPD >= 10",
+        accounts: 280,
+        characteristics: "Self-employed individuals with irregular income patterns",
+        focus: "Flexible payment plans, income-based scheduling, understanding approach"
+      },
+      {
+        name: "SEG10: High Credit Score / Low Risk",
+        logic: "credit_score >= 700 AND risk_score == 'Low' AND DPD <= 30",
+        accounts: 350,
+        characteristics: "High credit score customers with temporary financial hiccups",
+        focus: "Gentle reminders, premium service approach, quick resolution"
+      }
+    ]
+  };
+  
+  return (
+    <div className="w-full max-w-6xl mx-auto">
+      {/* Summary Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
+          <div className="text-2xl font-bold text-zinc-900">{totalAccounts.toLocaleString()}</div>
+          <div className="text-sm text-zinc-500">Total Accounts</div>
+        </div>
+        <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
+          <div className="text-2xl font-bold text-green-600">{matchedAccounts.toLocaleString()}</div>
+          <div className="text-sm text-zinc-500">Matched with Existing Segments</div>
+        </div>
+        <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
+          <div className="text-2xl font-bold text-orange-600">{unmatchedAccounts.length}</div>
+          <div className="text-sm text-zinc-500">Unmatched Accounts</div>
+        </div>
+      </div>
+
+      {/* AI Recommendations */}
+      {unmatchedAccounts.length > 0 && (
+        <div className="space-y-6">
+          {/* Header Box */}
+          <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 bg-zinc-100 rounded-full flex items-center justify-center">
+                <SparklesIcon className="w-5 h-5 text-zinc-600" />
+              </div>
+              <div className="text-lg font-semibold text-zinc-900">
+                {unmatchedAccounts.length} accounts need segmentation
+              </div>
+            </div>
+            <div className="text-sm text-zinc-600 ml-11">
+              Here are our recommendations to handle these accounts:
+            </div>
+          </div>
+          
+          {/* Segment Enhancements Box */}
+          <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+              <div className="text-sm font-semibold text-zinc-900">
+                Enhance existing segments for 500 accounts
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {aiRecommendations.segmentEnhancements.map((enhancement, idx) => (
+                <div key={idx} className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div className="font-medium text-blue-900 text-sm">{enhancement.segmentName}</div>
+                      <div className="text-xs text-blue-700 mt-1">
+                        <span className="font-medium">Current:</span> {enhancement.currentLogic}
+                      </div>
+                      <div className="text-xs text-blue-700 mt-1">
+                        <span className="font-medium">Suggested:</span> {enhancement.suggestedEnhancement}
+                      </div>
+                    </div>
+                    <div className="text-right ml-3">
+                      <div className="text-base font-bold text-blue-900">{enhancement.accountsToInclude}</div>
+                      <div className="text-xs text-blue-600">accounts</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-semibold hover:bg-blue-700 transition">
+                      Apply Enhancement
+                    </button>
+                    <button className="px-2 py-1.5 bg-zinc-100 text-zinc-600 rounded text-xs hover:bg-zinc-200 transition" title="Push to Default Segment">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* New Segment Suggestions Box */}
+          <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </div>
+              <div className="text-sm font-semibold text-zinc-900">
+                Create new segments for 1,080 accounts
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {aiRecommendations.newSegmentSuggestions.map((suggestion, idx) => (
+                <div key={idx} className="bg-green-50 rounded-lg p-3 border border-green-200">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div className="font-medium text-green-900 text-sm">{suggestion.name}</div>
+                      <div className="text-xs text-green-700 mt-1">{suggestion.characteristics}</div>
+                    </div>
+                    <div className="text-right ml-3">
+                      <div className="text-base font-bold text-green-900">{suggestion.accounts}</div>
+                      <div className="text-xs text-green-600">accounts</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-green-800 bg-green-100 rounded p-2 mb-2">
+                    <span className="font-medium">Focus:</span> {suggestion.focus}
+                  </div>
+                  <div className="text-xs text-green-600 mb-2">
+                    <span className="font-medium">Logic:</span> {suggestion.logic}
+                  </div>
+                  <div className="flex gap-2">
+                    <button className="px-3 py-1.5 bg-green-600 text-white rounded text-xs font-semibold hover:bg-green-700 transition">
+                      Create Segment
+                    </button>
+                    <button className="px-2 py-1.5 bg-zinc-100 text-zinc-600 rounded text-xs hover:bg-zinc-200 transition" title="Push to Default Segment">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Sample Unmatched Accounts Table */}
+          <div className="overflow-x-auto">
+            <div className="bg-white rounded-lg border border-zinc-200 shadow-sm">
+              <div className="px-4 py-3 border-b border-zinc-200">
+                <div className="text-base font-semibold text-zinc-900">Preview - Unmatched Accounts</div>
+                <div className="text-xs text-zinc-500 mt-1">Showing first 10 of {unmatchedAccounts.length} accounts</div>
+              </div>
+              <table className="min-w-full text-xs">
+                <thead>
+                  <tr className="bg-zinc-50 text-zinc-700 border-b border-zinc-200">
+                    <th className="px-4 py-2 text-left font-semibold">Account ID</th>
+                    <th className="px-4 py-2 text-left font-semibold">Customer Name</th>
+                    <th className="px-4 py-2 text-left font-semibold">Amount Due</th>
+                    <th className="px-4 py-2 text-left font-semibold">DPD</th>
+                    <th className="px-4 py-2 text-left font-semibold">Product</th>
+                    <th className="px-4 py-2 text-left font-semibold">Risk Score</th>
+                    <th className="px-4 py-2 text-left font-semibold">Reason</th>
+                    <th className="px-4 py-2 text-left font-semibold">Recommended Segment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {unmatchedAccounts.slice(0, 10).map((acc, index) => {
+                    // Generate realistic customer names
+                    const customerNames = [
+                      "Sarah Johnson", "Michael Chen", "Emily Rodriguez", "David Thompson", "Lisa Wang",
+                      "James Wilson", "Maria Garcia", "Robert Brown", "Jennifer Lee", "Christopher Davis"
+                    ];
+                    
+                    // Generate recommended segments based on account characteristics
+                    const getRecommendedSegment = (account) => {
+                      if (account.dpd <= 4 && account.risk_score === 'Low') {
+                        return "SEG3 Enhancement";
+                      } else if (account.previous_engagement && account.dpd <= 10) {
+                        return "SEG2 Enhancement";
+                      } else if (!account.has_payment_history && account.dpd <= 15) {
+                        return "SEG8: New Customer";
+                      } else if (account.employment_status === 'Self-employed') {
+                        return "SEG9: Self-Employed";
+                      } else if (account.credit_score >= 700 && account.risk_score === 'Low') {
+                        return "SEG10: High Credit Score";
+                      } else {
+                        return "Default Segment";
+                      }
+                    };
+                    
+                    return (
+                      <tr key={acc.account_id} className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors">
+                        <td className="px-4 py-2 font-medium text-zinc-900">{acc.account_id}</td>
+                        <td className="px-4 py-2 text-zinc-900">{customerNames[index]}</td>
+                        <td className="px-4 py-2 text-zinc-900">${acc.amount_due.toLocaleString()}</td>
+                        <td className="px-4 py-2 text-zinc-900">{acc.dpd}</td>
+                        <td className="px-4 py-2 text-zinc-900">{acc.product_name}</td>
+                        <td className="px-4 py-2">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                            acc.risk_score === 'High' ? 'bg-red-100 text-red-700' :
+                            acc.risk_score === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-green-100 text-green-700'
+                          }`}>
+                            {acc.risk_score}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2 text-zinc-600">{acc.reason}</td>
+                        <td className="px-4 py-2">
+                          <span className="px-2 py-0.5 bg-zinc-100 text-zinc-700 rounded-full text-xs font-semibold">
+                            {getRecommendedSegment(acc)}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+     
+    </div>
+  );
+}
+
+// Create Segment Modal Component
+function CreateSegmentModal({ isOpen, onClose, onCreateSegment, unmatchedAccounts }) {
+  const [segmentName, setSegmentName] = useState("");
+  const [segmentLogic, setSegmentLogic] = useState("");
+  const [selectedAccounts, setSelectedAccounts] = useState([]);
+
+  const handleCreate = () => {
+    if (segmentName && segmentLogic) {
+      onCreateSegment({
+        name: segmentName,
+        logic: segmentLogic,
+        accounts: selectedAccounts.length,
+        characteristics: `Custom segment for ${selectedAccounts.length} accounts`,
+        focus: "Custom strategy"
+      });
+      setSegmentName("");
+      setSegmentLogic("");
+      setSelectedAccounts([]);
+      onClose();
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-60">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-4xl max-h-[90vh] overflow-auto">
+        <div className="flex justify-between items-center mb-6">
+          <div className="text-2xl font-bold text-zinc-900">Create New Segment</div>
+          <button
+            className="text-zinc-400 hover:text-zinc-900 text-3xl"
+            onClick={onClose}
+          >
+            &times;
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Left: Segment Details */}
+          <div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Segment Name</label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g., SEG8: Custom Segment"
+                value={segmentName}
+                onChange={(e) => setSegmentName(e.target.value)}
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Segment Logic</label>
+              <textarea
+                className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+                placeholder="Define the logic for this segment..."
+                value={segmentLogic}
+                onChange={(e) => setSegmentLogic(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Segment Focus</label>
+              <textarea
+                className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Describe the collection strategy for this segment..."
+                defaultValue="Custom collection strategy based on account characteristics"
+              />
+            </div>
+          </div>
+
+          {/* Right: Account Selection */}
+          <div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">
+                Select Accounts ({selectedAccounts.length} selected)
+              </label>
+              <div className="max-h-60 overflow-y-auto border border-zinc-200 rounded-md">
+                {unmatchedAccounts.map((acc) => (
+                  <label key={acc.account_id} className="flex items-center gap-2 p-2 hover:bg-zinc-50 border-b border-zinc-100 last:border-b-0">
+                    <input
+                      type="checkbox"
+                      checked={selectedAccounts.includes(acc.account_id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedAccounts([...selectedAccounts, acc.account_id]);
+                        } else {
+                          setSelectedAccounts(selectedAccounts.filter(id => id !== acc.account_id));
+                        }
+                      }}
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-sm">{acc.customer_name}</div>
+                      <div className="text-xs text-zinc-500">
+                        {acc.account_id} • ${acc.amount_due.toLocaleString()} • DPD: {acc.dpd}
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-zinc-50 rounded-lg p-4">
+              <div className="text-sm font-medium text-zinc-900 mb-2">Quick Actions</div>
+              <div className="flex gap-2">
+                <button
+                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200"
+                  onClick={() => setSelectedAccounts(unmatchedAccounts.map(acc => acc.account_id))}
+                >
+                  Select All
+                </button>
+                <button
+                  className="px-3 py-1 bg-zinc-100 text-zinc-700 rounded text-xs font-semibold hover:bg-zinc-200"
+                  onClick={() => setSelectedAccounts([])}
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-zinc-200">
+          <button
+            className="px-4 py-2 bg-zinc-200 text-zinc-700 rounded-lg font-semibold hover:bg-zinc-300"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
+            onClick={handleCreate}
+            disabled={!segmentName || !segmentLogic || selectedAccounts.length === 0}
+          >
+            Create Segment
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CreateCampaign() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
@@ -944,6 +1342,11 @@ export default function CreateCampaign() {
   const [modalSegment, setModalSegment] = useState(null);
   const [showInspectModal, setShowInspectModal] = useState(false);
   const [inspectAccount, setInspectAccount] = useState(null);
+  const [unmatchedAccounts, setUnmatchedAccounts] = useState([]);
+  const [showCreateSegmentModal, setShowCreateSegmentModal] = useState(false);
+  const [newSegmentName, setNewSegmentName] = useState("");
+  const [newSegmentLogic, setNewSegmentLogic] = useState("");
+  const [customSegments, setCustomSegments] = useState([]);
 
   function handleNext() {
     if (step === 2) {
@@ -999,6 +1402,27 @@ export default function CreateCampaign() {
     missed_installments: Math.floor(Math.random() * 6),
     risk_score: ["Low", "Medium", "High"][i % 3],
   }));
+
+  const handleCreateSegment = (newSegment) => {
+    setCustomSegments([...customSegments, newSegment]);
+    setUnmatchedAccounts([]); // Clear unmatched accounts as they're now in the new segment
+    setShowCreateSegmentModal(false);
+  };
+
+  const handleApplyDefaultSegment = () => {
+    // Create a default segment for unmatched accounts
+    const defaultSegment = {
+      name: "SEG8: Default Segment",
+      accounts: unmatchedAccounts.length,
+      logic: "Default segment for accounts not matching other criteria",
+      characteristics: "Accounts that don't fit into specific segments",
+      focus: "Standard collection approach"
+    };
+    setCustomSegments([...customSegments, defaultSegment]);
+    setUnmatchedAccounts([]); // Clear unmatched accounts
+  };
+
+  const allSegments = [...mockSegments, ...customSegments];
 
   return (
     <div className="min-h-screen font-inter">
@@ -1286,19 +1710,53 @@ export default function CreateCampaign() {
             <AIMagic
               tasks={aiTasks}
               onComplete={() => {
+                // Generate unmatched accounts when AI analysis completes
+                const totalAccounts = 6000; // Higher total to ensure unmatched accounts
+                const matchedAccounts = mockSegments.reduce((sum, seg) => sum + seg.accounts, 0);
+                const unmatchedCount = totalAccounts - matchedAccounts; // This should be 1280 accounts
+                
+                // Generate some sample unmatched accounts with more realistic patterns
+                const unmatched = Array.from({ length: unmatchedCount }, (_, i) => ({
+                  account_id: `UN${(1000 + i).toString()}`,
+                  customer_name: `Unmatched Customer ${i + 1}`,
+                  amount_due: Math.floor(Math.random() * 5000) + 500,
+                  dpd: Math.floor(Math.random() * 120) + 1,
+                  due_date: `2025-03-${(10 + (i % 20)).toString().padStart(2, "0")}`,
+                  product_name: ["Auto Loan", "Mortgage", "Credit Card"][i % 3],
+                  pay_off_amount: Math.floor(Math.random() * 7000) + 1000,
+                  missed_installments: Math.floor(Math.random() * 6),
+                  risk_score: ["Low", "Medium", "High"][i % 3],
+                  reason: ["New Account", "Unique Pattern", "Data Anomaly", "Complex Profile", "Missing Data"][i % 5],
+                  // Add characteristics that can be used for recommendations
+                  has_payment_history: Math.random() > 0.3,
+                  previous_engagement: Math.random() > 0.4,
+                  credit_score: Math.floor(Math.random() * 300) + 500,
+                  employment_status: ["Employed", "Self-employed", "Unemployed", "Retired"][i % 4],
+                  income_level: ["Low", "Medium", "High"][i % 3]
+                }));
+                
+                setUnmatchedAccounts(unmatched);
                 setShowAIMagic(false);
                 setStep(4);
               }}
             />
           )}
           {step === 4 && (
+            <SegmentationResults
+              segments={mockSegments}
+              unmatchedAccounts={unmatchedAccounts}
+              onCreateSegment={() => setShowCreateSegmentModal(true)}
+              onApplyDefault={handleApplyDefaultSegment}
+            />
+          )}
+          {step === 5 && (
             <div className="flex flex-col md:flex-row gap-10 w-full">
               {/* Segments List */}
               <div className="w-full md:w-[30%] flex flex-col gap-4">
                 <div className="text-lg font-bold text-zinc-900 mb-2">
                   Segments
                 </div>
-                {mockSegments.map((seg, idx) => (
+                {allSegments.map((seg, idx) => (
                   <div
                     key={seg.name}
                     className="bg-zinc-50 border border-zinc-200 rounded-xl px-5 py-4 shadow-sm flex flex-col gap-2 relative"
@@ -1351,7 +1809,7 @@ export default function CreateCampaign() {
               </div>
             </div>
           )}
-          {step === 5 && (
+          {step === 6 && (
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Campaign Duration Card */}
               <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-8 flex flex-col">
@@ -1579,9 +2037,7 @@ export default function CreateCampaign() {
                     <tr key={acc.account_id} className="even:bg-zinc-50">
                       <td className="px-4 py-2">{acc.account_id}</td>
                       <td className="px-4 py-2">{acc.customer_name}</td>
-                      <td className="px-4 py-2">
-                        ${acc.amount_due.toLocaleString()}
-                      </td>
+                      <td className="px-4 py-2">${acc.amount_due.toLocaleString()}</td>
                       <td className="px-4 py-2">{acc.dpd}</td>
                       <td className="px-4 py-2">{acc.due_date}</td>
                       <td className="px-4 py-2">{acc.product_name}</td>
@@ -1732,6 +2188,13 @@ export default function CreateCampaign() {
           </div>
         </div>
       )}
+      {/* Create Segment Modal */}
+      <CreateSegmentModal
+        isOpen={showCreateSegmentModal}
+        onClose={() => setShowCreateSegmentModal(false)}
+        onCreateSegment={handleCreateSegment}
+        unmatchedAccounts={unmatchedAccounts}
+      />
     </div>
   );
 }
