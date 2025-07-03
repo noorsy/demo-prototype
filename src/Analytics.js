@@ -269,15 +269,16 @@ export default function Analytics() {
       </div>
 
       {/* Tab Navigation */}
-      <div className="sticky top-[72px] z-10 bg-white px-6 border-b border-zinc-200 flex gap-2 py-2">
+      <div className="sticky top-[72px] z-10 bg-white px-6 border-b border-zinc-200 flex gap-0 py-0">
         {tabOptions.map((t) => (
           <button
             key={t}
-            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
-              tab === t
-                ? "bg-zinc-900 text-white"
-                : "bg-zinc-100 text-zinc-900 hover:bg-zinc-200"
-            }`}
+            className={`px-5 py-3 -mb-px border-b-2 font-semibold text-sm transition-colors
+              ${tab === t
+                ? "border-blue-600 text-blue-700 bg-white"
+                : "border-transparent text-zinc-500 bg-white hover:text-blue-700 hover:border-blue-200"}
+            `}
+            style={{ borderRadius: 0 }}
             onClick={() => setTab(t)}
           >
             {t}

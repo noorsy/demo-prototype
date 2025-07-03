@@ -1265,15 +1265,15 @@ export default function CreateAssistant() {
                         <h4 className="text-sm font-medium text-blue-900 mb-1">
                           💡 Pro Tip: More Attributes = Better AI Predictions
                         </h4>
-                        <p className="text-sm text-blue-700 mb-3">
+                        {/* <p className="text-sm text-blue-700 mb-3">
                           We are only showing a limited set of attributes here, but there are <strong>200+ more attributes</strong> available. The more attributes you provide, the better our AI algorithm can predict user patterns, create more accurate segments, and deliver personalized collection strategies for optimal results.
-                        </p>
-                        <button
+                        </p> */}
+                        {/* <button
                           className="text-xs bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors font-medium"
                           onClick={() => setShowAllAttributes(true)}
                         >
                           View All Available Attributes
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   </div>
@@ -1329,8 +1329,11 @@ export default function CreateAssistant() {
                         <strong>{recommendedAttributes.length}</strong> Recommended Attributes
                       </span>
                     </div>
-                    <span className="text-blue-600 font-medium">
-                      +30+ More Available
+                    <span
+                      className="text-blue-600 font-medium cursor-pointer hover:underline transition"
+                      onClick={() => setShowAllAttributes(true)}
+                    >
+                      200+ More Available
                     </span>
                   </div>
                 </div>
