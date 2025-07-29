@@ -1,6 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { Plus, MoreVertical, Search, Filter, ChevronDown, CheckCircle, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "./PageHeader";
+import {
+  Plus,
+  Search,
+  MoreVertical,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Shield,
+  Smartphone,
+  Mail,
+  Phone,
+  Building,
+} from "lucide-react";
+import { Button } from "./components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./components/ui/dropdown-menu";
 
 const AccessManagement = () => {
   const navigate = useNavigate();
@@ -23,10 +45,25 @@ const AccessManagement = () => {
       role: "Administrator",
       avatar: "https://randomuser.me/api/portraits/men/1.jpg",
       scope: {
-        "Acme Corp": ["All Assistants", "Sales Assistant", "Support Assistant", "Marketing Assistant"],
-        "Tech Solutions": ["All Assistants", "Technical Support", "Product Assistant", "Integration Bot"],
-        "Global Industries": ["All Assistants", "Global Support", "Regional Assistant", "Compliance Bot"]
-      }
+        "Acme Corp": [
+          "All Assistants",
+          "Sales Assistant",
+          "Support Assistant",
+          "Marketing Assistant",
+        ],
+        "Tech Solutions": [
+          "All Assistants",
+          "Technical Support",
+          "Product Assistant",
+          "Integration Bot",
+        ],
+        "Global Industries": [
+          "All Assistants",
+          "Global Support",
+          "Regional Assistant",
+          "Compliance Bot",
+        ],
+      },
     },
     {
       id: 2,
@@ -36,8 +73,13 @@ const AccessManagement = () => {
       role: "Client Admin",
       avatar: "https://randomuser.me/api/portraits/women/2.jpg",
       scope: {
-        "Acme Corp": ["All Assistants", "Sales Assistant", "Support Assistant", "Marketing Assistant"]
-      }
+        "Acme Corp": [
+          "All Assistants",
+          "Sales Assistant",
+          "Support Assistant",
+          "Marketing Assistant",
+        ],
+      },
     },
     {
       id: 3,
@@ -48,12 +90,16 @@ const AccessManagement = () => {
       avatar: "https://randomuser.me/api/portraits/men/3.jpg",
       scope: {
         "Tech Solutions": ["Technical Support", "Product Assistant"],
-        "Startup Inc": ["All Assistants", "Growth Assistant", "Customer Success Bot"],
+        "Startup Inc": [
+          "All Assistants",
+          "Growth Assistant",
+          "Customer Success Bot",
+        ],
         "Digital Agency": ["Creative Assistant", "Project Manager Bot"],
         "Cloud Corp": ["Cloud Support", "Deployment Assistant"],
         "Data Systems": ["Data Analyst", "Reporting Assistant"],
-        "Web Solutions": ["Web Support", "Development Assistant"]
-      }
+        "Web Solutions": ["Web Support", "Development Assistant"],
+      },
     },
     {
       id: 4,
@@ -63,9 +109,19 @@ const AccessManagement = () => {
       role: "Campaign Manager",
       avatar: "https://randomuser.me/api/portraits/women/4.jpg",
       scope: {
-        "Global Industries": ["All Assistants", "Global Support", "Regional Assistant", "Compliance Bot"],
-        "Mega Corp": ["All Assistants", "Enterprise Support", "Executive Assistant", "HR Bot"]
-      }
+        "Global Industries": [
+          "All Assistants",
+          "Global Support",
+          "Regional Assistant",
+          "Compliance Bot",
+        ],
+        "Mega Corp": [
+          "All Assistants",
+          "Enterprise Support",
+          "Executive Assistant",
+          "HR Bot",
+        ],
+      },
     },
     {
       id: 5,
@@ -76,15 +132,16 @@ const AccessManagement = () => {
       avatar: "https://randomuser.me/api/portraits/men/5.jpg",
       scope: {
         "Acme Corp": ["Sales Assistant"],
-        "Tech Solutions": ["Technical Support"]
-      }
-    }
+        "Tech Solutions": ["Technical Support"],
+      },
+    },
   ];
 
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusColor = (status) => {
@@ -125,10 +182,10 @@ const AccessManagement = () => {
     if (!scope || Object.keys(scope).length === 0) {
       return "No access";
     }
-    
+
     const clientCount = Object.keys(scope).length;
     const firstClient = Object.keys(scope)[0];
-    
+
     if (clientCount === 1) {
       const assistants = scope[firstClient];
       if (assistants.includes("All Assistants")) {
@@ -164,7 +221,9 @@ const AccessManagement = () => {
 
   const handleResetPasswordSubmit = (e) => {
     e.preventDefault();
-    console.log(`Resetting password for ${selectedUser.name} to: ${newPassword}`);
+    console.log(
+      `Resetting password for ${selectedUser.name} to: ${newPassword}`
+    );
     setShowResetModal(false);
     setNewPassword("");
     setSelectedUser(null);
@@ -206,14 +265,14 @@ const AccessManagement = () => {
   // Handle clicking outside dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (openDropdown && !event.target.closest('.dropdown-container')) {
+      if (openDropdown && !event.target.closest(".dropdown-container")) {
         setOpenDropdown(null);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [openDropdown]);
 
@@ -229,8 +288,12 @@ const AccessManagement = () => {
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Access Management</h1>
-          <p className="text-gray-600 mt-1">Manage user access and permissions</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Access Management
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Manage user access and permissions
+          </p>
         </div>
         <button
           onClick={() => navigate("/access-management/invite")}
@@ -246,7 +309,10 @@ const AccessManagement = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1">
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   type="text"
                   placeholder="Search users..."
@@ -256,8 +322,7 @@ const AccessManagement = () => {
                 />
               </div>
               <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                <Filter size={16} />
-                Filter
+                {/* Filter button removed as per new_code */}
               </button>
             </div>
             <div className="text-sm text-gray-500">
@@ -308,12 +373,20 @@ const AccessManagement = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.status)}`}>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                        user.status
+                      )}`}
+                    >
                       {user.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(
+                        user.role
+                      )}`}
+                    >
                       {user.role}
                     </span>
                   </td>
@@ -323,49 +396,40 @@ const AccessManagement = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative dropdown-container">
-                    <button 
-                      className="text-gray-400 hover:text-gray-600"
-                      onClick={() => handleMoreOptions(user.id)}
-                    >
-                      <MoreVertical size={16} />
-                    </button>
-                    
-                    {openDropdown === user.id && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
-                        <div className="py-1">
-                          <button
-                            onClick={() => handleResetPassword(user)}
-                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          >
-                            Reset Password
-                          </button>
-                          <button
-                            onClick={() => handleReset2FA(user)}
-                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          >
-                            Reset 2FA
-                          </button>
-                          <button
-                            onClick={() => handleUnlockAccount(user)}
-                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          >
-                            Unlock Account
-                          </button>
-                          <button
-                            onClick={() => handleEditUser(user)}
-                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          >
-                            Edit User
-                          </button>
-                          <button
-                            onClick={() => handleDeleteUser(user)}
-                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                          >
-                            Delete User
-                          </button>
-                        </div>
-                      </div>
-                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          onClick={() => handleMoreOptions(user.id)}
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <MoreVertical size={16} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => handleResetPassword(user)}
+                        >
+                          Reset Password
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleReset2FA(user)}>
+                          Reset 2FA
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleUnlockAccount(user)}
+                        >
+                          Unlock Account
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEditUser(user)}>
+                          Edit User
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteUser(user)}
+                          className="text-red-600 focus:text-red-600"
+                        >
+                          Delete User
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </td>
                 </tr>
               ))}
@@ -383,7 +447,10 @@ const AccessManagement = () => {
             </h3>
             <form onSubmit={handleResetPasswordSubmit}>
               <div className="mb-4">
-                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="newPassword"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   New Password
                 </label>
                 <input
@@ -431,7 +498,9 @@ const AccessManagement = () => {
               </h3>
             </div>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete <strong>{selectedUser?.name}</strong>? This action cannot be undone.
+              Are you sure you want to delete{" "}
+              <strong>{selectedUser?.name}</strong>? This action cannot be
+              undone.
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -457,4 +526,4 @@ const AccessManagement = () => {
   );
 };
 
-export default AccessManagement; 
+export default AccessManagement;

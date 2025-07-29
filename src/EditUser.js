@@ -1,6 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Mail, User, Shield, Smartphone, Building } from "lucide-react";
+import {
+  ArrowLeft,
+  Mail,
+  User,
+  Phone,
+  Shield,
+  Smartphone,
+  Building,
+  Save,
+  Trash2,
+} from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Button } from "./components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./components/ui/select";
 
 const EditUser = () => {
   const navigate = useNavigate();
@@ -13,118 +32,206 @@ const EditUser = () => {
     email: "",
     role: "Client Agent View",
     otpMethod: "email",
-    scope: {}
+    scope: {},
   });
 
   const [expandedClients, setExpandedClients] = useState({});
 
   const roles = [
-    { value: "Client Agent View", label: "Client Agent View", description: "External role with view-only access" },
-    { value: "Client Admin", label: "Client Admin", description: "External role with administrative access" },
-    { value: "Client Admin (Beta)", label: "Client Admin (Beta)", description: "External role with administrative access (Beta)" },
-    { value: "Campaign Manager", label: "Campaign Manager", description: "Internal role to manage campaigns" },
-    { value: "Project Manager", label: "Project Manager", description: "Internal role to manage projects" },
-    { value: "Administrator", label: "Administrator", description: "Internal role with full system access" },
-    { value: "CUX", label: "CUX", description: "Internal role for customer experience" },
-    { value: "Sales Viewer", label: "Sales Viewer", description: "Internal role with sales data access" }
+    {
+      value: "Client Agent View",
+      label: "Client Agent View",
+      description: "External role with view-only access",
+    },
+    {
+      value: "Client Admin",
+      label: "Client Admin",
+      description: "External role with administrative access",
+    },
+    {
+      value: "Client Admin (Beta)",
+      label: "Client Admin (Beta)",
+      description: "External role with administrative access (Beta)",
+    },
+    {
+      value: "Campaign Manager",
+      label: "Campaign Manager",
+      description: "Internal role to manage campaigns",
+    },
+    {
+      value: "Project Manager",
+      label: "Project Manager",
+      description: "Internal role to manage projects",
+    },
+    {
+      value: "Administrator",
+      label: "Administrator",
+      description: "Internal role with full system access",
+    },
+    {
+      value: "CUX",
+      label: "CUX",
+      description: "Internal role for customer experience",
+    },
+    {
+      value: "Sales Viewer",
+      label: "Sales Viewer",
+      description: "Internal role with sales data access",
+    },
   ];
 
   const otpMethods = [
     { value: "email", label: "Email", description: "Receive OTP via email" },
     { value: "sms", label: "SMS", description: "Receive OTP via SMS" },
-    { value: "authenticator", label: "Authenticator App", description: "Use Google Authenticator or similar" }
+    {
+      value: "authenticator",
+      label: "Authenticator App",
+      description: "Use Google Authenticator or similar",
+    },
   ];
 
   const availableScopes = [
     {
       client: "Acme Corp",
-      assistants: ["All Assistants", "Sales Assistant", "Support Assistant", "Marketing Assistant"]
+      assistants: [
+        "All Assistants",
+        "Sales Assistant",
+        "Support Assistant",
+        "Marketing Assistant",
+      ],
     },
     {
       client: "Tech Solutions",
-      assistants: ["All Assistants", "Technical Support", "Product Assistant", "Integration Bot"]
+      assistants: [
+        "All Assistants",
+        "Technical Support",
+        "Product Assistant",
+        "Integration Bot",
+      ],
     },
     {
       client: "Global Industries",
-      assistants: ["All Assistants", "Global Support", "Regional Assistant", "Compliance Bot"]
+      assistants: [
+        "All Assistants",
+        "Global Support",
+        "Regional Assistant",
+        "Compliance Bot",
+      ],
     },
     {
       client: "Startup Inc",
-      assistants: ["All Assistants", "Growth Assistant", "Customer Success Bot"]
+      assistants: [
+        "All Assistants",
+        "Growth Assistant",
+        "Customer Success Bot",
+      ],
     },
     {
       client: "Digital Agency",
-      assistants: ["All Assistants", "Creative Assistant", "Project Manager Bot", "Client Liaison"]
+      assistants: [
+        "All Assistants",
+        "Creative Assistant",
+        "Project Manager Bot",
+        "Client Liaison",
+      ],
     },
     {
       client: "Cloud Corp",
-      assistants: ["All Assistants", "Cloud Support", "Deployment Assistant", "Monitoring Bot"]
+      assistants: [
+        "All Assistants",
+        "Cloud Support",
+        "Deployment Assistant",
+        "Monitoring Bot",
+      ],
     },
     {
       client: "Data Systems",
-      assistants: ["All Assistants", "Data Analyst", "Reporting Assistant", "ETL Bot"]
+      assistants: [
+        "All Assistants",
+        "Data Analyst",
+        "Reporting Assistant",
+        "ETL Bot",
+      ],
     },
     {
       client: "Web Solutions",
-      assistants: ["All Assistants", "Web Support", "Development Assistant", "QA Bot"]
+      assistants: [
+        "All Assistants",
+        "Web Support",
+        "Development Assistant",
+        "QA Bot",
+      ],
     },
     {
       client: "Mega Corp",
-      assistants: ["All Assistants", "Enterprise Support", "Executive Assistant", "HR Bot"]
+      assistants: [
+        "All Assistants",
+        "Enterprise Support",
+        "Executive Assistant",
+        "HR Bot",
+      ],
     },
     {
       client: "Innovation Labs",
-      assistants: ["All Assistants", "Research Assistant", "Innovation Bot", "Patent Assistant"]
-    }
+      assistants: [
+        "All Assistants",
+        "Research Assistant",
+        "Innovation Bot",
+        "Patent Assistant",
+      ],
+    },
   ];
 
   useEffect(() => {
     if (user) {
       const [firstName, ...lastNameParts] = user.name.split(" ");
       const lastName = lastNameParts.join(" ");
-      
+
       // Convert the old scope array format to new object format
       const scopeObject = {};
       if (user.scope && Array.isArray(user.scope)) {
-        user.scope.forEach(client => {
+        user.scope.forEach((client) => {
           scopeObject[client] = ["All Assistants"]; // Default to all assistants for existing users
         });
       }
-      
+
       setFormData({
         firstName: firstName || "",
         lastName: lastName || "",
         email: user.email || "",
         role: user.role || "Client Agent View",
         otpMethod: "email", // Default value
-        scope: scopeObject
+        scope: scopeObject,
       });
     }
   }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const toggleClientExpansion = (clientName) => {
-    setExpandedClients(prev => ({
+    setExpandedClients((prev) => ({
       ...prev,
-      [clientName]: !prev[clientName]
+      [clientName]: !prev[clientName],
     }));
   };
 
   const handleScopeChange = (clientName, assistantName) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const currentClientScope = prev.scope[clientName] || [];
-      
+
       let newClientScope;
       if (assistantName === "All Assistants") {
         // If "All Assistants" is selected, toggle all assistants for this client
-        const allAssistants = availableScopes.find(s => s.client === clientName)?.assistants.filter(a => a !== "All Assistants") || [];
+        const allAssistants =
+          availableScopes
+            .find((s) => s.client === clientName)
+            ?.assistants.filter((a) => a !== "All Assistants") || [];
         if (currentClientScope.includes("All Assistants")) {
           // Remove all assistants
           newClientScope = [];
@@ -136,7 +243,9 @@ const EditUser = () => {
         // Handle individual assistant selection
         if (currentClientScope.includes(assistantName)) {
           // Remove this assistant and "All Assistants" if it was selected
-          newClientScope = currentClientScope.filter(a => a !== assistantName && a !== "All Assistants");
+          newClientScope = currentClientScope.filter(
+            (a) => a !== assistantName && a !== "All Assistants"
+          );
         } else {
           // Add this assistant
           newClientScope = [...currentClientScope, assistantName];
@@ -147,8 +256,8 @@ const EditUser = () => {
         ...prev,
         scope: {
           ...prev.scope,
-          [clientName]: newClientScope
-        }
+          [clientName]: newClientScope,
+        },
       };
     });
   };
@@ -176,8 +285,12 @@ const EditUser = () => {
       <div className="flex-1 flex flex-col min-h-0">
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">User Not Found</h2>
-            <p className="text-gray-600 mb-4">The user you're trying to edit could not be found.</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              User Not Found
+            </h2>
+            <p className="text-gray-600 mb-4">
+              The user you're trying to edit could not be found.
+            </p>
             <button
               onClick={() => navigate("/access-management")}
               className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
@@ -205,18 +318,26 @@ const EditUser = () => {
       <div className="max-w-2xl">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Edit User</h1>
-          <p className="text-gray-600 mt-1">Update user information and permissions</p>
+          <p className="text-gray-600 mt-1">
+            Update user information and permissions
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="firstName"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   First Name
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                  <User
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={16}
+                  />
                   <input
                     type="text"
                     id="firstName"
@@ -231,11 +352,17 @@ const EditUser = () => {
               </div>
 
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="lastName"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Last Name
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                  <User
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={16}
+                  />
                   <input
                     type="text"
                     id="lastName"
@@ -251,11 +378,17 @@ const EditUser = () => {
             </div>
 
             <div className="mt-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                <Mail
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   type="email"
                   id="email"
@@ -270,52 +403,75 @@ const EditUser = () => {
             </div>
 
             <div className="mt-4">
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Role
               </label>
               <div className="relative">
-                <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                <select
-                  id="role"
-                  name="role"
+                <Shield
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10"
+                  size={16}
+                />
+                <Select
                   value={formData.role}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  onValueChange={(value) =>
+                    handleInputChange({ target: { name: "role", value } })
+                  }
                 >
-                  {roles.map((role) => (
-                    <option key={role.value} value={role.value}>
-                      {role.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent">
+                    <SelectValue placeholder="Select a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roles.map((role) => (
+                      <SelectItem key={role.value} value={role.value}>
+                        {role.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <p className="text-sm text-gray-500 mt-1">
-                {roles.find(r => r.value === formData.role)?.description}
+                {roles.find((r) => r.value === formData.role)?.description}
               </p>
             </div>
 
             <div className="mt-4">
-              <label htmlFor="otpMethod" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="otpMethod"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 OTP Method
               </label>
               <div className="relative">
-                <Smartphone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                <select
-                  id="otpMethod"
-                  name="otpMethod"
+                <Smartphone
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10"
+                  size={16}
+                />
+                <Select
                   value={formData.otpMethod}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  onValueChange={(value) =>
+                    handleInputChange({ target: { name: "otpMethod", value } })
+                  }
                 >
-                  {otpMethods.map((method) => (
-                    <option key={method.value} value={method.value}>
-                      {method.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent">
+                    <SelectValue placeholder="Select OTP method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {otpMethods.map((method) => (
+                      <SelectItem key={method.value} value={method.value}>
+                        {method.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <p className="text-sm text-gray-500 mt-1">
-                {otpMethods.find(m => m.value === formData.otpMethod)?.description}
+                {
+                  otpMethods.find((m) => m.value === formData.otpMethod)
+                    ?.description
+                }
               </p>
             </div>
 
@@ -325,7 +481,10 @@ const EditUser = () => {
               </label>
               <div className="space-y-3">
                 {availableScopes.map((scope) => (
-                  <div key={scope.client} className="border border-gray-200 rounded-lg p-3">
+                  <div
+                    key={scope.client}
+                    className="border border-gray-200 rounded-lg p-3"
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <label className="flex items-center gap-2 text-sm font-medium">
                         <input
@@ -344,15 +503,23 @@ const EditUser = () => {
                         {expandedClients[scope.client] ? "−" : "+"}
                       </button>
                     </div>
-                    
+
                     {expandedClients[scope.client] && (
                       <div className="ml-6 mt-2 space-y-2">
                         {scope.assistants.map((assistant) => (
-                          <label key={assistant} className="flex items-center gap-2 text-sm">
+                          <label
+                            key={assistant}
+                            className="flex items-center gap-2 text-sm"
+                          >
                             <input
                               type="checkbox"
-                              checked={isAssistantSelected(scope.client, assistant)}
-                              onChange={() => handleScopeChange(scope.client, assistant)}
+                              checked={isAssistantSelected(
+                                scope.client,
+                                assistant
+                              )}
+                              onChange={() =>
+                                handleScopeChange(scope.client, assistant)
+                              }
                               className="rounded border-gray-300 text-black focus:ring-black"
                             />
                             <span className="text-gray-700">{assistant}</span>
@@ -364,7 +531,8 @@ const EditUser = () => {
                 ))}
               </div>
               <p className="text-sm text-gray-500 mt-2">
-                Select clients and their specific assistants this user should have access to
+                Select clients and their specific assistants this user should
+                have access to
               </p>
             </div>
           </div>
@@ -390,4 +558,4 @@ const EditUser = () => {
   );
 };
 
-export default EditUser; 
+export default EditUser;

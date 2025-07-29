@@ -1,6 +1,24 @@
 import React, { useState } from "react";
-import { ArrowLeft, Mail, User, Shield, Smartphone, Building } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  User,
+  Mail,
+  Phone,
+  Shield,
+  Smartphone,
+  ArrowLeft,
+  Send,
+  Building,
+} from "lucide-react";
+import { Button } from "./components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./components/ui/select";
 
 const InviteUser = () => {
   const navigate = useNavigate();
@@ -10,94 +28,182 @@ const InviteUser = () => {
     email: "",
     role: "Client Agent View",
     otpMethod: "email",
-    scope: {}
+    scope: {},
   });
 
   const [expandedClients, setExpandedClients] = useState({});
 
   const roles = [
-    { value: "Client Agent View", label: "Client Agent View", description: "External role with view-only access" },
-    { value: "Client Admin", label: "Client Admin", description: "External role with administrative access" },
-    { value: "Client Admin (Beta)", label: "Client Admin (Beta)", description: "External role with administrative access (Beta)" },
-    { value: "Campaign Manager", label: "Campaign Manager", description: "Internal role to manage campaigns" },
-    { value: "Project Manager", label: "Project Manager", description: "Internal role to manage projects" },
-    { value: "Administrator", label: "Administrator", description: "Internal role with full system access" },
-    { value: "CUX", label: "CUX", description: "Internal role for customer experience" },
-    { value: "Sales Viewer", label: "Sales Viewer", description: "Internal role with sales data access" }
+    {
+      value: "Client Agent View",
+      label: "Client Agent View",
+      description: "External role with view-only access",
+    },
+    {
+      value: "Client Admin",
+      label: "Client Admin",
+      description: "External role with administrative access",
+    },
+    {
+      value: "Client Admin (Beta)",
+      label: "Client Admin (Beta)",
+      description: "External role with administrative access (Beta)",
+    },
+    {
+      value: "Campaign Manager",
+      label: "Campaign Manager",
+      description: "Internal role to manage campaigns",
+    },
+    {
+      value: "Project Manager",
+      label: "Project Manager",
+      description: "Internal role to manage projects",
+    },
+    {
+      value: "Administrator",
+      label: "Administrator",
+      description: "Internal role with full system access",
+    },
+    {
+      value: "CUX",
+      label: "CUX",
+      description: "Internal role for customer experience",
+    },
+    {
+      value: "Sales Viewer",
+      label: "Sales Viewer",
+      description: "Internal role with sales data access",
+    },
   ];
 
   const otpMethods = [
     { value: "email", label: "Email", description: "Receive OTP via email" },
     { value: "sms", label: "SMS", description: "Receive OTP via SMS" },
-    { value: "authenticator", label: "Authenticator App", description: "Use Google Authenticator or similar" }
+    {
+      value: "authenticator",
+      label: "Authenticator App",
+      description: "Use Google Authenticator or similar",
+    },
   ];
 
   const availableScopes = [
     {
       client: "Acme Corp",
-      assistants: ["All Assistants", "Sales Assistant", "Support Assistant", "Marketing Assistant"]
+      assistants: [
+        "All Assistants",
+        "Sales Assistant",
+        "Support Assistant",
+        "Marketing Assistant",
+      ],
     },
     {
       client: "Tech Solutions",
-      assistants: ["All Assistants", "Technical Support", "Product Assistant", "Integration Bot"]
+      assistants: [
+        "All Assistants",
+        "Technical Support",
+        "Product Assistant",
+        "Integration Bot",
+      ],
     },
     {
       client: "Global Industries",
-      assistants: ["All Assistants", "Global Support", "Regional Assistant", "Compliance Bot"]
+      assistants: [
+        "All Assistants",
+        "Global Support",
+        "Regional Assistant",
+        "Compliance Bot",
+      ],
     },
     {
       client: "Startup Inc",
-      assistants: ["All Assistants", "Growth Assistant", "Customer Success Bot"]
+      assistants: [
+        "All Assistants",
+        "Growth Assistant",
+        "Customer Success Bot",
+      ],
     },
     {
       client: "Digital Agency",
-      assistants: ["All Assistants", "Creative Assistant", "Project Manager Bot", "Client Liaison"]
+      assistants: [
+        "All Assistants",
+        "Creative Assistant",
+        "Project Manager Bot",
+        "Client Liaison",
+      ],
     },
     {
       client: "Cloud Corp",
-      assistants: ["All Assistants", "Cloud Support", "Deployment Assistant", "Monitoring Bot"]
+      assistants: [
+        "All Assistants",
+        "Cloud Support",
+        "Deployment Assistant",
+        "Monitoring Bot",
+      ],
     },
     {
       client: "Data Systems",
-      assistants: ["All Assistants", "Data Analyst", "Reporting Assistant", "ETL Bot"]
+      assistants: [
+        "All Assistants",
+        "Data Analyst",
+        "Reporting Assistant",
+        "ETL Bot",
+      ],
     },
     {
       client: "Web Solutions",
-      assistants: ["All Assistants", "Web Support", "Development Assistant", "QA Bot"]
+      assistants: [
+        "All Assistants",
+        "Web Support",
+        "Development Assistant",
+        "QA Bot",
+      ],
     },
     {
       client: "Mega Corp",
-      assistants: ["All Assistants", "Enterprise Support", "Executive Assistant", "HR Bot"]
+      assistants: [
+        "All Assistants",
+        "Enterprise Support",
+        "Executive Assistant",
+        "HR Bot",
+      ],
     },
     {
       client: "Innovation Labs",
-      assistants: ["All Assistants", "Research Assistant", "Innovation Bot", "Patent Assistant"]
-    }
+      assistants: [
+        "All Assistants",
+        "Research Assistant",
+        "Innovation Bot",
+        "Patent Assistant",
+      ],
+    },
   ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const toggleClientExpansion = (clientName) => {
-    setExpandedClients(prev => ({
+    setExpandedClients((prev) => ({
       ...prev,
-      [clientName]: !prev[clientName]
+      [clientName]: !prev[clientName],
     }));
   };
 
   const handleScopeChange = (clientName, assistantName) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const currentClientScope = prev.scope[clientName] || [];
-      
+
       let newClientScope;
       if (assistantName === "All Assistants") {
         // If "All Assistants" is selected, toggle all assistants for this client
-        const allAssistants = availableScopes.find(s => s.client === clientName)?.assistants.filter(a => a !== "All Assistants") || [];
+        const allAssistants =
+          availableScopes
+            .find((s) => s.client === clientName)
+            ?.assistants.filter((a) => a !== "All Assistants") || [];
         if (currentClientScope.includes("All Assistants")) {
           // Remove all assistants
           newClientScope = [];
@@ -109,7 +215,9 @@ const InviteUser = () => {
         // Handle individual assistant selection
         if (currentClientScope.includes(assistantName)) {
           // Remove this assistant and "All Assistants" if it was selected
-          newClientScope = currentClientScope.filter(a => a !== assistantName && a !== "All Assistants");
+          newClientScope = currentClientScope.filter(
+            (a) => a !== assistantName && a !== "All Assistants"
+          );
         } else {
           // Add this assistant
           newClientScope = [...currentClientScope, assistantName];
@@ -120,8 +228,8 @@ const InviteUser = () => {
         ...prev,
         scope: {
           ...prev.scope,
-          [clientName]: newClientScope
-        }
+          [clientName]: newClientScope,
+        },
       };
     });
   };
@@ -161,18 +269,26 @@ const InviteUser = () => {
         <div className="flex-1 max-w-2xl">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Invite User</h1>
-            <p className="text-gray-600 mt-1">Send an invitation to join your team</p>
+            <p className="text-gray-600 mt-1">
+              Send an invitation to join your team
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="firstName"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     First Name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                    <User
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      size={16}
+                    />
                     <input
                       type="text"
                       id="firstName"
@@ -187,11 +303,17 @@ const InviteUser = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="lastName"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Last Name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                    <User
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      size={16}
+                    />
                     <input
                       type="text"
                       id="lastName"
@@ -207,11 +329,17 @@ const InviteUser = () => {
               </div>
 
               <div className="mt-4">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                  <Mail
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={16}
+                  />
                   <input
                     type="email"
                     id="email"
@@ -226,52 +354,77 @@ const InviteUser = () => {
               </div>
 
               <div className="mt-4">
-                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="role"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Role
                 </label>
                 <div className="relative">
-                  <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                  <select
-                    id="role"
-                    name="role"
+                  <Shield
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10"
+                    size={16}
+                  />
+                  <Select
                     value={formData.role}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                    onValueChange={(value) =>
+                      handleInputChange({ target: { name: "role", value } })
+                    }
                   >
-                    {roles.map((role) => (
-                      <option key={role.value} value={role.value}>
-                        {role.label}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent">
+                      <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roles.map((role) => (
+                        <SelectItem key={role.value} value={role.value}>
+                          {role.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <p className="text-sm text-gray-500 mt-1">
-                  {roles.find(r => r.value === formData.role)?.description}
+                  {roles.find((r) => r.value === formData.role)?.description}
                 </p>
               </div>
 
               <div className="mt-4">
-                <label htmlFor="otpMethod" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="otpMethod"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   OTP Method
                 </label>
                 <div className="relative">
-                  <Smartphone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                  <select
-                    id="otpMethod"
-                    name="otpMethod"
+                  <Smartphone
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10"
+                    size={16}
+                  />
+                  <Select
                     value={formData.otpMethod}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                    onValueChange={(value) =>
+                      handleInputChange({
+                        target: { name: "otpMethod", value },
+                      })
+                    }
                   >
-                    {otpMethods.map((method) => (
-                      <option key={method.value} value={method.value}>
-                        {method.label}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent">
+                      <SelectValue placeholder="Select OTP method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {otpMethods.map((method) => (
+                        <SelectItem key={method.value} value={method.value}>
+                          {method.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <p className="text-sm text-gray-500 mt-1">
-                  {otpMethods.find(m => m.value === formData.otpMethod)?.description}
+                  {
+                    otpMethods.find((m) => m.value === formData.otpMethod)
+                      ?.description
+                  }
                 </p>
               </div>
 
@@ -281,7 +434,10 @@ const InviteUser = () => {
                 </label>
                 <div className="space-y-3 max-h-60 overflow-y-auto">
                   {availableScopes.map((scope) => (
-                    <div key={scope.client} className="border border-gray-200 rounded-lg p-3">
+                    <div
+                      key={scope.client}
+                      className="border border-gray-200 rounded-lg p-3"
+                    >
                       <div className="flex items-center justify-between mb-2">
                         <label className="flex items-center gap-2 text-sm font-medium">
                           <input
@@ -300,15 +456,23 @@ const InviteUser = () => {
                           {expandedClients[scope.client] ? "−" : "+"}
                         </button>
                       </div>
-                      
+
                       {expandedClients[scope.client] && (
                         <div className="ml-6 mt-2 space-y-2">
                           {scope.assistants.map((assistant) => (
-                            <label key={assistant} className="flex items-center gap-2 text-sm">
+                            <label
+                              key={assistant}
+                              className="flex items-center gap-2 text-sm"
+                            >
                               <input
                                 type="checkbox"
-                                checked={isAssistantSelected(scope.client, assistant)}
-                                onChange={() => handleScopeChange(scope.client, assistant)}
+                                checked={isAssistantSelected(
+                                  scope.client,
+                                  assistant
+                                )}
+                                onChange={() =>
+                                  handleScopeChange(scope.client, assistant)
+                                }
                                 className="rounded border-gray-300 text-black focus:ring-black"
                               />
                               <span className="text-gray-700">{assistant}</span>
@@ -320,18 +484,27 @@ const InviteUser = () => {
                   ))}
                 </div>
                 <p className="text-sm text-gray-500 mt-2">
-                  Select clients and their specific assistants this user should have access to
+                  Select clients and their specific assistants this user should
+                  have access to
                 </p>
               </div>
             </div>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-blue-900 mb-2">What happens next?</h3>
+              <h3 className="text-sm font-medium text-blue-900 mb-2">
+                What happens next?
+              </h3>
               <ul className="text-sm text-blue-800 space-y-1">
                 <li>• An invitation email will be sent to the user</li>
                 <li>• The user will receive a link to set up their account</li>
-                <li>• They'll be able to choose their password and complete their profile</li>
-                <li>• Once activated, they'll have access based on their assigned role and scope</li>
+                <li>
+                  • They'll be able to choose their password and complete their
+                  profile
+                </li>
+                <li>
+                  • Once activated, they'll have access based on their assigned
+                  role and scope
+                </li>
               </ul>
             </div>
 
@@ -376,56 +549,87 @@ const InviteUser = () => {
 
           {/* Recent Invitations */}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Recent Invitations</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-3">
+              Recent Invitations
+            </h3>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
                   <span className="text-xs font-medium text-gray-600">JD</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">John Doe</p>
-                  <p className="text-xs text-gray-500 truncate">john.doe@company.com</p>
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    John Doe
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    john.doe@company.com
+                  </p>
                 </div>
-                <span className="text-xs text-yellow-600 font-medium">Pending</span>
+                <span className="text-xs text-yellow-600 font-medium">
+                  Pending
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
                   <span className="text-xs font-medium text-gray-600">JS</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">Jane Smith</p>
-                  <p className="text-xs text-gray-500 truncate">jane.smith@company.com</p>
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    Jane Smith
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    jane.smith@company.com
+                  </p>
                 </div>
-                <span className="text-xs text-green-600 font-medium">Active</span>
+                <span className="text-xs text-green-600 font-medium">
+                  Active
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
                   <span className="text-xs font-medium text-gray-600">MJ</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">Mike Johnson</p>
-                  <p className="text-xs text-gray-500 truncate">mike.johnson@company.com</p>
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    Mike Johnson
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    mike.johnson@company.com
+                  </p>
                 </div>
-                <span className="text-xs text-yellow-600 font-medium">Pending</span>
+                <span className="text-xs text-yellow-600 font-medium">
+                  Pending
+                </span>
               </div>
             </div>
           </div>
 
           {/* Role Guidelines */}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Role Guidelines</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-3">
+              Role Guidelines
+            </h3>
             <div className="space-y-3">
               <div>
-                <h4 className="text-xs font-medium text-gray-700 mb-1">External Roles</h4>
-                <p className="text-xs text-gray-600">For client users with limited access</p>
+                <h4 className="text-xs font-medium text-gray-700 mb-1">
+                  External Roles
+                </h4>
+                <p className="text-xs text-gray-600">
+                  For client users with limited access
+                </p>
               </div>
               <div>
-                <h4 className="text-xs font-medium text-gray-700 mb-1">Internal Roles</h4>
-                <p className="text-xs text-gray-600">For team members with full access</p>
+                <h4 className="text-xs font-medium text-gray-700 mb-1">
+                  Internal Roles
+                </h4>
+                <p className="text-xs text-gray-600">
+                  For team members with full access
+                </p>
               </div>
               <div className="pt-2 border-t border-gray-100">
                 <p className="text-xs text-gray-500">
-                  <strong>Tip:</strong> Start with minimal access and expand as needed
+                  <strong>Tip:</strong> Start with minimal access and expand as
+                  needed
                 </p>
               </div>
             </div>
@@ -433,7 +637,9 @@ const InviteUser = () => {
 
           {/* Quick Actions */}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Quick Actions</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-3">
+              Quick Actions
+            </h3>
             <div className="space-y-2">
               <button
                 onClick={() => navigate("/access-management")}
@@ -447,7 +653,6 @@ const InviteUser = () => {
               >
                 Manage Roles
               </button>
-            
             </div>
           </div>
         </div>
@@ -456,4 +661,4 @@ const InviteUser = () => {
   );
 };
 
-export default InviteUser; 
+export default InviteUser;

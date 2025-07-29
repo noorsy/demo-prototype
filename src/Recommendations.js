@@ -1,5 +1,13 @@
 import React from "react";
 import PageHeader from "./PageHeader";
+import { Button } from "./components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./components/ui/select";
 
 const recommendations = [
   {
@@ -124,23 +132,41 @@ export default function Recommendations() {
           </span>
         </div>
         <div className="flex flex-wrap gap-2 items-center mb-4">
-          <select className="border rounded px-3 py-2 text-sm">
-            <option>All Categories</option>
-            <option>Segmentation</option>
-            <option>Journey Strategy</option>
-            <option>Conversational Experience</option>
-          </select>
-          <select className="border rounded px-3 py-2 text-sm">
-            <option>Last 30 days</option>
-            <option>Last 7 days</option>
-            <option>All Time</option>
-          </select>
-          <button className="border rounded px-3 py-2 text-sm bg-white">
+          <Select defaultValue="all">
+            <SelectTrigger className="w-[180px] border rounded px-3 py-2 text-sm">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="segmentation">Segmentation</SelectItem>
+              <SelectItem value="journey">Journey Strategy</SelectItem>
+              <SelectItem value="conversational">
+                Conversational Experience
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <Select defaultValue="30">
+            <SelectTrigger className="w-[140px] border rounded px-3 py-2 text-sm">
+              <SelectValue placeholder="Last 30 days" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">Last 7 days</SelectItem>
+              <SelectItem value="30">Last 30 days</SelectItem>
+              <SelectItem value="all">All Time</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant="outline"
+            className="border rounded px-3 py-2 text-sm bg-white"
+          >
             Sort
-          </button>
-          <button className="border rounded px-3 py-2 text-sm bg-white">
+          </Button>
+          <Button
+            variant="outline"
+            className="border rounded px-3 py-2 text-sm bg-white"
+          >
             Export
-          </button>
+          </Button>
         </div>
       </div>
       <div className="w-full flex flex-col gap-8 px-6">

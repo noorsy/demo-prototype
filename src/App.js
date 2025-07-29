@@ -14,10 +14,11 @@ import AccessManagement from "./AccessManagement";
 import InviteUser from "./InviteUser";
 import EditUser from "./EditUser";
 import SetupCreditor from "./SetupCreditor";
-import "./App.css";
+import ExperienceCenter from "./ExperienceCenter";
+import AssistantDetail from "./AssistantDetail";
 
 const Placeholder = ({ title }) => (
-  <div className="p-8 text-lg font-inter">{title} Page</div>
+  <div className="p-8 text-lg">{title} Page</div>
 );
 
 function App() {
@@ -32,10 +33,10 @@ function App() {
         <Route
           path="*"
           element={
-            <div className="app-layout font-inter bg-zinc-100 min-h-screen flex">
+            <div className="min-h-screen bg-background flex from-gray-50 to-gray-100 bg-gradient-to-b">
               <Sidebar />
               <div className="flex-1 flex flex-col p-2">
-                <div className="bg-white rounded-xl border flex-1 flex flex-col min-h-0 p-4">
+                <div className="bg-card rounded-lg border flex-1 flex flex-col min-h-0 p-4">
                   <main className="flex-1 flex flex-col min-h-0">
                     <Routes>
                       <Route path="/" element={<Home />} />
@@ -74,6 +75,14 @@ function App() {
                       <Route
                         path="/recommendations"
                         element={<Recommendations />}
+                      />
+                      <Route
+                        path="/experience-center"
+                        element={<ExperienceCenter />}
+                      />
+                      <Route
+                        path="/experience-center/:id"
+                        element={<AssistantDetail />}
                       />
                       <Route
                         path="/access-management"

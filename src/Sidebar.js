@@ -10,8 +10,10 @@ import {
   Workflow,
   ThumbsUp,
   Users,
+  Monitor,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import logo from "./images/logo.png";
 
 const navLinks = [
   { icon: <Home size={20} />, label: "Dashboard", to: "/" },
@@ -36,30 +38,36 @@ const navLinks = [
   { icon: <UserCheck size={20} />, label: "Agent Portal", to: "/agent-portal" },
   { icon: <Workflow size={20} />, label: "Journeys", to: "/journeys" },
   { icon: <Workflow size={20} />, label: "Workflows", to: "/workflows" },
-  { icon: <Users size={20} />, label: "Access Management", to: "/access-management" },
+  {
+    icon: <Monitor size={20} />,
+    label: "Experience Center",
+    to: "/experience-center",
+  },
+  {
+    icon: <Users size={20} />,
+    label: "Access Management",
+    to: "/access-management",
+  },
 ];
 
 export default function Sidebar() {
   return (
-    <aside className="sticky top-0 flex flex-col justify-between h-screen w-[260px] font-inter text-base">
+    <aside className="sticky top-0 flex flex-col justify-between h-screen w-[260px] text-base bg-gradient-to-b from-gray-50 to-gray-100">
       <div>
-        <div className="flex items-center gap-2 text-base font-bold text-black mb-3 pl-5 py-5 border-b border-zinc-200">
-          <span className="bg-black text-white rounded-lg w-8 h-8 flex items-center justify-center text-lg font-black">
-            G
-          </span>
-          <span className="hidden md:inline">Acme Inc</span>
+        <div className="flex items-left justify-left text-base font-bold text-foreground mb-6 pl-10 border-b border-gray-100">
+          <img src={logo} alt="Logo" className="w-16 h-16 object-contain" />
         </div>
-        <nav>
+        <nav className="px-3">
           <ul className="flex flex-col gap-1">
             {navLinks.map((link) => (
               <li key={link.label}>
                 <NavLink
                   to={link.to}
                   className={({ isActive }) =>
-                    `mx-2 flex items-center px-4 py-2 rounded-md font-semibold transition-colors gap-3 text-sm font-inter ` +
+                    `mx-2 flex items-center px-4 py-3 rounded-xl font-semibold transition-all duration-200 gap-3 text-sm ` +
                     (isActive
-                      ? "bg-zinc-200 text-black"
-                      : "bg-transparent text-black hover:bg-zinc-50 hover:text-black")
+                      ? "bg-gray-900 text-white shadow-md transform scale-[1.02]"
+                      : "bg-transparent text-gray-600 hover:bg-gray-200 hover:text-gray-900 hover:shadow-sm")
                   }
                 >
                   {link.icon}
@@ -72,19 +80,15 @@ export default function Sidebar() {
           </ul>
         </nav>
       </div>
-      <div className="flex items-center px-8 py-6 border-t">
+      <div className="flex items-center px-6 py-6 border-t border-gray-200">
         <img
           src="https://randomuser.me/api/portraits/men/32.jpg"
           alt="Harvey"
-          className="w-10 h-10 rounded-full mr-3 border-2 border-black"
+          className="w-10 h-10 rounded-full mr-3 border-2 border-gray-200 shadow-sm"
         />
         <div className="flex flex-col">
-          <span className="text-base font-semibold text-black font-inter">
-            Harvey
-          </span>
-          <small className="text-zinc-500 font-inter">
-            harvey@veroscredit.com
-          </small>
+          <span className="text-base font-semibold text-gray-900">Harvey</span>
+          <small className="text-gray-500">harvey@example.com</small>
         </div>
       </div>
     </aside>

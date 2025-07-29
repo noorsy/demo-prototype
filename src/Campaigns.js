@@ -6,6 +6,9 @@ import {
   CurrencyDollarIcon,
   TagIcon,
 } from "@heroicons/react/24/solid";
+import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
+import { Badge } from "./components/ui/badge";
+import { Button } from "./components/ui/button";
 
 const campaigns = [
   {
@@ -274,110 +277,121 @@ export default function Campaigns() {
   const [inspectAccount, setInspectAccount] = useState(null);
 
   return (
-    <div className="min-h-screen font-inter text-sm">
+    <div className="min-h-screen text-sm">
       <PageHeader
         title="Campaigns"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Campaigns" }]}
       />
       <div className=" mx-auto p-2">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-zinc-900">All Campaigns</h2>
-          <button
-            className={primaryBtn}
-            onClick={() => navigate("/campaigns/create")}
-          >
+          <h2 className="text-2xl font-bold text-foreground">All Campaigns</h2>
+          <Button onClick={() => navigate("/campaigns/create")}>
             + Create Campaign
-          </button>
+          </Button>
         </div>
-        <div className="overflow-x-auto bg-white rounded-xl border border-zinc-200 shadow-sm">
-          <table className="min-w-full font-inter text-sm">
-            <thead>
-              <tr className="bg-zinc-50 text-zinc-700">
-                <th className="px-6 py-3 text-left font-semibold">
-                  Campaign Name
-                </th>
-                <th className="px-4 py-3 text-left font-semibold">Status</th>
-                <th className="px-4 py-3 text-left font-semibold">
-                  Created By
-                </th>
-                <th className="px-4 py-3 text-left font-semibold">
-                  Start Time
-                </th>
-                <th className="px-4 py-3 text-left font-semibold">End Time</th>
-                <th className="px-4 py-3 text-right font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {campaigns.map((c, idx) => (
-                <tr
-                  key={c.id}
-                  className={
-                    idx % 2 === 0
-                      ? "bg-white hover:bg-zinc-50 transition"
-                      : "bg-zinc-50 hover:bg-zinc-100 transition"
-                  }
-                >
-                  <td className="px-6 py-4 font-bold text-zinc-900 whitespace-nowrap">
-                    {c.name}
-                  </td>
-                  <td className="px-4 py-4">
-                    <span
-                      className={`text-xs px-3 py-1 rounded-full font-semibold ${
-                        c.status === "Active"
-                          ? "bg-zinc-900 text-white"
-                          : c.status === "Paused"
-                          ? "bg-zinc-200 text-zinc-900"
-                          : "bg-zinc-100 text-zinc-500"
-                      }`}
-                    >
-                      {c.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 flex items-center gap-2">
-                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-zinc-200 text-zinc-700 font-bold text-sm">
-                      {getInitial(c.createdBy)}
-                    </span>
-                    <span className="text-zinc-900 font-medium">
-                      {c.createdBy}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-zinc-700 whitespace-nowrap">
-                    {c.start}
-                  </td>
-                  <td className="px-4 py-4 text-zinc-700 whitespace-nowrap">
-                    {c.end}
-                  </td>
-                  <td className="px-4 py-4 text-right whitespace-nowrap flex gap-2 justify-end">
-                    <button className={primaryBtn}>View</button>
-                    <button
-                      className="px-5 py-2 rounded-lg bg-blue-100 text-blue-900 font-inter text-sm font-semibold hover:bg-blue-200 border border-blue-200 transition"
-                      onClick={() => setShowAccountsModal(true)}
-                    >
-                      View Accounts
-                    </button>
-                  </td>
+        <Card className="overflow-x-auto">
+          <CardContent className="p-0">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-muted/50 text-muted-foreground">
+                  <th className="px-6 py-3 text-left font-semibold">
+                    Campaign Name
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold">Status</th>
+                  <th className="px-4 py-3 text-left font-semibold">
+                    Created By
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold">
+                    Start Time
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold">
+                    End Time
+                  </th>
+                  <th className="px-4 py-3 text-right font-semibold">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {campaigns.map((c, idx) => (
+                  <tr
+                    key={c.id}
+                    className={
+                      idx % 2 === 0
+                        ? "bg-background hover:bg-muted/50 transition"
+                        : "bg-muted/30 hover:bg-muted transition"
+                    }
+                  >
+                    <td className="px-6 py-4 font-bold text-foreground whitespace-nowrap">
+                      {c.name}
+                    </td>
+                    <td className="px-4 py-4">
+                      <Badge
+                        variant={
+                          c.status === "Active"
+                            ? "default"
+                            : c.status === "Paused"
+                            ? "secondary"
+                            : "outline"
+                        }
+                      >
+                        {c.status}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-4 flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-muted text-muted-foreground font-bold text-sm">
+                        {getInitial(c.createdBy)}
+                      </span>
+                      <span className="text-foreground font-medium">
+                        {c.createdBy}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-muted-foreground whitespace-nowrap">
+                      {c.start}
+                    </td>
+                    <td className="px-4 py-4 text-muted-foreground whitespace-nowrap">
+                      {c.end}
+                    </td>
+                    <td className="px-4 py-4 text-right whitespace-nowrap flex gap-2 justify-end">
+                      <Button variant="outline" size="sm">
+                        View
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setShowAccountsModal(true)}
+                      >
+                        View Accounts
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
       </div>
       {/* Modal for accounts */}
       {showAccountsModal && (
-        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black bg-opacity-60">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full h-full max-w-7xl max-h-[95vh] overflow-auto relative flex flex-col">
-            <button
-              className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-900 text-3xl"
-              onClick={() => setShowAccountsModal(false)}
-              aria-label="Close"
-            >
-              &times;
-            </button>
-            <div className="text-2xl font-bold mb-6">Accounts</div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm border border-zinc-100 rounded-xl">
+        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <Card className="w-full h-full max-w-7xl max-h-[95vh] overflow-auto relative flex flex-col">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle>Accounts</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAccountsModal(false)}
+                  className="h-8 w-8 p-0"
+                >
+                  ×
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="overflow-x-auto">
+              <table className="min-w-full text-sm border border-border rounded-lg">
                 <thead>
-                  <tr className="bg-zinc-50 text-zinc-700">
+                  <tr className="bg-muted/50 text-muted-foreground">
                     <th className="px-4 py-2">Account ID</th>
                     <th className="px-4 py-2">Customer Name</th>
                     <th className="px-4 py-2">Amount Due</th>
@@ -392,7 +406,7 @@ export default function Campaigns() {
                 </thead>
                 <tbody>
                   {mockAccounts.map((acc) => (
-                    <tr key={acc.account_id} className="even:bg-zinc-50">
+                    <tr key={acc.account_id} className="even:bg-muted/30">
                       <td className="px-4 py-2">{acc.account_id}</td>
                       <td className="px-4 py-2">{acc.customer_name}</td>
                       <td className="px-4 py-2">
@@ -407,12 +421,14 @@ export default function Campaigns() {
                       <td className="px-4 py-2">{acc.missed_installments}</td>
                       <td className="px-4 py-2">{acc.risk_score}</td>
                       <td className="px-4 py-2">
-                        <button
-                          className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 border border-blue-200 text-xs font-semibold"
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => {
                             setInspectAccount(acc);
                             setShowInspectModal(true);
                           }}
+                          className="flex items-center gap-1"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -435,117 +451,135 @@ export default function Campaigns() {
                             />
                           </svg>
                           Inspect
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       )}
       {/* Inspect modal */}
       {showInspectModal && inspectAccount && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-70">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full h-full max-w-3xl max-h-[95vh] overflow-auto relative flex flex-col">
-            <button
-              className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-900 text-3xl"
-              onClick={() => setShowInspectModal(false)}
-              aria-label="Close"
-            >
-              &times;
-            </button>
-            <div className="text-2xl font-bold mb-6">
-              Account Timeline: {inspectAccount.account_id} -{" "}
-              {inspectAccount.customer_name}
-            </div>
-            {timelineEvents.map((event, idx) => (
-              <div key={idx} className="flex items-stretch relative">
-                {/* Left: Dot, line, and label */}
-                <div className="flex flex-col items-center w-28 min-w-[7rem] pr-2 relative">
-                  {/* Dot */}
-                  <span
-                    className={`w-4 h-4 rounded-full border-4 ${
-                      event.color === "green"
-                        ? "bg-green-500 border-green-200"
-                        : "bg-yellow-400 border-yellow-100"
-                    } z-10`}
-                  ></span>
-                  {/* Vertical line connecting dots */}
-                  {idx < timelineEvents.length - 1 && (
-                    <span
-                      className={`w-1 h-full bg-zinc-200 absolute left-1/2 top-4 z-0`}
-                    ></span>
-                  )}
-                  {/* Label */}
-                  <span className="mt-2 text-xs font-semibold text-zinc-500 text-center">
-                    {event.label}
-                  </span>
-                  {/* Channel icon */}
-                  <span className="mt-1">
-                    {event.channel === "Voice" && (
-                      <span className="inline-block bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-                        <svg
-                          className="inline w-4 h-4 mr-1"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15.05 5.05a7 7 0 01.9 9.19l-1.41 1.41a2 2 0 01-2.83 0l-2.12-2.12a2 2 0 010-2.83l1.41-1.41a7 7 0 019.19-.9z"
-                          />
-                        </svg>
-                        Voice
-                      </span>
-                    )}
-                    {event.channel === "SMS" && (
-                      <span className="inline-block bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-                        <svg
-                          className="inline w-4 h-4 mr-1"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8s-9-3.582-9-8 4.03-8 9-8 9 3.582 9 8z"
-                          />
-                        </svg>
-                        SMS
-                      </span>
-                    )}
-                  </span>
-                </div>
-                {/* Right: Card */}
-                <div
-                  className={`flex-1 ml-2 mb-8 rounded-2xl shadow-lg border border-zinc-100 bg-white p-6 transition-all ${
-                    event.color === "green"
-                      ? "border-green-200 bg-green-50"
-                      : "border-yellow-200 bg-yellow-50"
-                  }`}
-                  style={{ minWidth: 0 }}
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <Card className="w-full h-full max-w-3xl max-h-[95vh] overflow-auto relative flex flex-col">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle>
+                  Account Timeline: {inspectAccount.account_id} -{" "}
+                  {inspectAccount.customer_name}
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowInspectModal(false)}
+                  className="h-8 w-8 p-0"
                 >
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs text-zinc-400 font-semibold">
-                      {event.date}
-                    </span>
-                    {event.aiRecommended && (
-                      <span className="ml-auto bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs font-semibold">
-                        AI Recommended
-                      </span>
-                    )}
-                  </div>
-                  {renderTimelineCard(event)}
-                </div>
+                  ×
+                </Button>
               </div>
-            ))}
-          </div>
+            </CardHeader>
+            <CardContent>
+              {timelineEvents.map((event, idx) => (
+                <div key={idx} className="flex items-stretch relative">
+                  {/* Left: Dot, line, and label */}
+                  <div className="flex flex-col items-center w-28 min-w-[7rem] pr-2 relative">
+                    {/* Dot */}
+                    <span
+                      className={`w-4 h-4 rounded-full border-4 ${
+                        event.color === "green"
+                          ? "bg-green-500 border-green-200"
+                          : "bg-yellow-400 border-yellow-100"
+                      } z-10`}
+                    ></span>
+                    {/* Vertical line connecting dots */}
+                    {idx < timelineEvents.length - 1 && (
+                      <span
+                        className={`w-1 h-full bg-border absolute left-1/2 top-4 z-0`}
+                      ></span>
+                    )}
+                    {/* Label */}
+                    <span className="mt-2 text-xs font-semibold text-muted-foreground text-center">
+                      {event.label}
+                    </span>
+                    {/* Channel icon */}
+                    <span className="mt-1">
+                      {event.channel === "Voice" && (
+                        <Badge
+                          variant="secondary"
+                          className="bg-blue-100 text-blue-700"
+                        >
+                          <svg
+                            className="inline w-4 h-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15.05 5.05a7 7 0 01.9 9.19l-1.41 1.41a2 2 0 01-2.83 0l-2.12-2.12a2 2 0 010-2.83l1.41-1.41a7 7 0 019.19-.9z"
+                            />
+                          </svg>
+                          Voice
+                        </Badge>
+                      )}
+                      {event.channel === "SMS" && (
+                        <Badge
+                          variant="secondary"
+                          className="bg-yellow-100 text-yellow-700"
+                        >
+                          <svg
+                            className="inline w-4 h-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8s-9-3.582-9-8 4.03-8 9-8 9 3.582 9 8z"
+                            />
+                          </svg>
+                          SMS
+                        </Badge>
+                      )}
+                    </span>
+                  </div>
+                  {/* Right: Card */}
+                  <Card
+                    className={`flex-1 ml-2 mb-8 transition-all ${
+                      event.color === "green"
+                        ? "border-green-200 bg-green-50"
+                        : "border-yellow-200 bg-yellow-50"
+                    }`}
+                    style={{ minWidth: 0 }}
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs text-muted-foreground font-semibold">
+                          {event.date}
+                        </span>
+                        {event.aiRecommended && (
+                          <Badge
+                            variant="secondary"
+                            className="ml-auto bg-yellow-100 text-yellow-700"
+                          >
+                            AI Recommended
+                          </Badge>
+                        )}
+                      </div>
+                      {renderTimelineCard(event)}
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

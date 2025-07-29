@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function SetupCreditor() {
-  const [name, setName] = useState( localStorage.getItem("creditorName") || "" );
-  const [email, setEmail] = useState( localStorage.getItem("creditorEmail") || "" );
+  const [name, setName] = useState(localStorage.getItem("creditorName") || "");
+  const [email, setEmail] = useState(
+    localStorage.getItem("creditorEmail") || ""
+  );
   const navigate = useNavigate();
 
   // Auto-generate email when name changes
@@ -11,7 +13,9 @@ export default function SetupCreditor() {
     const newName = e.target.value;
     setName(newName);
     if (newName.trim()) {
-      const generatedEmail = `contact@${newName.toLowerCase().replace(/\s+/g, '')}.com`;
+      const generatedEmail = `contact@${newName
+        .toLowerCase()
+        .replace(/\s+/g, "")}.com`;
       setEmail(generatedEmail);
     }
   };
@@ -31,9 +35,13 @@ export default function SetupCreditor() {
         onSubmit={handleSubmit}
         className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full border border-zinc-200"
       >
-        <h1 className="text-2xl font-bold mb-4 text-center">Set Creditor Details</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center">
+          Set Creditor Details
+        </h1>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Creditor Name</label>
+          <label className="block text-sm font-medium mb-1">
+            Creditor Name
+          </label>
           <input
             className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
             value={name}
@@ -43,11 +51,13 @@ export default function SetupCreditor() {
           />
         </div>
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-1">Email Address</label>
+          <label className="block text-sm font-medium mb-1">
+            Email Address
+          </label>
           <input
             className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="contact@nubank.com"
             required
           />
@@ -64,4 +74,4 @@ export default function SetupCreditor() {
       </form>
     </div>
   );
-} 
+}
