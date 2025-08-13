@@ -16,6 +16,7 @@ import EditUser from "./EditUser";
 import SetupCreditor from "./SetupCreditor";
 import ExperienceCenter from "./ExperienceCenter";
 import AssistantDetail from "./AssistantDetail";
+import VoiceWidget from "./VoiceWidget";
 
 const Placeholder = ({ title }) => (
   <div className="p-8 text-lg">{title} Page</div>
@@ -96,6 +97,7 @@ function App() {
                         path="/access-management/edit"
                         element={<EditUser />}
                       />
+                      <Route path="/voice-widget" element={<VoiceWidget />} />
                     </Routes>
                   </main>
                 </div>

@@ -11,6 +11,7 @@ import {
   ThumbsUp,
   Users,
   Monitor,
+  Mic,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import logo from "./images/logo.png";
@@ -38,10 +39,15 @@ const navLinks = [
   { icon: <UserCheck size={20} />, label: "Agent Portal", to: "/agent-portal" },
   { icon: <Workflow size={20} />, label: "Journeys", to: "/journeys" },
   { icon: <Workflow size={20} />, label: "Workflows", to: "/workflows" },
+  // {
+  //   icon: <Monitor size={20} />,
+  //   label: "Experience Center",
+  //   to: "/experience-center",
+  // },
   {
-    icon: <Monitor size={20} />,
+    icon: <Mic size={20} />,
     label: "Experience Center",
-    to: "/experience-center",
+    to: "/voice-widget",
   },
   {
     icon: <Users size={20} />,
@@ -71,7 +77,7 @@ export default function Sidebar() {
                   }
                 >
                   {link.icon}
-                  <span className="ml-2 hidden md:inline font-semibold">
+                  <span className="ml-2 md:inline font-semibold">
                     {link.label}
                   </span>
                 </NavLink>

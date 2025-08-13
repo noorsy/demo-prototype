@@ -2054,7 +2054,7 @@ export default function AssistantDetail() {
                         variant="outline"
                       >
                         <Phone className="w-4 h-4 mr-2" />
-                        Phone Call
+                        View Call Transcript
                       </Button>
                     </div>
                   </div>
