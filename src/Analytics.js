@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
+import PageHeaderWithTabs from "./components/PageHeaderWithTabs";
 import {
   ChevronDownIcon,
   UsersIcon,
@@ -32,6 +33,7 @@ import {
   DocumentTextIcon,
   EnvelopeOpenIcon,
 } from "@heroicons/react/24/solid";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import {
   LineChart,
   Line,
@@ -244,35 +246,51 @@ export default function Analytics() {
     to: "2024-06-30",
   });
   const [tab, setTab] = useState(tabOptions[0]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filters = [
+    {
+      key: "product",
+      value: product,
+      onClick: () => {
+        const currentIndex = productOptions.indexOf(product);
+        const nextIndex = (currentIndex + 1) % productOptions.length;
+        setProduct(productOptions[nextIndex]);
+      },
+    },
+    {
+      key: "dpd",
+      value: dpd,
+      onClick: () => {
+        const currentIndex = dpdOptions.indexOf(dpd);
+        const nextIndex = (currentIndex + 1) % dpdOptions.length;
+        setDpd(dpdOptions[nextIndex]);
+      },
+    },
+    {
+      key: "segment",
+      value: segment,
+      onClick: () => {
+        const currentIndex = segmentOptions.indexOf(segment);
+        const nextIndex = (currentIndex + 1) % segmentOptions.length;
+        setSegment(segmentOptions[nextIndex]);
+      },
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Page Header matching the AI Agents/Conversations design */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
-        </div>
-      </div>
-      {/* Sticky Global Filters */}
-      <div className="sticky top-0 z-20  px-6 py-4 flex flex-row gap-4 items-center justify-end shadow-sm">
-        <FilterDropdown
-          options={productOptions}
-          value={product}
-          onChange={setProduct}
-        />
-        <FilterDropdown options={dpdOptions} value={dpd} onChange={setDpd} />
-        <FilterDropdown
-          options={segmentOptions}
-          value={segment}
-          onChange={setSegment}
-        />
-        <input
-          type="date"
-          className="px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 bg-white"
-          value={dateRange.to}
-          onChange={(e) => setDateRange((r) => ({ ...r, to: e.target.value }))}
-        />
-      </div>
+      <PageHeaderWithTabs
+        title="Analytics"
+        description="View and analyze your performance metrics and data here."
+        breadcrumbs={["Home", "Analytics"]}
+        tabs={[]}
+        filters={filters}
+        showSearch={false}
+        createButtonText="Export Data"
+        createButtonIcon={ArrowDownTrayIcon}
+        onCreateClick={() => {}}
+      />
 
       {/* Tab Navigation */}
       <div className="sticky top-[72px] z-10 bg-white px-6  flex gap-0 py-0">

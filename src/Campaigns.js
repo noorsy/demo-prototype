@@ -4,13 +4,12 @@ import {
   UserGroupIcon,
   CurrencyDollarIcon,
   TagIcon,
-  PlusIcon,
-  MagnifyingGlassIcon,
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
 import { Badge } from "./components/ui/badge";
 import { Button } from "./components/ui/button";
+import PageHeaderWithTabs from "./components/PageHeaderWithTabs";
 
 const campaigns = [
   {
@@ -279,81 +278,32 @@ export default function Campaigns() {
   const [inspectAccount, setInspectAccount] = useState(null);
   const [status, setStatus] = useState("All");
   const [channel, setChannel] = useState("All Channel");
+  const [activeTab, setActiveTab] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const tabs = [
+    { value: "All", label: "All (0)" },
+    { value: "Live", label: "Live (0)" },
+    { value: "Draft", label: "Draft (0)" },
+  ];
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Page Header matching the AI Agents design */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Campaigns</h1>
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search"
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-            </div>
-            <button
-              className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center space-x-2"
-              onClick={() => navigate("/campaigns/create")}
-            >
-              <PlusIcon className="h-4 w-4" />
-              <span>New Campaign</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      <PageHeaderWithTabs
+        title="Campaigns"
+        description="Manage your campaigns and their configurations here."
+        breadcrumbs={["Home", "Campaigns"]}
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        searchPlaceholder="Search campaigns"
+        createButtonText="Create Campaign"
+        onCreateClick={() => navigate("/campaigns/create")}
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
 
-      {/* Filters Section */}
-      <div className="bg-white px-6 py-4 border-gray-100">
-        <div className="flex items-center space-x-4">
-          {/* Status Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() =>
-                setStatus(
-                  status === "All"
-                    ? "Active"
-                    : status === "Active"
-                    ? "Paused"
-                    : status === "Paused"
-                    ? "Draft"
-                    : "All"
-                )
-              }
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center space-x-2 min-w-[120px] justify-between"
-            >
-              <span>{status}</span>
-              <ChevronDownIcon className="w-4 h-4 text-gray-400" />
-            </button>
-          </div>
-
-          {/* Channel Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() =>
-                setChannel(
-                  channel === "All Channel"
-                    ? "Voice"
-                    : channel === "Voice"
-                    ? "SMS"
-                    : channel === "SMS"
-                    ? "Email"
-                    : "All Channel"
-                )
-              }
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center space-x-2 min-w-[140px] justify-between"
-            >
-              <span>{channel}</span>
-              <ChevronDownIcon className="w-4 h-4 text-gray-400" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 p-6">
+      <div className="flex-1 px-6 pt-3 pb-6">
         <Card className="overflow-x-auto">
           <CardContent className="p-0">
             <table className="min-w-full text-sm">

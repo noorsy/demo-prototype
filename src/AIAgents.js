@@ -10,6 +10,7 @@ import {
   ClockIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
+import PageHeaderWithTabs from "./components/PageHeaderWithTabs";
 
 const agents = [
   {
@@ -59,82 +60,55 @@ const agents = [
 export default function AIAgents() {
   const [status, setStatus] = useState("All");
   const [channel, setChannel] = useState("All Channel");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("All");
   const navigate = useNavigate();
 
   // For demo, all agents are active
   const filteredAgents =
     status === "All" ? agents : status === "Active" ? agents : [];
 
+  const filters = [
+    {
+      key: "status",
+      value: status,
+      onClick: () =>
+        setStatus(
+          status === "All" ? "Active" : status === "Active" ? "Archived" : "All"
+        ),
+    },
+    {
+      key: "channel",
+      value: channel,
+      onClick: () =>
+        setChannel(
+          channel === "All Channel"
+            ? "Voice"
+            : channel === "Voice"
+            ? "SMS"
+            : channel === "SMS"
+            ? "Email"
+            : "All Channel"
+        ),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Page Header matching the design */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">AI Agents</h1>
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search"
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-            </div>
-            <button
-              className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center space-x-2"
-              onClick={() => navigate("/ai-agents/create")}
-            >
-              <PlusIcon className="h-4 w-4" />
-              <span>New Agent</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters Section */}
-      <div className="bg-white px-6 py-4 border-gray-100">
-        <div className="flex items-center space-x-4">
-          {/* Status Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() =>
-                setStatus(
-                  status === "All"
-                    ? "Active"
-                    : status === "Active"
-                    ? "Archived"
-                    : "All"
-                )
-              }
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center space-x-2 min-w-[120px] justify-between"
-            >
-              <span>{status}</span>
-              <ChevronDownIcon className="w-4 h-4 text-gray-400" />
-            </button>
-          </div>
-
-          {/* Channel Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() =>
-                setChannel(
-                  channel === "All Channel"
-                    ? "Voice"
-                    : channel === "Voice"
-                    ? "SMS"
-                    : channel === "SMS"
-                    ? "Email"
-                    : "All Channel"
-                )
-              }
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center space-x-2 min-w-[140px] justify-between"
-            >
-              <span>{channel}</span>
-              <ChevronDownIcon className="w-4 h-4 text-gray-400" />
-            </button>
-          </div>
-        </div>
-      </div>
+      <PageHeaderWithTabs
+        title="AI Agents"
+        description="Manage your AI agents and their configurations here."
+        breadcrumbs={["Home", "AI Agents"]}
+        tabs={[]}
+        filters={filters}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        searchPlaceholder="Search agents"
+        createButtonText="New Agent"
+        onCreateClick={() => navigate("/ai-agents/create")}
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 p-6">
