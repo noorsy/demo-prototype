@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
-import PageHeader from "./PageHeader";
 import {
   ChevronDownIcon,
   UsersIcon,
@@ -14,6 +13,24 @@ import {
   ExclamationTriangleIcon,
   ArrowTrendingUpIcon,
   DevicePhoneMobileIcon,
+  UserGroupIcon,
+  SignalIcon,
+  ChatBubbleLeftRightIcon,
+  HandThumbUpIcon,
+  CheckBadgeIcon,
+  BanknotesIcon,
+  ClockIcon,
+  SpeakerWaveIcon,
+  ChatBubbleBottomCenterTextIcon,
+  EyeIcon,
+  CursorArrowRaysIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  AtSymbolIcon,
+  InboxIcon,
+  CursorArrowRippleIcon,
+  MicrophoneIcon,
+  DocumentTextIcon,
+  EnvelopeOpenIcon,
 } from "@heroicons/react/24/solid";
 import {
   LineChart,
@@ -229,13 +246,15 @@ export default function Analytics() {
   const [tab, setTab] = useState(tabOptions[0]);
 
   return (
-    <div className="min-h-screen bg-zinc-100 font-inter">
-      <PageHeader
-        title="Analytics"
-        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Analytics" }]}
-      />
+    <div className="min-h-screen bg-white">
+      {/* Page Header matching the AI Agents/Conversations design */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
+        </div>
+      </div>
       {/* Sticky Global Filters */}
-      <div className="sticky top-0 z-20 bg-white border-b border-zinc-200 px-6 py-4 flex flex-row gap-4 items-center justify-end shadow-sm">
+      <div className="sticky top-0 z-20  px-6 py-4 flex flex-row gap-4 items-center justify-end shadow-sm">
         <FilterDropdown
           options={productOptions}
           value={product}
@@ -247,29 +266,16 @@ export default function Analytics() {
           value={segment}
           onChange={setSegment}
         />
-        <div className="flex gap-2 items-center">
-          <input
-            type="date"
-            className="px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 bg-white"
-            value={dateRange.from}
-            onChange={(e) =>
-              setDateRange((r) => ({ ...r, from: e.target.value }))
-            }
-          />
-          <span className="text-zinc-400">to</span>
-          <input
-            type="date"
-            className="px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 bg-white"
-            value={dateRange.to}
-            onChange={(e) =>
-              setDateRange((r) => ({ ...r, to: e.target.value }))
-            }
-          />
-        </div>
+        <input
+          type="date"
+          className="px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 bg-white"
+          value={dateRange.to}
+          onChange={(e) => setDateRange((r) => ({ ...r, to: e.target.value }))}
+        />
       </div>
 
       {/* Tab Navigation */}
-      <div className="sticky top-[72px] z-10 bg-white px-6 border-b border-zinc-200 flex gap-0 py-0">
+      <div className="sticky top-[72px] z-10 bg-white px-6  flex gap-0 py-0">
         {tabOptions.map((t) => (
           <button
             key={t}
@@ -289,7 +295,7 @@ export default function Analytics() {
       </div>
 
       {/* Tab Content */}
-      <div className="max-w-7xl mx-auto p-8">
+      <div className="max-w-8xl mx-auto p-8">
         {tab === "Overview" && (
           <>
             <div className="text-2xl font-bold text-zinc-900 mb-4">
@@ -484,36 +490,36 @@ export default function Analytics() {
               Engagement
             </div>
             {/* Engagement Metrics Row */}
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
               <MetricCard
+                icon={<UserGroupIcon className="w-5 h-5" />}
                 label="Accounts Reached"
                 value="62,500"
                 sublabel={"+8.5% from last month"}
               />
               <MetricCard
+                icon={<SignalIcon className="w-5 h-5" />}
                 label="Connectivity %"
                 value="78.5%"
                 sublabel={"+2.3% from last month"}
               />
               <MetricCard
+                icon={<ChatBubbleLeftRightIcon className="w-5 h-5" />}
                 label="RPC Rate"
                 value="42.1%"
                 sublabel={"+1.5% from last month"}
               />
               <MetricCard
+                icon={<HandThumbUpIcon className="w-5 h-5" />}
                 label="PTP Rate"
                 value="19.3%"
                 sublabel={"+2.5% from last month"}
               />
               <MetricCard
+                icon={<CheckBadgeIcon className="w-5 h-5" />}
                 label="Resolution Rate"
                 value="12.5%"
                 sublabel={"+1.8% from last month"}
-              />
-              <MetricCard
-                label="Collection Rate %"
-                value="8.7%"
-                sublabel={"+1.2% from last month"}
               />
             </div>
 
@@ -860,21 +866,25 @@ export default function Analytics() {
             {/* Compliance KPIs Row */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <MetricCard
+                icon={<ShieldCheckIcon className="w-5 h-5" />}
                 label="Overall Compliance"
                 value="99.2%"
                 sublabel={"+0.3% from last month"}
               />
               <MetricCard
+                icon={<SignalIcon className="w-5 h-5" />}
                 label="Reachability Compliance"
                 value="98.7%"
                 sublabel={"+0.2% from last month"}
               />
               <MetricCard
+                icon={<ChatBubbleLeftRightIcon className="w-5 h-5" />}
                 label="Conversational Compliance"
                 value="99.5%"
                 sublabel={"+0.4% from last month"}
               />
               <MetricCard
+                icon={<ExclamationTriangleIcon className="w-5 h-5" />}
                 label="Complaint Rate"
                 value="0.31%"
                 sublabel={"-0.05% from last month"}
@@ -1014,26 +1024,31 @@ export default function Analytics() {
             {/* Voice KPIs Row */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
               <MetricCard
+                icon={<PhoneIcon className="w-5 h-5" />}
                 label="Total Calls"
                 value="41,800"
                 sublabel={"+12.5% from last month"}
               />
               <MetricCard
+                icon={<SignalIcon className="w-5 h-5" />}
                 label="Connectivity %"
                 value="68.5%"
                 sublabel={"+2.4% from last month"}
               />
               <MetricCard
+                icon={<ClockIcon className="w-5 h-5" />}
                 label="Avg Handle Time"
                 value="178s"
                 sublabel={"-5.3% from last month"}
               />
               <MetricCard
+                icon={<SpeakerWaveIcon className="w-5 h-5" />}
                 label="Containment Rate"
                 value="74.2%"
                 sublabel={"+4.5% from last month"}
               />
               <MetricCard
+                icon={<BanknotesIcon className="w-5 h-5" />}
                 label="$ Recovered"
                 value="$2.09M"
                 sublabel={"+15.1% from last month"}
@@ -1286,33 +1301,33 @@ export default function Analytics() {
           <>
             <div className="text-2xl font-bold text-zinc-900 mb-4">SMS</div>
             {/* SMS KPIs Row */}
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
               <MetricCard
+                icon={<ChatBubbleBottomCenterTextIcon className="w-5 h-5" />}
                 label="Total SMS Sent"
                 value="41,800"
                 sublabel={"+12.5% from last month"}
               />
               <MetricCard
+                icon={<CheckCircleIcon className="w-5 h-5" />}
                 label="Delivery Rate"
                 value="98.7%"
                 sublabel={"+0.2% from last month"}
               />
               <MetricCard
+                icon={<CursorArrowRaysIcon className="w-5 h-5" />}
                 label="Click-Through Rate"
                 value="14.1%"
                 sublabel={"+1.8% from last month"}
               />
               <MetricCard
+                icon={<ChatBubbleOvalLeftEllipsisIcon className="w-5 h-5" />}
                 label="Response Rate"
                 value="10.0%"
                 sublabel={"+1.2% from last month"}
               />
               <MetricCard
-                label="PTP Rate"
-                value="7.2%"
-                sublabel={"+0.8% from last month"}
-              />
-              <MetricCard
+                icon={<BanknotesIcon className="w-5 h-5" />}
                 label="$ Recovered"
                 value="$1.20M"
                 sublabel={"+18.5% from last month"}
@@ -1455,21 +1470,25 @@ export default function Analytics() {
             {/* Email KPIs Row */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <MetricCard
+                icon={<EnvelopeIcon className="w-5 h-5" />}
                 label="Total Emails Sent"
                 value="43,500"
                 sublabel={"Last 30 days\n+5.2% from previous period"}
               />
               <MetricCard
+                icon={<CheckCircleIcon className="w-5 h-5" />}
                 label="Email Delivery Rate"
                 value="97.0%"
                 sublabel={"Last 30 days\n+0.5% from previous period"}
               />
               <MetricCard
+                icon={<EyeIcon className="w-5 h-5" />}
                 label="Email Open Rate"
                 value="42.3%"
                 sublabel={"Last 30 days\n+1.8% from previous period"}
               />
               <MetricCard
+                icon={<CursorArrowRaysIcon className="w-5 h-5" />}
                 label="Email Click-Through Rate"
                 value="9.7%"
                 sublabel={"Last 30 days\n+0.3% from previous period"}
@@ -1646,16 +1665,19 @@ export default function Analytics() {
             {/* Utilization KPIs Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <MetricCard
+                icon={<MicrophoneIcon className="w-5 h-5" />}
                 label="Total Voice Minutes"
                 value="35,700"
                 sublabel={"Last 30 days\n+3.2% from previous period"}
               />
               <MetricCard
+                icon={<DocumentTextIcon className="w-5 h-5" />}
                 label="Total SMS Segments"
                 value="90,100"
                 sublabel={"Last 30 days\n+5.7% from previous period"}
               />
               <MetricCard
+                icon={<EnvelopeOpenIcon className="w-5 h-5" />}
                 label="Total Emails Sent"
                 value="44,600"
                 sublabel={"Last 30 days\n+2.1% from previous period"}

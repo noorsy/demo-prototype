@@ -26,11 +26,6 @@ export default function PageHeader({ title, breadcrumbs = [] }) {
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           {title}
         </h1>
-        <input
-          type="text"
-          placeholder="Search..."
-          className="px-3 py-2 rounded-md text-foreground border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring w-56 placeholder-muted-foreground text-sm"
-        />
       </div>
     </header>
   );
