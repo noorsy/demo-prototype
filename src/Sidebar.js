@@ -37,7 +37,6 @@ const navLinks = [
     to: "/accounts-data",
   },
   { icon: <UserCheck size={20} />, label: "Agent Portal", to: "/agent-portal" },
-  { icon: <Workflow size={20} />, label: "Journeys", to: "/journeys" },
   { icon: <Workflow size={20} />, label: "Workflows", to: "/workflows" },
   // {
   //   icon: <Monitor size={20} />,
@@ -60,7 +59,7 @@ export default function Sidebar() {
   return (
     <aside className="sticky top-0 flex flex-col justify-between h-screen w-[260px] text-base bg-gradient-to-b from-gray-50 to-gray-100">
       <div>
-        <div className="flex items-left justify-left text-base font-bold text-foreground mb-6 pl-10 border-b border-gray-100">
+        <div className="flex items-left justify-left text-base font-bold text-foreground mb-3 pl-10 border-b border-gray-100">
           <img src={logo} alt="Logo" className="w-16 h-16 object-contain" />
         </div>
         <nav className="px-3">
@@ -70,7 +69,7 @@ export default function Sidebar() {
                 <NavLink
                   to={link.to}
                   className={({ isActive }) =>
-                    `mx-2 flex items-center px-4 py-3 rounded-xl font-semibold transition-all duration-200 gap-3 text-sm ` +
+                    `mx-2 flex items-center px-4 py-2 rounded-xl font-semibold transition-all duration-200 gap-3 text-sm ` +
                     (isActive
                       ? "bg-gray-900 text-white shadow-md transform scale-[1.02]"
                       : "bg-transparent text-gray-600 hover:bg-gray-200 hover:text-gray-900 hover:shadow-sm")

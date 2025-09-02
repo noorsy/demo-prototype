@@ -17,6 +17,7 @@ import SetupCreditor from "./SetupCreditor";
 import ExperienceCenter from "./ExperienceCenter";
 import AssistantDetail from "./AssistantDetail";
 import VoiceWidget from "./VoiceWidget";
+import Conversations from "./Conversations";
 
 const Placeholder = ({ title }) => (
   <div className="p-8 text-lg">{title} Page</div>
@@ -48,13 +49,17 @@ function App() {
                         element={<CreateAssistant />}
                       />
                       <Route
+                        path="/ai-agents/:id"
+                        element={<AssistantDetail />}
+                      />
+                      <Route
                         path="/campaigns/create"
                         element={<CreateCampaign />}
                       />
                       <Route path="/campaigns" element={<Campaigns />} />
                       <Route
                         path="/conversations"
-                        element={<Placeholder title="Conversations" />}
+                        element={<Conversations />}
                       />
                       <Route path="/analytics" element={<Analytics />} />
                       <Route

@@ -1,770 +1,85 @@
 import React, { useState, useEffect } from "react";
-import PageHeader from "./PageHeader";
 import { useNavigate } from "react-router-dom";
 import {
-  CheckCircleIcon,
+  CheckIcon,
+  ChevronDownIcon,
   PlusIcon,
-  CalendarDaysIcon,
-  ClockIcon,
-  InformationCircleIcon,
-  FunnelIcon,
-  ChatBubbleLeftRightIcon,
-  UserCircleIcon,
-} from "@heroicons/react/24/solid";
+  TrashIcon,
+  DocumentIcon,
+  UserIcon,
+  GlobeAltIcon,
+  Cog6ToothIcon,
+  CpuChipIcon,
+  PresentationChartLineIcon,
+  ArrowLeftIcon,
+  PlayIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/outline";
 
-const microSegments = ["Auto Loan", "Mortgage", "Credit Card"];
-const channelOptions = [
+const voiceAssistants = [
   {
-    key: "Voice",
-    icon: "🔊",
-    desc: "Automated or live voice calls.",
+    name: "Susan",
+    description:
+      "A friendly 30 year old AI Assistant with a warm, approachable tone",
+    selected: true,
   },
   {
-    key: "SMS",
-    icon: "💬",
-    desc: "Text messaging for quick alerts.",
+    name: "Marcus",
+    description:
+      "A friendly 30 year old AI Assistant with a warm, approachable tone",
+    selected: false,
   },
   {
-    key: "Email",
-    icon: "✉️",
-    desc: "Send detailed information via email.",
+    name: "Scarlett",
+    description:
+      "A friendly 30 year old AI Assistant with a warm, approachable tone",
+    selected: false,
   },
   {
-    key: "Web Chat",
-    icon: "💻",
-    desc: "Chat with users on your website.",
-  },
-];
-const attributes = [
-  { name: "account_id", desc: "Unique account identifier.", mandatory: true },
-  {
-    name: "customer_name",
-    desc: "Full name of the customer.",
-    mandatory: true,
+    name: "Jean",
+    description:
+      "A friendly 30 year old AI Assistant with a warm, approachable tone",
+    selected: false,
   },
   {
-    name: "primary_phone_number",
-    desc: "Primary contact number (for Voice/SMS).",
-    mandatory: true,
+    name: "Parker",
+    description:
+      "A friendly 30 year old AI Assistant with a warm, approachable tone",
+    selected: false,
   },
   {
-    name: "email_address",
-    desc: "Primary email contact (for Email).",
-    mandatory: true,
-  },
-  { name: "dpd", desc: "Days Past Due.", mandatory: true },
-  { name: "amount_due", desc: "Current outstanding balance.", mandatory: true },
-  {
-    name: "product_type",
-    desc: "Matches products defined earlier.",
-    mandatory: true,
-  },
-  {
-    name: "timezone",
-    desc: "Customers timezone (e.g., America/New_York).",
-    mandatory: true,
-  },
-];
-const sources = [
-  {
-    key: "SFTP",
-    icon: "📁",
-    desc: "Secure File Transfer Protocol for batch uploads.",
-  },
-  { key: "API", icon: "🔗", desc: "Real-time integration with your systems." },
-];
-const segmentOptions = [
-  {
-    key: "manual",
-    title: "Manual Segment",
-    desc: "Define segments and rules yourself.",
-  },
-  {
-    key: "ai",
-    title: "AI-driven Segment",
-    desc: "Let AI analyze and create segments for you.",
+    name: "Clark",
+    description:
+      "A friendly 30 year old AI Assistant with a warm, approachable tone",
+    selected: false,
   },
 ];
 
 const steps = [
   {
     title: "Assistant Details",
-    desc: "Name, description, segment, and channels.",
-    icon: "📝",
+    desc: "Update your assistant information with name and phone",
+    icon: CpuChipIcon,
   },
   {
-    title: "Attributes & Data Source",
-    desc: "Configure attributes, data source and segmentation.",
-    icon: "📄",
+    title: "Data Attributes",
+    desc: "Select which fields to use for AI-powered customer segmentation",
+    icon: Cog6ToothIcon,
   },
   {
-    title: "AI Processing",
-    desc: "AI analyzes and creates intelligent segments.",
-    icon: "🤖",
+    title: "Knowledge and Inputs",
+    desc: "Upload documents and configure knowledge sources and guardrails",
+    icon: CpuChipIcon,
   },
   {
     title: "Segmentation",
-    desc: "Review and manage AI-generated segments.",
-    icon: "🔎",
+    desc: "Build smart customer segments using rule-based logic",
+    icon: PresentationChartLineIcon,
   },
 ];
-
-const tasksList = [
-  {
-    id: 1,
-    title: "Segmenting Accounts",
-    icon: FunnelIcon,
-    subtasks: [
-      "Dividing accounts into primary behavioral groups",
-      "Applying propensity scoring to each segment",
-      "Identifying high-value recovery opportunities",
-      "Creating smart segment boundaries 📊",
-    ],
-  },
-  {
-    id: 2,
-    title: "Optimizing Treatment Strategies",
-    icon: ChatBubbleLeftRightIcon,
-    subtasks: [
-      "Matching communication approaches to segments",
-      "Calculating optimal contact timing windows",
-      "Personalizing message content by segment",
-      "Fine-tuning approach sensitivity 🎯",
-    ],
-  },
-  {
-    id: 3,
-    title: "Defining Segment Characteristics",
-    icon: UserCircleIcon,
-    subtasks: [
-      "Analyzing segment behavioral patterns",
-      "Identifying segment communication preferences",
-      "Determining segment risk profiles",
-      "Mapping segment response tendencies 📊",
-    ],
-  },
-  {
-    id: 4,
-    title: "Building Journey Mapping",
-    icon: CalendarDaysIcon,
-    subtasks: [
-      "Creating communication sequence flows",
-      "Setting up channel-specific touchpoints",
-      "Establishing decision points and branches",
-      "Optimizing timing between touchpoints ⏱️",
-    ],
-  },
-];
-
-// Add mock segments data for demonstration
-const initialSegments = {
-  "Early Stage": [
-    {
-      name: "High Value Early",
-      rules: "DPD 5-10 AND Amount > $5,000",
-      characteristics: "High balance, first-time delinquent",
-      focus: "Empathy, payment plan options",
-    },
-    {
-      name: "Repeat Early",
-      rules: "DPD 5-10 AND Repeat delinquents",
-      characteristics: "Multiple past dues, moderate balance",
-      focus: "Reminder, urgency messaging",
-    },
-  ],
-  "Mid Stage": [
-    {
-      name: "Mid Risk",
-      rules: "DPD 21-30, Amount $1,000-$5,000",
-      characteristics: "Medium risk, some prior contact",
-      focus: "Escalation, offer settlement",
-    },
-  ],
-  "Late Stage": [],
-  "Very Late Stage": [],
-  "Pre-Chargeoff": [],
-  "Post-Chargeoff": [],
-};
-
-// Map DPD names to display names for tabs
-const dpdDisplayNames = {
-  "Early Stage": "Early Delinquency",
-  "Mid Stage": "Mid Delinquency",
-  "Late Stage": "Late Delinquency",
-  "Very Late Stage": "Very Late",
-  "Pre-Chargeoff": "Pre-Chargeoff",
-  "Post-Chargeoff": "Post-Chargeoff",
-};
-
-const recommendedAttributes = [
-  {
-    name: "risk_score",
-    desc: "Enables risk-based segments (e.g., High/Medium/Low).",
-  },
-  {
-    name: "first_default_date / total_defaults_count",
-    desc: "Identifies first-time vs. repeat defaulters.",
-  },
-  {
-    name: "last_payment_date / last_payment_amount",
-    desc: "Provides payment history insights.",
-  },
-  { name: "language_preference", desc: "Enables multilingual outreach." },
-];
-
-const actualSegments = [
-  {
-    id: "SEG0: Vulnerable / Special Handling",
-    logic:
-      'Vulnerability_Flag IS TRUE OR account_notes CONTAIN keywords ("hardship", "illness", "dispute bureau", etc.)',
-    characteristics:
-      "Customer facing significant personal challenges; potential compliance/reputational risk.",
-    focus:
-      "Understanding, empathy, offering support/options, pausing standard collections.",
-  },
-  {
-    id: "SEG1: High Priority - Broken Promises (PTP Failures)",
-    logic:
-      "Number_of_Broken_PTPs_Last_6_Months >= 1 AND Days_Since_Last_Broken_PTP <= 7 (or other short timeframe)",
-    characteristics:
-      "Explicit commitment made and not met recently. Potentially willing but facing new obstacles.",
-    focus:
-      "Direct, reference broken promise, understand reason, secure new firm commitment, reiterate importance.",
-  },
-  {
-    id: "SEG2: High Potential / Active Engagement",
-    logic:
-      "Last_Customer_Response_Channel IS NOT NULL AND Days_Since_Last_Customer_Response <= 5 AND Last_Customer_Response_Sentiment IS Positive/Neutral",
-    characteristics:
-      "Recently engaged with client, potentially showing willingness to resolve.",
-    focus:
-      "Conversational, reference prior interaction, easy payment options, gratitude for engagement.",
-  },
-  {
-    id: "SEG3: Forgetful / Early Stage Delinquency",
-    logic:
-      "DPD >= 5 AND DPD <= 30 AND Number_of_Broken_PTPs_Last_12_Months == 0 AND (Payment_History_Shows_Previous_On_Time_Payments OR Client_Risk_Score IS Low OR Client_Risk_Score IS NULL)",
-    characteristics:
-      "Likely good payers who missed a payment. Low history of delinquency. No recent high-risk flags.",
-    focus:
-      'Gentle, helpful reminders. "Looks like your payment is overdue. Pay easily here..."',
-  },
-  {
-    id: "SEG4: Repeat Offenders / Consistent Late Payers",
-    logic:
-      "(DPD > 30) AND (Number_of_Previous_Delinquency_Cycles_Last_12_Months >= 2-3 OR Payment_History_Shows_Sporadic_Payments) OR (Number_of_Broken_PTPs_Last_12_Months >= 2 but not recent)",
-    characteristics:
-      "History of multiple delinquencies or broken promises over time.",
-    focus:
-      "More direct about overdue status, consequences (compliant), focus on payment plan or firm PTP.",
-  },
-  {
-    id: "SEG5: High Risk / Significant Delinquency (Non-PTP Breakers)",
-    logic: "(Client_Risk_Score IS High OR DPD > 60) AND NOT IN SEG1",
-    characteristics:
-      "Represents higher risk due to client scoring or prolonged delinquency, without a recent PTP break.",
-    focus:
-      "Professional, understand situation, negotiate payment plans/settlements, assertiveness based on risk/DPD.",
-  },
-  {
-    id: "SEG6: Long-Term Low Engagement",
-    logic:
-      "Days_Since_Last_Customer_Response > 60 AND DPD > 120 AND NOT IN SEG0 or SEG1",
-    characteristics:
-      "Significantly past due with no recent engagement for an extended period.",
-    focus:
-      "Standard reminder messages; less personalization. Focus on re-engagement.",
-  },
-  {
-    id: "SEG7: General Delinquency (Catch-All)",
-    logic:
-      "Accounts not fitting other segments AND DPD > Minimum_DPD_for_Action (e.g., 1 day)",
-    characteristics:
-      "Delinquent but doesn't meet specific criteria of other prioritized segments.",
-    focus: "Standard collection messaging, tone adjusted primarily by DPD.",
-  },
-];
-
-// Place this outside the component, near the top of the file
-const attributeCategories = [
-  {
-    title: "I. Client Portfolio Data (Source: Client CRM / Lead File / Servicing System)",
-    groups: [
-      {
-        group: "A. Borrower & Co-Borrower Information",
-        items: [
-          "Primary Borrower Full Name",
-          "Primary Borrower Account Number / Client Internal ID",
-          "Primary Borrower Date of Birth / Age",
-          "Co-Borrower(s) Full Name(s) (if applicable)",
-          "Co-Borrower(s) Date(s) of Birth / Age(s) (if applicable)",
-          "Relationship between Borrowers (if known)",
-          "Language Preference (if known by client)",
-          "Vulnerable Customer Indicators (if provided by client, handle ethically)",
-          "Military Status / SCRA Protection Indicator (known by client)",
-          "Deceased Indicator (known by client)",
-          "Bankruptcy Filed Indicator (known by client, Chapter 7/13)",
-          "Cease & Desist / Litigious Customer Flag (from client system)",
-          "Fraud Indicator (from client system)",
-        ],
-      },
-      {
-        group: "B. Contact Information (Associated with Borrowers)",
-        items: [
-          "Primary Address (Street, City, State, ZIP)",
-          "Mailing Address (if different)",
-          "Garage Address (where vehicle is primarily kept, if different)",
-          "Address Type (Primary, Mailing, Previous, etc.)",
-          "Address Tenure (if known)",
-          "Primary Phone Number (Mobile)",
-          "Home Phone Number (Landline)",
-          "Work Phone Number",
-          "Other Phone Numbers on File",
-          "Phone Number Type (Mobile/Landline/Work designation by client)",
-          "Phone Number Source/Verification Notes (from client)",
-          "Primary Email Address",
-          "Secondary Email Address(es)",
-          "Email Address Source/Verification Notes (from client)",
-          "Client-defined Preferred Contact Method/Time (if available)",
-        ],
-      },
-      {
-        group: "C. Loan & Account Details (Core Auto Loan Data)",
-        items: [
-          "Loan Origination Date",
-          "Original Loan Amount",
-          "Current Outstanding Balance (Total)",
-          "Principal Balance",
-          "Accrued Interest Balance",
-          "Fees Balance (Late Fees, Other Fees)",
-          "Total Amount Due (Current Billing Cycle)",
-          "Past Due Amount",
-          "Days Past Due (DPD) - Critical",
-          "Loan Status in Client System (e.g., Delinquent, Grace, Pre-Charge Off, Pre-Repossession)",
-          "Original Loan Term (e.g., 60 months)",
-          "Remaining Loan Term (months)",
-          "Interest Rate / APR",
-          "Scheduled Monthly Payment Amount",
-          "Next Payment Due Date",
-          "Last Payment Date (Client System)",
-          "Last Payment Amount (Client System)",
-          "Payment Frequency (e.g., Monthly)",
-          "Billing Cycle Date",
-          "Grace Period Length (Days)",
-          "Loan Type / Product Code (e.g., New Auto Purchase, Used Auto Purchase, Refinance)",
-          "Security Type (Secured - Auto)",
-          "Account Open Date",
-        ],
-      },
-      {
-        group: "D. Collateral Details (Vehicle Information)",
-        items: [
-          "Vehicle Year",
-          "Vehicle Make",
-          "Vehicle Model",
-          "Vehicle Trim/Series",
-          "Vehicle Identification Number (VIN)",
-          "Vehicle License Plate Number & State (if known)",
-          "Original Vehicle Value / Purchase Price",
-          "Estimated Current Vehicle Value (if client provides updates, e.g., KBB/NADA)",
-          "Loan-to-Value (LTV) Ratio at Origination",
-          "Current Estimated LTV (if current value available)",
-          "GAP Insurance Coverage Indicator",
-          "Insurance Policy Information (Carrier, Policy #, Expiry - if tracked by client)",
-        ],
-      },
-      {
-        group: "E. Borrower Financial Profile (From Client Records)",
-        items: [
-          "Credit Score (e.g., FICO, VantageScore) at Origination",
-          "Updated Credit Score (if client performs periodic reviews and provides)",
-          "Client Internal Credit Tier/Grade at Origination",
-          "Stated Income at Origination",
-          "Verified Income at Origination (if applicable)",
-          "Employment Status at Origination",
-          "Employer Name at Origination (if known)",
-          "Debt-to-Income (DTI) Ratio at Origination",
-          "Payment Method on File (e.g., ACH, Card, Coupon Book)",
-          "Autopay / Recurring Payment Enrollment Status",
-        ],
-      },
-      {
-        group: "F. Account History & Client Operations Data",
-        items: [
-          "Payment History Rating (Client internal score, e.g., # times 30/60/90 DPD)",
-          "History of Returned Payments / NSF (Non-Sufficient Funds)",
-          "History of Broken Promises (Tracked in client system)",
-          "Date Account Placed into Collections / Assigned to Platform",
-          "Delinquency Reason Code (if provided by client)",
-          "Previous Collection Efforts / Notes (Summary or key flags if provided by client)",
-          "Client-defined Risk Score / Segmentation Code",
-          "Number of Previous Loan Modifications/Forbearances",
-          "Date of Last Loan Modification/Forbearance",
-          "Hardship Program Enrollment Status (in client system)",
-          "Repossession Status / History (if previously repossessed & reinstated)",
-          "Cosigner Delinquency History (if tracked separately by client)",
-        ],
-      },
-    ],
-  },
-  {
-    title: "II. Internal Interaction History (Source: Our AI Platform)",
-    groups: [
-      {
-        group: "A. Contact Attempt & Connectivity Metrics",
-        items: [
-          "Total Contact Attempts (Platform Lifetime)",
-          "Contact Attempts by Channel (Voice, SMS, Email)",
-          "Contact Attempts by Phone Number / Email Address",
-          "Contact Attempts by Day of Week",
-          "Contact Attempts by Time of Day (Hourly Buckets)",
-          "Date/Time of Last Attempt (Overall & by Channel)",
-          "Voice Call Outcome History (Answered, Busy, No Answer, Voicemail, Failed, System Error)",
-          "Answer Machine Detection (AMD) Results History",
-          "Right Party Contact (RPC) Success Rate (Overall & per Number)",
-          "Date/Time of Last Successful RPC",
-          "Voicemail Drop Success/Failure History",
-          "SMS Delivery Status History (Delivered, Failed, Unknown) per Number",
-          "SMS Delivery Error Codes (if available)",
-          "Email Delivery Status History (Sent, Delivered, Bounced, Spam Complaint) per Address",
-          "Email Bounce Reason Codes (Hard/Soft)",
-          "Connectivity Score per Contact Point (Phone/Email)",
-        ],
-      },
-      {
-        group: "B. Engagement & Responsiveness Metrics",
-        items: [
-          "Total Successful Conversations (Platform Lifetime)",
-          "Date/Time of Last Successful Conversation",
-          "Average Conversation Duration (Overall & RPC)",
-          "Longest Conversation Duration",
-          "Conversation Containment Rate (Handled by Bot vs. Escalated)",
-          "SMS Response Received (Yes/No History)",
-          "SMS Response Rate (Responses / Delivered Messages)",
-          "Email Open Rate History (Requires tracking pixel)",
-          "Email Click-Through Rate History (If links used & tracked)",
-          "Inbound Call Received (Yes/No History)",
-          "Inbound SMS Received (Yes/No History)",
-          "Inbound Email Received (Yes/No History)",
-          "Inferred Best Time to Contact (Based on successful interactions)",
-          "Inferred Best Channel to Contact (Based on successful interactions/responses)",
-          "Channel Responsiveness Score (Propensity to engage on Voice/SMS/Email)",
-          "Authentication Success Rate History",
-          "Date/Time of Last Successful Authentication",
-        ],
-      },
-      {
-        group: "C. Payment & Promise History (within Platform)",
-        items: [
-          "Number of Promises-to-Pay (PTP) Secured via Platform",
-          "Date/Time of Last PTP Secured",
-          "Amount of Last PTP Secured",
-          "Number of PTPs Kept (Payment received matching PTP terms)",
-          "Number of PTPs Broken",
-          "PTP Kept Rate (Platform specific)",
-          "Number of Payments Processed via Platform (if applicable)",
-          "Total Amount Collected via Platform (if applicable)",
-          "Date/Time of Last Payment via Platform",
-          "Payment Methods Used via Platform (if applicable)",
-        ],
-      },
-      {
-        group: "D. Conversational Insights (Platform Derived)",
-        items: [
-          "Historical Sentiment Score Trend (Positive/Negative/Neutral)",
-          "Detected Language History (if multilingual)",
-          "Frequency of Key Topics Mentioned (e.g., 'Payment', 'Hardship', 'Dispute', 'Vehicle', 'Insurance', 'Repossession')",
-          "Escalation History (# times escalated, reason codes if tracked)",
-          "Bot Version History interacted with",
-          "Specific Prompts/Flows Encountered History",
-        ],
-      },
-    ],
-  },
-  {
-    title: "III. External Enrichment Data (Source: Third-Party Providers & Public Records)",
-    groups: [
-      {
-        group: "A. Contact Data Validation & Enhancement",
-        items: [
-          "Phone Number Validation (Active/Inactive/Disconnected Status, Confidence Score)",
-          "Phone Number Type Identification (Mobile, Landline, VoIP, Business - Updated)",
-          "Phone Number Carrier & Original Provider Information",
-          "Phone Porting Status & Date",
-          "Do Not Call (DNC) Registry Status Check (Federal & State)",
-          "Phone Number Association Score to Individual/Address",
-          "Additional Phone Numbers Associated with Borrower/Address (Scored for likelihood)",
-          "Email Address Validation (Valid/Invalid/Risky/Accept-All, Syntax Check, Domain Check)",
-          "Email Address Hygiene (Known Spam Trap, Disposable Domain, Role Account)",
-          "Email Address Association Score to Individual",
-          "Additional Email Addresses Associated with Borrower (Scored for likelihood)",
-          "Address Verification / Standardization (CASS Certified, DPV, LACSLink)",
-          "Address Type (Residential, Business, PO Box, CMRA)",
-          "Address Deliverability Score / Vacancy Indicator",
-          "Address Change History / National Change of Address (NCOA) Linkage (Usually requires license)",
-          "Address Tenure / Length of Residence (Modeled)",
-          "Geocoding (Latitude/Longitude Coordinates)",
-          "Time Zone Identification based on verified Address/Phone",
-        ],
-      },
-      {
-        group: "B. Identity Verification & Contextual Data",
-        items: [
-          "Identity Verification Score / Confidence Level",
-          "Alias / Name Variation Information (AKAs, maiden names)",
-          "Date of Birth Verification / Range",
-          "Deceased Indicator Scrub (e.g., SSDI Match, State/Local Records - Verified)",
-          "Active Military Duty Scrub (SCRA Database Match - Verified)",
-          "Possible Relatives / Associates & Relationship Type (for skip tracing context)",
-          "Household Composition / Number of Adults/Children (Modeled)",
-          "Professional Licenses Held & Status (Public Records)",
-          "Voter Registration Information (Public Records)",
-          "Global Watchlist / Sanctions Screening (e.g., OFAC)",
-          "Incarceration Status Check (Public Records)",
-          "Social Media Profile Links (Publicly available - e.g., LinkedIn, sometimes others via providers like Spokeo) - Use ethically",
-          "Domain Name Registrations (Public Records)",
-        ],
-      },
-      {
-        group: "C. Property & Asset Indicators (Public Records & Modeled)",
-        items: [
-          "Home Ownership Indicator (Owner/Renter Status)",
-          "Property Ownership Records (Address, Assessed Value, Purchase Date/Price - Public)",
-          "Mortgage Holder Information (Lender Name, Estimated Loan Amount/Date - Public Records)",
-          "Number of Properties Owned",
-          "Property Type (Single Family, Condo, Multi-Family)",
-          "Property Characteristics (Square Footage, Year Built, Beds/Baths - Public Records)",
-          "Estimated Home Equity (Modeled)",
-          "Property Foreclosure Status / History (Public Records)",
-          "Property Tax Delinquency Status (Public Records)",
-          "Other Vehicle Registrations (Make, Model, Year - Public Records, State specific)",
-          "Watercraft / Boat Registrations (Public Records)",
-          "Aircraft Registrations (Public Records)",
-          "UCC Filings (Indicates other secured debts/assets - Public)",
-        ],
-      },
-      {
-        group: "D. Financial & Risk Indicators (Non-FCRA - Modeled or Public)",
-        items: [
-          "Estimated Income Model Score / Range (Often based on demographics, location, profession)",
-          "Estimated Salary Status / Range (Modeled, potentially inferred from job title/industry)",
-          "Employment Status Likelihood (Employed/Unemployed - Modeled)",
-          "Employer Name / Industry Type (Modeled or from self-reported sources like LinkedIn if available)",
-          "Propensity to Pay Score (Vendor-specific model predicting likelihood to resolve debt)",
-          "Collections Propensity Score (Likelihood of account needing collections)",
-          "Financial Stability Score (Vendor-specific model)",
-          "Economic Hardship Indicator Score (Modeled based on geo-demographics, etc.)",
-          "Wealth Indicator Score / Affluence Rating (Modeled)",
-          "Liens / Judgments Records (Dollar Amount, Filing Date - Public)",
-          "Civil Litigation Search Results (Plaintiff/Defendant - Public)",
-          "Corporate Affiliations / Business Ownership (Public Records)",
-          "Net Worth Estimate (Modeled)",
-          "Disposable Income Estimate (Modeled)",
-          "Presence of Derogatory Public Records (Summary flag)",
-        ],
-      },
-      {
-        group: "E. Behavioral & Contact Strategy Indicators (Vendor Models)",
-        items: [
-          "Best Time to Contact Score/Recommendation (Day of Week, Time of Day - e.g., TransUnion Contact Optimization)",
-          "Best Channel Preference Score (Voice vs. SMS vs. Email - Modeled)",
-          "Contact Frequency Recommendation (Modeled tolerance)",
-          "Likelihood to Answer Phone Score",
-          "Likelihood to Respond to SMS/Email Score",
-          "Communication Style Preference (e.g., Direct vs. Empathetic - Modeled, experimental)",
-          "Propensity for Self-Service / Digital Engagement Score",
-        ],
-      },
-      {
-        group: "F. Financial & Risk Indicators (FCRA Data - Requires Permissible Purpose)",
-        items: [
-          "Updated Credit Score / Range (e.g., FICO, VantageScore - if PP exists)",
-          "Credit Score Trend (Improving/Declining - if PP exists)",
-          "Bankruptcy Public Filings & Status (Verified - Chapter 7/13, Discharge/Dismissal)",
-          "Updated Tradeline Summary (e.g., Number of open/closed accounts, Total balance, Utilization - if PP exists)",
-          "Presence/Severity of Other Delinquencies (30/60/90+ DPD on other accounts - if PP exists)",
-          "Presence of Accounts in Collections (Other debts - if PP exists)",
-          "Credit Inquiry History (Number/type of recent inquiries - if PP exists)",
-          "Thin File / No Hit Indicator (Lack of credit history - if PP exists)",
-        ],
-      },
-    ],
-  },
-  {
-    title: "IV. Real-time Interaction Data (Source: Live Conversation Analysis)",
-    groups: [
-      {
-        group: "A. Real-time Interaction Data",
-        items: [
-          "Current Channel of Interaction (Voice, SMS, Email)",
-          "Live Sentiment Detection Score (Per utterance/message)",
-          "Live Emotion Detection (e.g., Anger, Frustration, Cooperation - Voice specific)",
-          "Live Keyword Spotting (Specific terms triggering rules/flows)",
-          "Speech Rate / Pace (Voice)",
-          "Silence / Hesitation Duration (Voice)",
-          "Background Noise Level / Type (Voice - call quality/environment indicator)",
-          "Caller Authentication Status (During call)",
-          "Current Step/Intent in Conversational Flow",
-          "Real-time System Confidence Score (e.g., NLU confidence)",
-        ],
-      },
-    ],
-  },
-];
-
-function AIMagicProgress({ tasksList, onComplete }) {
-  const [current, setCurrent] = React.useState(0);
-  const [subtaskIdx, setSubtaskIdx] = React.useState(0);
-  // Calculate progress
-  const totalSubtasks = tasksList.reduce(
-    (sum, t) => sum + t.subtasks.length,
-    0
-  );
-  const completedSubtasks =
-    tasksList.slice(0, current).reduce((sum, t) => sum + t.subtasks.length, 0) +
-    subtaskIdx;
-  const progress = Math.min((completedSubtasks / totalSubtasks) * 100, 100);
-
-  React.useEffect(() => {
-    if (current < tasksList.length) {
-      if (subtaskIdx < tasksList[current].subtasks.length - 1) {
-        const timeout = setTimeout(() => setSubtaskIdx(subtaskIdx + 1), 900);
-        return () => clearTimeout(timeout);
-      } else {
-        const timeout = setTimeout(() => {
-          setCurrent(current + 1);
-          setSubtaskIdx(0);
-        }, 1200);
-        return () => clearTimeout(timeout);
-      }
-    } else {
-      setTimeout(onComplete, 1200);
-    }
-  }, [current, subtaskIdx, tasksList, onComplete]);
-
-  return (
-    <div className="h-full w-full flex items-center justify-center overflow-hidden">
-      <div className="w-full max-w-lg flex flex-col items-center">
-        <div className="mb-4 flex flex-col items-center">
-          <div className="mb-2 animate-pulse">
-            {/* Smaller glowing brain icon */}
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-              <defs>
-                <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#6366F1" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#EEF4FF" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-              <circle cx="20" cy="20" r="20" fill="url(#glow)" />
-              <circle cx="20" cy="20" r="15" fill="#EEF4FF" />
-              <path
-                d="M15 26c-2 0-3.3-1.7-3.3-3.7 0-1.2.4-2.1 1.3-2.8C13 18.5 13 17.8 13 17c0-3.1 2.5-5.6 5.6-5.6 1.2 0 2.1.4 2.8 1.3C22.5 13 23.2 13 24 13c3.1 0 5.6 2.5 5.6 5.6 0 .8-.4 1.5-1.3 2.2.9.7 1.3 1.6 1.3 2.8 0 2-1.3 3.7-3.3 3.7"
-                stroke="#6366F1"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-          <div className="text-xl font-extrabold text-zinc-900 text-center tracking-tight mb-1">
-            AI Magic in Progress
-          </div>
-          <div className="text-zinc-500 text-center max-w-base mb-2 text-base">
-            Our AI is analyzing your attributes and dpd buckets to create
-            intelligent segments for optimized collections.
-          </div>
-          {/* Progress Bar */}
-          <div className="w-full max-w-lg mx-auto mt-2 mb-2">
-            <div className="h-3 bg-zinc-200 rounded-full overflow-hidden">
-              <div
-                className="h-3 bg-blue-600 rounded-full transition-all duration-500"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <div className="text-xs text-zinc-500 mt-1 text-right font-inter">
-              {Math.round(progress)}% Complete
-            </div>
-          </div>
-        </div>
-        <div className="w-full flex flex-col gap-4">
-          {tasksList.map((task, idx) => {
-            const Icon = task.icon;
-            let state = "pending";
-            if (idx < current) state = "done";
-            else if (idx === current) state = "active";
-            return (
-              <div
-                key={task.id}
-                className={
-                  state === "done"
-                    ? "flex items-center justify-between rounded-xl border border-black-100 bg-black-50 px-5 py-3 shadow-sm"
-                    : state === "active"
-                    ? "flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 shadow-sm animate-pulse"
-                    : "flex items-center justify-between rounded-xl border border-zinc-100 bg-zinc-50 px-5 py-3 shadow-sm opacity-70"
-                }
-              >
-                <div className="flex items-center gap-4">
-                  <span
-                    className={
-                      state === "done"
-                        ? "bg-black-100 text-black-600 rounded-full p-1"
-                        : state === "active"
-                        ? "bg-blue-100 text-blue-600 rounded-full p-1"
-                        : "bg-zinc-100 text-zinc-400 rounded-full p-1"
-                    }
-                  >
-                    {state === "done" ? (
-                      <CheckCircleIcon className="w-5 h-5 text-green-500" />
-                    ) : (
-                      <Icon className="w-5 h-5 text-blue-500" />
-                    )}
-                  </span>
-                  <div>
-                    <div className="font-medium text-zinc-900 text-base">
-                      {task.title}
-                    </div>
-                    {state === "active" && (
-                      <div className="text-xs text-blue-600 mt-1 flex items-center gap-2">
-                        <span className="animate-pulse">
-                          {task.subtasks[subtaskIdx]}
-                        </span>
-                        <span className="inline-block w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-                      </div>
-                    )}
-                    {state === "done" && (
-                      <div className="text-xs text-black-600 mt-1">
-                        Completed
-                      </div>
-                    )}
-                    {state === "pending" && (
-                      <div className="text-xs text-zinc-400 mt-1">Pending</div>
-                    )}
-                  </div>
-                </div>
-                <div className="text-xs font-medium text-right">
-                  {state === "active"
-                    ? `${subtaskIdx + 1}/${task.subtasks.length}`
-                    : state === "done"
-                    ? "Completed"
-                    : "Pending"}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Button style classes for consistency
-const primaryBtn =
-  "px-5 py-2 rounded-lg bg-zinc-900 text-white font-inter text-sm font-semibold hover:bg-black transition";
-const secondaryBtn =
-  "px-5 py-2 rounded-lg bg-zinc-200 text-zinc-900 font-inter text-sm font-semibold hover:bg-zinc-300 transition";
 
 export default function CreateAssistant() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0); // Start at 0 for welcome page
   const [form, setForm] = useState({
     name: "Q2 Auto Loan Recovery",
     desc: "Automated campaign for Q2 auto loan collections.",
@@ -772,148 +87,121 @@ export default function CreateAssistant() {
     creditorPhone: "+1 555-123-4567",
     creditorEmail: "contact@nubank.com",
     creditorTimezone: "America/New_York",
-    segment: "First-party",
+    segment: "First Party",
     microSegment: "Auto Loan",
-    channels: [],
-    attributes: attributes.map((attr) => ({
-      ...attr,
-      autoCreate: false,
-      mandatory: attr.mandatory,
-    })),
-    source: "SFTP",
-    segmentType: "manual",
-    dpds: [
-      { name: "Early Stage", from: 5, to: 20 },
-      { name: "Mid Stage", from: 21, to: 40 },
-      { name: "Late Stage", from: 41, to: 60 },
-      { name: "Very Late Stage", from: 61, to: 90 },
-      { name: "Pre-Chargeoff", from: 91, to: 120 },
-      { name: "Post-Chargeoff", from: 121, to: 180 },
-    ],
-    businessHours: [
-      { day: "Monday", start: "09:00", end: "18:00" },
-      { day: "Tuesday", start: "09:00", end: "18:00" },
-      { day: "Wednesday", start: "09:00", end: "18:00" },
-      { day: "Thursday", start: "09:00", end: "18:00" },
-      { day: "Friday", start: "09:00", end: "18:00" },
-      { day: "Saturday", start: "10:00", end: "14:00" },
-      { day: "Sunday", start: "Closed", end: "Closed" },
-    ],
+    selectedVoice: "Susan",
   });
-  const [aiMagic, setAiMagic] = useState(false);
-  const [showAIMagic, setShowAIMagic] = useState(false);
+  const [collapsedSections, setCollapsedSections] = useState({
+    mandatory: false,
+    aiRecommended: true,
+    custom: true,
+  });
+  const [showCustomFields, setShowCustomFields] = useState(false);
+  const [customFields, setCustomFields] = useState([]);
+  const [newCustomField, setNewCustomField] = useState({
+    name: "",
+    description: "",
+  });
   const navigate = useNavigate();
-  const [selectedDPD, setSelectedDPD] = useState(
-    form.dpds[0]?.name || "Early Stage"
-  );
-  const [segments, setSegments] = useState(initialSegments);
-  const [showAllAttributes, setShowAllAttributes] = useState(false);
-  const [currentAttributes, setCurrentAttributes] = useState(attributes);
-  const [currentRecommendedAttributes, setCurrentRecommendedAttributes] = useState(recommendedAttributes);
 
   useEffect(() => {
     const storedName = localStorage.getItem("creditorName");
     const storedEmail = localStorage.getItem("creditorEmail");
     if (storedName) {
-      setForm(f => ({ 
-        ...f, 
+      setForm((f) => ({
+        ...f,
         creditorName: storedName,
-        creditorEmail: storedEmail || `contact@${storedName.toLowerCase().replace(/\s+/g, '')}.com`
+        creditorEmail:
+          storedEmail ||
+          `contact@${storedName.toLowerCase().replace(/\s+/g, "")}.com`,
       }));
     } else {
       window.location.href = "/setup-creditor";
     }
   }, []);
 
-  // Function to add attribute to mandatory list
-  const addToMandatory = (attribute) => {
-    if (!currentAttributes.find(attr => attr.name === attribute.name)) {
-      setCurrentAttributes([...currentAttributes, { ...attribute, mandatory: true }]);
-    }
-  };
-
-  // Function to add attribute to recommended list
-  const addToRecommended = (attribute) => {
-    if (!currentRecommendedAttributes.find(attr => attr.name === attribute.name)) {
-      setCurrentRecommendedAttributes([...currentRecommendedAttributes, { ...attribute, mandatory: false }]);
-    }
-  };
-
-  function toggleChannel(channel) {
-    setForm((prev) => ({
-      ...prev,
-      channels: prev.channels.includes(channel)
-        ? prev.channels.filter((ch) => ch !== channel)
-        : [...prev.channels, channel],
-    }));
-  }
-  function handleAttrChange(idx, key, value) {
-    setForm((prev) => {
-      const updated = [...prev.attributes];
-      updated[idx][key] = value;
-      return { ...prev, attributes: updated };
-    });
-  }
-  function handleDpdChange(idx, key, value) {
-    setForm((prev) => {
-      const updated = [...prev.dpds];
-      updated[idx][key] = value;
-      return { ...prev, dpds: updated };
-    });
-  }
-  function addDpd() {
-    setForm((prev) => ({
-      ...prev,
-      dpds: [...prev.dpds, { name: "", from: "", to: "" }],
-    }));
-  }
-  function removeDpd(idx) {
-    setForm((prev) => ({
-      ...prev,
-      dpds: prev.dpds.filter((_, i) => i !== idx),
-    }));
-  }
   function handleNext() {
-    if (step === 2) {
-      setShowAIMagic(true);
-    } else if (step === 5) {
-      setAiMagic(true);
-      setTimeout(() => {
-        navigate("/segments");
-      }, 2200);
-    } else {
+    if (step < 4) {
       setStep(step + 1);
     }
   }
+
   function handleBack() {
-    if (step > 1) setStep(step - 1);
+    if (step > 0) {
+      setStep(step - 1);
+    }
   }
 
+  function handleStartSetup() {
+    setStep(1);
+  }
+
+  function handleDoLater() {
+    navigate("/");
+  }
+
+  // Helper function to get current step display number
+  const getCurrentStepNumber = () => {
+    if (step === 0) return 0;
+    return step;
+  };
+
+  // Helper function to get progress bar width
+  const getProgressWidth = () => {
+    if (step === 0) return "0%";
+    if (step === 1) return "25%";
+    if (step === 2) return "50%";
+    if (step === 3) return "75%";
+    if (step === 4) return "100%";
+    return "0%";
+  };
+
+  // Helper function to toggle section collapse
+  const toggleSection = (section) => {
+    setCollapsedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
+  // Helper function to add custom field
+  const addCustomField = () => {
+    if (newCustomField.name.trim() && newCustomField.description.trim()) {
+      setCustomFields((prev) => [
+        ...prev,
+        { ...newCustomField, id: Date.now() },
+      ]);
+      setNewCustomField({ name: "", description: "" });
+      setShowCustomFields(false);
+    }
+  };
+
+  // Helper function to remove custom field
+  const removeCustomField = (id) => {
+    setCustomFields((prev) => prev.filter((field) => field.id !== id));
+  };
+
   return (
-    <div className="min-h-screen font-inter text-sm">
-      <PageHeader
-        title="Create Assistant"
-        breadcrumbs={[
-          { label: "Home", href: "/" },
-          { label: "AI Agents", href: "/ai-agents" },
-          { label: "Create Assistant" },
-        ]}
-      />
-      <div
-        className="max-w-6xl mx-auto bg-white rounded-xl shadow p-0 flex min-h-[calc(100vh-64px)]"
-        style={{ minHeight: "calc(100vh - 64px)" }}
-      >
-        {/* Left: Stepper */}
-        <div className="w-1/3 py-4 pl-4 border-r border-zinc-100 bg-zinc-50 rounded-l-xl flex flex-col min-h-full">
+    <div className="min-h-screen bg-white flex">
+      {/* Left: Stepper - Only show when not on welcome page */}
+      {step > 0 && (
+        <div className="w-1/3 py-8 pl-8 border-r border-gray-200 bg-white flex flex-col min-h-full">
           <div className="sticky top-0 h-fit">
+            {/* Logo */}
+            <div className="mb-8">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-lg font-bold">S</span>
+                </div>
+                <span className="text-xl font-bold text-gray-900">skit.ai</span>
+              </div>
+            </div>
+
             <div>
-              <div className="text-zinc-900 font-semibold text-lg mb-1">
-                Onboarding
-              </div>
-              <div className="text-zinc-500 text-[11px] mb-4">
-                to setup your assistant profile
-              </div>
-              <ol className="space-y-1">
+              <h1 className="text-2xl font-bold text-gray-900 mb-6">
+                Let's get your onboarded
+              </h1>
+              <ol className="space-y-6">
                 {steps.map((stepObj, idx) => {
                   const isCompleted = step > idx + 1;
                   const isCurrent = step === idx + 1;
@@ -921,50 +209,41 @@ export default function CreateAssistant() {
                     <li key={stepObj.title} className="flex items-start gap-4">
                       <div className="flex flex-col items-center">
                         <div
-                          className={`w-8 h-8 flex items-center justify-center rounded-lg mb-2 transition-all border-2 ${
+                          className={`w-8 h-8 flex items-center justify-center rounded-full mb-2 transition-all border-2 ${
                             isCompleted
                               ? "bg-green-100 text-green-700 border-green-300"
                               : isCurrent
-                              ? "bg-blue-50 text-blue-600 border-blue-400"
-                              : "bg-zinc-50 text-zinc-400 border-zinc-200"
+                              ? "bg-blue-100 text-blue-600 border-blue-400"
+                              : "bg-gray-100 text-gray-400 border-gray-200"
                           }`}
                         >
                           {isCompleted ? (
-                            <svg width="22" height="22" fill="none">
-                              <circle cx="11" cy="11" r="11" fill="#22C55E" />
-                              <path
-                                d="M7 12l3 3 5-5"
-                                stroke="#fff"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
+                            <CheckIcon className="w-5 h-5 text-green-700" />
                           ) : (
-                            <span className="text-lg">{stepObj.icon}</span>
+                            <stepObj.icon className="w-5 h-5" />
                           )}
                         </div>
                         {idx < steps.length - 1 && (
                           <div
-                            className={`w-0.5 h-12 ${
-                              isCompleted ? "bg-green-200" : "bg-zinc-200"
+                            className={`w-0.5 h-16 ${
+                              isCompleted ? "bg-green-200" : "bg-gray-200"
                             }`}
                           />
                         )}
                       </div>
                       <div>
                         <div
-                          className={`font-medium text-sm ${
+                          className={`font-medium text-base ${
                             isCurrent
-                              ? "text-blue-600 font-bold"
+                              ? "text-blue-600 font-semibold"
                               : isCompleted
-                              ? "text-green-700 font-bold"
-                              : "text-zinc-400"
+                              ? "text-green-700 font-semibold"
+                              : "text-gray-400"
                           }`}
                         >
                           {stepObj.title}
                         </div>
-                        <div className="text-xs text-zinc-400 mt-1 max-w-[180px]">
+                        <div className="text-xs text-gray-500 mt-1 max-w-[200px] leading-relaxed">
                           {stepObj.desc}
                         </div>
                       </div>
@@ -972,821 +251,1173 @@ export default function CreateAssistant() {
                   );
                 })}
               </ol>
-            </div>
-          </div>
-        </div>
-        {/* Right: Step Content */}
-        <div className="flex-1 flex flex-col min-h-full">
-          <div className="flex-1 p-5">
-            {showAIMagic ? (
-              <div className="h-full w-full flex items-center justify-center overflow-hidden">
-                <AIMagicProgress
-                  tasksList={tasksList}
-                  onComplete={() => {
-                    setShowAIMagic(false);
-                    setStep(4);
-                  }}
-                />
-              </div>
-            ) : step === 1 ? (
-              <div>
-                <h2 className="text-lg font-semibold mb-1">
-                  Assistant Details
-                </h2>
-                <div className="text-zinc-500 text-sm mb-4">
-                  Set up your assistant's name, description, client, segment,
-                  and communication channels.
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Assistant Name
-                  </label>
-                  <input
-                    className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
-                    value={form.name}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, name: e.target.value }))
-                    }
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Assistant Description
-                  </label>
-                  <textarea
-                    className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
-                    value={form.desc}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, desc: e.target.value }))
-                    }
-                  />
-                </div>
-                {/* Client Information Section */}
-                <h3 className="text-base font-semibold mb-1">
-                  Creditor Details
-                </h3>
-                <div className="text-zinc-500 text-xs mb-2">
-                  Enter the creditor's contact information and timezone.
-                </div>
-                <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Creditor Name
-                    </label>
-                    <input
-                      className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
-                      value={form.creditorName}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, creditorName: e.target.value }))
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Phone Number
-                    </label>
-                    <input
-                      className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
-                      value={form.creditorPhone}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          creditorPhone: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
-                      value={form.creditorEmail}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          creditorEmail: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Timezone
-                    </label>
-                    <select
-                      className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
-                      value={form.creditorTimezone}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          creditorTimezone: e.target.value,
-                        }))
-                      }
-                    >
-                      <option value="America/New_York">America/New_York</option>
-                      <option value="America/Chicago">America/Chicago</option>
-                      <option value="America/Denver">America/Denver</option>
-                      <option value="America/Los_Angeles">
-                        America/Los_Angeles
-                      </option>
-                      <option value="Europe/London">Europe/London</option>
-                      <option value="Asia/Kolkata">Asia/Kolkata</option>
-                      <option value="Asia/Tokyo">Asia/Tokyo</option>
-                      <option value="Australia/Sydney">Australia/Sydney</option>
-                    </select>
-                  </div>
-                </div>
-                {/* Business Hours Section */}
-                <div className="mb-6">
-                  <h3 className="text-base font-semibold mb-1">
-                    Business Hours
-                  </h3>
-                  <div className="text-zinc-500 text-xs mb-2">
-                    Set your organization's business hours for each day.
-                  </div>
-                  <table className="min-w-full border-separate border-spacing-y-2 font-inter text-sm">
-                    <thead>
-                      <tr className="bg-zinc-50 text-zinc-700 text-sm">
-                        <th className="px-4 py-2 text-left">Day</th>
-                        <th className="px-4 py-2 text-left">Start Time</th>
-                        <th className="px-4 py-2 text-left">End Time</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {form.businessHours.map((row, idx) => (
-                        <tr
-                          key={row.day}
-                          className="bg-zinc-50 hover:bg-blue-50 transition rounded-xl"
-                        >
-                          <td className="px-4 py-2 font-medium text-zinc-900 whitespace-nowrap">
-                            {row.day}
-                          </td>
-                          <td className="px-4 py-2">
-                            <input
-                              type={row.start === "Closed" ? "text" : "time"}
-                              className="w-28 px-2 py-1 border border-zinc-200 rounded-md text-sm"
-                              value={row.start}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                setForm((f) => {
-                                  const hours = [...f.businessHours];
-                                  hours[idx].start = value;
-                                  return { ...f, businessHours: hours };
-                                });
-                              }}
-                              disabled={row.start === "Closed"}
-                            />
-                          </td>
-                          <td className="px-4 py-2">
-                            <input
-                              type={row.end === "Closed" ? "text" : "time"}
-                              className="w-28 px-2 py-1 border border-zinc-200 rounded-md text-sm"
-                              value={row.end}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                setForm((f) => {
-                                  const hours = [...f.businessHours];
-                                  hours[idx].end = value;
-                                  return { ...f, businessHours: hours };
-                                });
-                              }}
-                              disabled={row.end === "Closed"}
-                            />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="mb-4 flex gap-4">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium mb-1">
-                      Segment
-                    </label>
-                    <select
-                      className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
-                      value={form.segment}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, segment: e.target.value }))
-                      }
-                    >
-                      <option value="First-party">First-party</option>
-                      <option value="Third-party">Third-party</option>
-                    </select>
-                  </div>
-                  {form.segment === "First-party" && (
-                    <div className="flex-1">
-                      <label className="block text-sm font-medium mb-1">
-                        Micro-segment
-                      </label>
-                      <select
-                        className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
-                        value={form.microSegment}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            microSegment: e.target.value,
-                          }))
-                        }
-                      >
-                        {microSegments.map((seg) => (
-                          <option key={seg} value={seg}>
-                            {seg}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-                <div className="mb-4">
-                  <label className="block text-base font-medium mb-2">
-                    Channels
-                  </label>
-                  <div className="text-zinc-500 text-xs mb-2">
-                    Select the communication channels your assistant will use to
-                    reach customers.
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-                    {channelOptions.map((channel) => (
-                      <label
-                        key={channel.key}
-                        className={`flex items-center border rounded-lg p-4 w-full cursor-pointer transition-colors font-inter text-sm
-                          ${
-                            form.channels.includes(channel.key)
-                              ? "border-blue-600 bg-blue-50"
-                              : "border-zinc-200 bg-white hover:bg-zinc-50"
-                          }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={form.channels.includes(channel.key)}
-                          onChange={() => toggleChannel(channel.key)}
-                          className="mr-3 accent-blue-600"
-                        />
-                        <div className="flex flex-col">
-                          <span className="text-xl mb-1">{channel.icon}</span>
-                          <span className="font-medium text-zinc-900">
-                            {channel.key}
-                          </span>
-                          <span className="text-xs text-zinc-500 text-left mt-1">
-                            {channel.desc}
-                          </span>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex justify-end mt-6">
-                  <button className={primaryBtn} onClick={handleNext}>
-                    Next
-                  </button>
-                </div>
-              </div>
-            ) : step === 2 ? (
-              <div>
-                <h2 className="text-lg font-semibold mb-1">
-                  Attributes & Data Source
-                </h2>
-                <div className="text-zinc-500 text-sm mb-4">
-                  Review required data attributes and select your data source
-                  and segmentation method.
-                </div>
-                <div className="overflow-x-auto mb-8">
-                  {/* Info Banner for Attributes */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                    <div className="flex items-start">
-                      <div className="flex-shrink-0">
-                        <InformationCircleIcon className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div className="ml-3 flex-1">
-                        <h4 className="text-sm font-medium text-blue-900 mb-1">
-                          💡 Pro Tip: More Attributes = Better AI Predictions
-                        </h4>
-                        {/* <p className="text-sm text-blue-700 mb-3">
-                          We are only showing a limited set of attributes here, but there are <strong>200+ more attributes</strong> available. The more attributes you provide, the better our AI algorithm can predict user patterns, create more accurate segments, and deliver personalized collection strategies for optimal results.
-                        </p> */}
-                        {/* <button
-                          className="text-xs bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors font-medium"
-                          onClick={() => setShowAllAttributes(true)}
-                        >
-                          View All Available Attributes
-                        </button> */}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <table className="min-w-full border-separate border-spacing-y-2 bg-white rounded-xl shadow font-inter text-sm">
-                    <thead>
-                      <tr className="bg-zinc-50 text-zinc-700 text-sm">
-                        <th className="px-4 py-2 rounded-tl-xl">Auto-create</th>
-                        <th className="px-4 py-2 text-left">Attribute Name</th>
-                        <th className="px-4 py-2 text-left">
-                          Attribute Description
-                        </th>
-                        <th className="px-4 py-2 rounded-tr-xl">Mandatory</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {currentAttributes.map((attr) => (
-                        <tr
-                          key={attr.name}
-                          className="bg-zinc-50 hover:bg-blue-50 transition rounded-xl"
-                        >
-                          <td className="px-4 py-2 text-center">
-                            <input
-                              type="checkbox"
-                              checked={true}
-                              readOnly
-                              className="accent-blue-600"
-                            />
-                          </td>
-                          <td className="px-4 py-2 font-medium text-zinc-900">
-                            {attr.name}
-                          </td>
-                          <td className="px-4 py-2 text-zinc-600">
-                            {attr.desc}
-                          </td>
-                          <td className="px-4 py-2 text-center">
-                            <span className="text-xs text-zinc-400">Yes</span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                
-                {/* Attribute Summary */}
-                <div className="bg-zinc-50 rounded-lg p-3 mb-4">
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center space-x-4">
-                      <span className="text-zinc-600">
-                        <strong>{attributes.length}</strong> Mandatory Attributes
-                      </span>
-                      <span className="text-zinc-600">
-                        <strong>{recommendedAttributes.length}</strong> Recommended Attributes
-                      </span>
-                    </div>
-                    <span
-                      className="text-blue-600 font-medium cursor-pointer hover:underline transition"
-                      onClick={() => setShowAllAttributes(true)}
-                    >
-                      200+ More Available
-                    </span>
-                  </div>
-                </div>
-                
-                <h4 className="text-base font-semibold mb-1 mt-6">
-                  Recommended Attributes
-                </h4>
-                <div className="text-zinc-500 text-xs mb-2">
-                  Adding these attributes will improve segmentation and campaign
-                  performance.
-                </div>
-                <table className="min-w-full border-separate border-spacing-y-2 font-inter text-sm">
-                  <thead>
-                    <tr className="bg-zinc-50 text-zinc-700 text-sm">
-                      <th className="px-4 py-2 text-center">Auto-create</th>
-                      <th className="px-4 py-2 text-left">Attribute Name</th>
-                      <th className="px-4 py-2 text-left">
-                        Attribute Description
-                      </th>
-                      <th className="px-4 py-2 text-center">Mandatory</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentRecommendedAttributes.map((attr) => (
-                      <tr
-                        key={attr.name}
-                        className="bg-zinc-50 hover:bg-blue-50 transition rounded-xl"
-                      >
-                        <td className="px-4 py-2 text-center">
-                          <input
-                            type="checkbox"
-                            checked={false}
-                            readOnly
-                            className="accent-blue-600"
-                          />
-                        </td>
-                        <td className="px-4 py-2 font-medium text-zinc-900">
-                          {attr.name}
-                        </td>
-                        <td className="px-4 py-2 text-zinc-600">{attr.desc}</td>
-                        <td className="px-4 py-2 text-center">
-                          <span className="text-xs text-zinc-400">No</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <h3 className="text-base font-semibold mb-1">Data Source</h3>
-                <div className="text-zinc-500 text-xs mb-2">
-                  Choose how you'll provide account data for the assistant.
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6 w-full">
-                  {sources.map((src) => (
-                    <label
-                      key={src.key}
-                      className={`flex items-center border rounded-lg p-6 w-full cursor-pointer transition-colors font-inter text-sm
-                        ${
-                          form.source === src.key
-                            ? "border-blue-600 bg-blue-50"
-                            : "border-zinc-200 bg-white hover:bg-zinc-50"
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        name="source"
-                        checked={form.source === src.key}
-                        onChange={() =>
-                          setForm((f) => ({ ...f, source: src.key }))
-                        }
-                        className="mr-4 accent-blue-600"
-                      />
-                      <span className="text-2xl mr-3">{src.icon}</span>
-                      <div>
-                        <span className="font-medium text-zinc-900">
-                          {src.key}
-                        </span>
-                        <div className="text-xs text-zinc-500 mt-1">
-                          {src.desc}
-                        </div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-                <h3 className="text-base font-semibold mb-1">Segmentation</h3>
-                <div className="text-zinc-500 text-xs mb-2">
-                  Select how segments will be defined for your accounts.
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6 w-full">
-                  {segmentOptions.map((seg) => (
-                    <label
-                      key={seg.key}
-                      className={`flex items-center border rounded-lg p-6 w-full cursor-pointer transition-colors font-inter text-sm
-                        ${
-                          form.segmentType === seg.key
-                            ? "border-blue-600 bg-blue-50"
-                            : "border-zinc-200 bg-white hover:bg-zinc-50"
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        name="segmentType"
-                        checked={form.segmentType === seg.key}
-                        onChange={() =>
-                          setForm((f) => ({ ...f, segmentType: seg.key }))
-                        }
-                        className="mr-4 accent-blue-600"
-                      />
-                      <div>
-                        <span className="font-medium text-zinc-900">
-                          {seg.title}
-                        </span>
-                        <div className="text-xs text-zinc-500 mt-1">
-                          {seg.desc}
-                        </div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
 
-                {/* Account Upload Section */}
-                <div className="mt-4">
-                  <h3 className="text-base font-semibold mb-1">
-                    Upload Accounts
-                  </h3>
-                  <div className="text-zinc-500 text-xs mb-2">
-                    Upload your account data in CSV format to begin processing.
-                  </div>
-                  <div className="border border-zinc-200 rounded-lg p-4 bg-white flex items-center gap-4">
-                    <svg
-                      className="w-6 h-6 text-zinc-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                      />
-                    </svg>
-                    <div className="flex-1">
-                      <div className="text-sm text-zinc-900">
-                        Drag and drop your CSV file here or
-                      </div>
-                    </div>
-                    <input
-                      type="file"
-                      accept=".csv"
-                      className="hidden"
-                      id="account-upload"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          // Handle file upload
-                          console.log("File selected:", e.target.files[0]);
-                        }
-                      }}
-                    />
-                    <label
-                      htmlFor="account-upload"
-                      className="px-4 py-2 bg-zinc-900 text-white rounded-lg text-sm font-medium cursor-pointer hover:bg-black transition"
-                    >
-                      Choose File
-                    </label>
-                  </div>
-                </div>
-
-                <h3 className="text-base font-semibold mb-1 mt-4">
-                  DPD Stages
-                </h3>
-                <div className="text-zinc-500 text-xs mb-2">
-                  Define the delinquency stages (DPD buckets) for your
-                  portfolio.
-                </div>
-                <div className="mb-6">
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full border-separate border-spacing-y-3 font-inter text-sm">
-                      <thead>
-                        <tr className="bg-zinc-50 text-zinc-700 text-sm">
-                          <th className="px-4 py-2 text-left">Stage Name</th>
-                          <th className="px-4 py-2 text-left">From (days)</th>
-                          <th className="px-4 py-2 text-left">To (days)</th>
-                          <th className="px-4 py-2 text-center"></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {form.dpds.map((dpd, idx) => (
-                          <tr
-                            key={idx}
-                            className="bg-zinc-50 hover:bg-blue-50 transition rounded-xl shadow-sm"
-                          >
-                            <td className="px-4 py-2">
-                              <input
-                                className="w-full px-3 py-2 border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm bg-white"
-                                value={dpd.name}
-                                onChange={(e) =>
-                                  handleDpdChange(idx, "name", e.target.value)
-                                }
-                                placeholder="e.g. Early Stage"
-                              />
-                            </td>
-                            <td className="px-4 py-2">
-                              <input
-                                type="number"
-                                className="w-full px-3 py-2 border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm bg-white"
-                                value={dpd.from}
-                                onChange={(e) =>
-                                  handleDpdChange(idx, "from", e.target.value)
-                                }
-                                placeholder="From"
-                              />
-                            </td>
-                            <td className="px-4 py-2">
-                              <input
-                                type="number"
-                                className="w-full px-3 py-2 border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm bg-white"
-                                value={dpd.to}
-                                onChange={(e) =>
-                                  handleDpdChange(idx, "to", e.target.value)
-                                }
-                                placeholder="To"
-                              />
-                            </td>
-                            <td className="px-4 py-2 text-center">
-                              <span className="relative group">
-                                <button
-                                  className="p-2 rounded-full hover:bg-red-100 transition"
-                                  onClick={() => removeDpd(idx)}
-                                  disabled={form.dpds.length === 1}
-                                  aria-label="Remove DPD Stage"
-                                >
-                                  <svg width="20" height="20" fill="none">
-                                    <circle
-                                      cx="10"
-                                      cy="10"
-                                      r="10"
-                                      fill="#D1FADF"
-                                    />
-                                    <path
-                                      d="M6 10.5l3 3 5-5"
-                                      stroke="#12B76A"
-                                      strokeWidth="2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
-                                </button>
-                                <span className="absolute left-8 top-1/2 -translate-y-1/2 bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition pointer-events-none z-30 whitespace-nowrap shadow-lg">
-                                  Remove DPD Stage
-                                </span>
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <button
-                    className="mt-4 px-4 py-2 rounded-md bg-blue-50 text-blue-600 font-medium hover:bg-blue-100 font-inter text-sm border border-blue-100"
-                    onClick={addDpd}
-                  >
-                    + Add DPD Stage
-                  </button>
-                </div>
-              </div>
-            ) : step === 4 ? (
-              <div className="h-full flex flex-col">
-                <div className="flex-1 p-5">
-                  <div className="mb-2">
-                    <h2 className="text-xl font-bold text-zinc-900 mb-1">
-                      AI Generated Segments
-                    </h2>
-                    <div className="text-zinc-500 text-sm mb-4">
-                      Review and manage the segments generated by AI for your
-                      portfolio.
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-6">
-                    {actualSegments.map((seg, idx) => (
-                      <div
-                        key={seg.id}
-                        className="bg-white border border-zinc-200 rounded-2xl p-6 flex flex-col gap-3 shadow-sm"
-                      >
-                        <div className="text-lg font-bold text-blue-800 mb-2 truncate">
-                          {seg.id}
-                        </div>
-                        <div className="flex flex-col gap-2 mb-2">
-                          <div className="flex items-start gap-2">
-                            <span className="text-xs font-semibold text-zinc-500 min-w-[120px]">
-                              Conditions
-                            </span>
-                            <span className="text-sm text-zinc-700 font-mono bg-blue-50 px-2 py-1 rounded break-words">
-                              {seg.logic}
-                            </span>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <span className="text-xs font-semibold text-zinc-500 min-w-[120px]">
-                              Key Characteristics
-                            </span>
-                            <span className="text-sm text-zinc-700 bg-zinc-50 px-2 py-1 rounded break-words">
-                              {seg.characteristics}
-                            </span>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <span className="text-xs font-semibold text-zinc-500 min-w-[120px]">
-                              Messaging Focus
-                            </span>
-                            <span className="text-sm text-zinc-700 bg-green-50 px-2 py-1 rounded break-words">
-                              {seg.focus}
-                            </span>
-                          </div>
-                        </div>
-                        {/* Actions */}
-                        <div className="flex flex-row gap-3 mt-2 justify-end border-t border-zinc-200 pt-4">
-                          <button className={primaryBtn}>Edit</button>
-                          <button className={secondaryBtn}>
-                            Go to Journey
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {/* Sticky Go to Dashboard button */}
-                <div className="sticky bottom-0 bg-white border-t border-zinc-200 p-4 z-10">
-                  <div className="flex justify-end">
-                    <button
-                      className={primaryBtn}
-                      onClick={() => navigate("/")}
-                    >
-                      Go to Dashboard
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-          </div>
-          {/* Sticky button within content area */}
-          {!showAIMagic && step === 2 && (
-            <div className="sticky bottom-0 bg-white border-t border-zinc-200 p-4">
-              <div className="flex justify-end">
-                <button className={primaryBtn} onClick={handleNext}>
-                  Next
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-      {showAllAttributes && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">All Available Attributes</h2>
-                  <p className="text-blue-100 mt-1">Browse and add attributes to your mandatory or recommended lists</p>
-                </div>
-                <button
-                  className="text-white hover:text-blue-200 transition-colors p-2"
-                  onClick={() => setShowAllAttributes(false)}
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            {/* Content */}
-            <div className="overflow-y-auto max-h-[calc(90vh-120px)] p-6">
-              {attributeCategories.map((category) => (
-                <div key={category.title} className="mb-8">
-                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{category.title}</h3>
-                    <p className="text-sm text-gray-600">
-                      {category.title.includes("Client Portfolio") && "Data from your CRM, lead files, and servicing systems"}
-                      {category.title.includes("Internal Interaction") && "Data generated through our AI platform interactions"}
-                      {category.title.includes("External Enrichment") && "Data from third-party providers and public records"}
-                      {category.title.includes("Real-time Interaction") && "Data captured during live conversations"}
-                    </p>
-                  </div>
-                  {category.groups.map((group) => (
-                    <div key={group.group} className="mb-6 bg-white border border-gray-200 rounded-lg overflow-hidden">
-                      <div className="bg-gray-100 px-4 py-3 border-b border-gray-200">
-                        <h4 className="font-medium text-gray-800">{group.group}</h4>
-                      </div>
-                      <div className="divide-y divide-gray-100">
-                        {group.items.map((item) => {
-                          const isInMandatory = currentAttributes.find(attr => attr.name === item);
-                          const isInRecommended = currentRecommendedAttributes.find(attr => attr.name === item);
-                          return (
-                            <div key={item} className="px-4 py-3 hover:bg-gray-50 transition-colors">
-                              <div className="flex items-center justify-between">
-                                <div className="flex-1">
-                                  <div className="font-medium text-gray-900 text-sm">{item}</div>
-                                  {isInMandatory && (
-                                    <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-1">
-                                      ✓ Added to Mandatory
-                                    </span>
-                                  )}
-                                  {isInRecommended && !isInMandatory && (
-                                    <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mt-1">
-                                      ✓ Added to Recommended
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="flex gap-2 ml-4">
-                                  {!isInMandatory && (
-                                    <button
-                                      onClick={() => addToMandatory({ name: item, desc: item, mandatory: true })}
-                                      className="px-3 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition-colors"
-                                    >
-                                      Add to Mandatory
-                                    </button>
-                                  )}
-                                  {!isInRecommended && (
-                                    <button
-                                      onClick={() => addToRecommended({ name: item, desc: item, mandatory: false })}
-                                      className="px-3 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors"
-                                    >
-                                      Add to Recommended
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-            {/* Footer */}
-            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium">{currentAttributes.length}</span> Mandatory • 
-                  <span className="font-medium"> {currentRecommendedAttributes.length}</span> Recommended
-                </div>
-                <button
-                  onClick={() => setShowAllAttributes(false)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Done
+              {/* Back to Homepage button */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <button className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
+                  <ArrowLeftIcon className="w-4 h-4 mr-2" />
+                  Back to Homepage
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* Right: Content Area */}
+      <div className={`${step > 0 ? "flex-1" : "w-full"} p-8`}>
+        {step === 0 ? (
+          // Welcome Page
+          <div className="max-w-4xl mx-auto text-center">
+            {/* Logo */}
+            <div className="mb-8 flex justify-center">
+              <div className="flex items-center space-x-2">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-2xl font-bold">S</span>
+                </div>
+                <span className="text-3xl font-bold text-gray-900">
+                  skit.ai
+                </span>
+              </div>
+            </div>
+
+            {/* Welcome Content */}
+            <div className="mb-12">
+              <div className="text-6xl mb-6">👋</div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                Welcome to skit.ai, {form.creditorName || "Acme Auto"}!
+              </h1>
+              <p className="text-xl text-gray-600 mb-6">
+                We've customized Skit.ai for your needs.
+              </p>
+              <p className="text-lg text-gray-600 mb-8">
+                Complete a quick setup to get started — or finish it anytime
+                later.
+              </p>
+            </div>
+
+            {/* Key Features */}
+            <div className="mb-12">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg
+                      className="w-8 h-8 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    Platform customized for you
+                  </h3>
+                </div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg
+                      className="w-8 h-8 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    Guided setup to match your needs
+                  </h3>
+                </div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg
+                      className="w-8 h-8 text-purple-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    Complete now or later from dashboard
+                  </h3>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                className="px-6 py-4 bg-gray-900 text-white rounded-lg font-base hover:bg-gray-800 transition-colors text-lg"
+                onClick={handleStartSetup}
+              >
+                Start Setup
+              </button>
+              <button
+                className="px-6 py-4 border border-gray-300 text-gray-700 rounded-lg font-base hover:bg-gray-50 transition-colors text-lg"
+                onClick={handleDoLater}
+              >
+                I'll do it later
+              </button>
+            </div>
+          </div>
+        ) : step === 1 ? (
+          <div>
+            {/* Step Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Step {getCurrentStepNumber()} of 4
+              </h2>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full"
+                  style={{ width: getProgressWidth() }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Assistant Details Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Assistant Details
+              </h3>
+              <p className="text-gray-600 text-sm mb-6">
+                Set up your assistant's name, description, and communication
+                preferences
+              </p>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Assistant name
+                  </label>
+                  <input
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                    value={form.name}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, name: e.target.value }))
+                    }
+                    placeholder="Enter assistant name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Assistant Description
+                  </label>
+                  <textarea
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                    value={form.desc}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, desc: e.target.value }))
+                    }
+                    rows={3}
+                    placeholder="Enter assistant description"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Segment
+                    </label>
+                    <select
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                      value={form.segment}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, segment: e.target.value }))
+                      }
+                    >
+                      <option value="First Party">First Party</option>
+                      <option value="Third Party">Third Party</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Micro Segment
+                    </label>
+                    <select
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                      value={form.microSegment}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          microSegment: e.target.value,
+                        }))
+                      }
+                    >
+                      <option value="Auto Loan">Auto Loan</option>
+                      <option value="Mortgage">Mortgage</option>
+                      <option value="Credit Card">Credit Card</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Choose Your Voice Assistant Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Choose Your Voice Assistant
+              </h3>
+              <p className="text-gray-600 text-sm mb-6">
+                Select the perfect voice personality for your AI assistant
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                {voiceAssistants.map((voice) => (
+                  <div
+                    key={voice.name}
+                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                      form.selectedVoice === voice.name
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                    onClick={() =>
+                      setForm((f) => ({ ...f, selectedVoice: voice.name }))
+                    }
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                        <UserIcon className="w-6 h-6 text-gray-600" />
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-gray-900">
+                            {voice.name}
+                          </h4>
+                          <div className="flex items-center space-x-2">
+                            <button className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                              <PlayIcon className="w-4 h-4 text-white" />
+                            </button>
+                            {form.selectedVoice === voice.name ? (
+                              <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                                <CheckIcon className="w-3 h-3 text-white" />
+                              </div>
+                            ) : (
+                              <div className="w-5 h-5 border-2 border-gray-300 rounded-full"></div>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                          {voice.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end pt-6 border-t border-gray-200">
+              <button
+                className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                onClick={handleNext}
+              >
+                Save & Continue →
+              </button>
+            </div>
+          </div>
+        ) : step === 2 ? (
+          <div>
+            {/* Step Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Step {getCurrentStepNumber()} of 4
+              </h2>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full"
+                  style={{ width: getProgressWidth() }}
+                ></div>
+              </div>
+            </div>
+
+            {/* \Data Attributes Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Data Attributes
+              </h3>
+              <p className="text-gray-600 text-sm mb-6">
+                Select which fields to use for AI-powered customer segmentation
+                and personalization.
+              </p>
+
+              {/* Pro Tip Box */}
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-purple-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h4 className="text-sm font-medium text-purple-900 mb-1">
+                      💡 Pro Tip: More Attributes = Better AI Predictions
+                    </h4>
+                    <p className="text-sm text-purple-700">
+                      Additional customer data helps our AI create more
+                      personalized and effective outreach strategies.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Attributes Summary */}
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-sm text-gray-600">
+                  <strong>10</strong> Total Attributes Selected
+                </span>
+                <button className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+                  Explore 200+ Additional Attributes
+                </button>
+              </div>
+
+              {/* Mandatory Fields Section */}
+              <div className="mb-6">
+                <button
+                  onClick={() => toggleSection("mandatory")}
+                  className="flex items-center justify-between w-full text-left mb-4 group"
+                >
+                  <div className="flex items-center space-x-3">
+                    <h4 className="text-md font-semibold text-gray-900">
+                      Mandatory Fields
+                    </h4>
+                    <span className="text-xs text-gray-500">
+                      These fields are essential for core functionality and
+                      personalization
+                    </span>
+                  </div>
+                  <ChevronDownIcon
+                    className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                      collapsedSections.mandatory ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {!collapsedSections.mandatory && (
+                  <div className="space-y-3">
+                    {[
+                      {
+                        name: "account_id",
+                        desc: "Unique identifier for each customer account",
+                      },
+                      {
+                        name: "customer_name",
+                        desc: "Full legal name for personalized communications",
+                      },
+                      {
+                        name: "phone_number",
+                        desc: "Primary contact phone number",
+                      },
+                      {
+                        name: "account_balance",
+                        desc: "Current outstanding balance",
+                      },
+                      { name: "email_address", desc: "Primary email contact" },
+                      { name: "account_due", desc: "Amount currently due" },
+                    ].map((field) => (
+                      <div
+                        key={field.name}
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3">
+                            <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
+                              Mandatory
+                            </span>
+                            <code className="text-sm font-mono text-gray-900">
+                              {field.name}
+                            </code>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {field.desc}
+                          </p>
+                        </div>
+                        <div className="flex items-center">
+                          <svg
+                            className="w-5 h-5 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* AI-Recommended Fields Section */}
+              <div className="mb-6">
+                <button
+                  onClick={() => toggleSection("aiRecommended")}
+                  className="flex items-center justify-between w-full text-left mb-4 group"
+                >
+                  <div className="flex items-center space-x-3">
+                    <h4 className="text-md font-semibold text-gray-900">
+                      AI-Recommended Fields
+                    </h4>
+                    <span className="text-xs text-gray-500">
+                      Select additional fields you plan to provide. These unlock
+                      enhanced segmentation
+                    </span>
+                  </div>
+                  <ChevronDownIcon
+                    className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                      collapsedSections.aiRecommended ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {!collapsedSections.aiRecommended && (
+                  <div className="space-y-3">
+                    {[
+                      {
+                        name: "risk_score",
+                        desc: "Credit risk assessment score (High/Medium/Low)",
+                      },
+                      {
+                        name: "payment_history",
+                        desc: "Historical payment patterns and behavioral trends",
+                      },
+                      {
+                        name: "income_verification",
+                        desc: "Verified income information for payment capacity",
+                      },
+                      {
+                        name: "last_payment_date",
+                        desc: "Date of most recent payment",
+                      },
+                      {
+                        name: "employment_status",
+                        desc: "Current employment status",
+                      },
+                      {
+                        name: "debt_to_income_ratio",
+                        desc: "Monthly debt payments to income ratio",
+                      },
+                    ].map((field) => (
+                      <div
+                        key={field.name}
+                        className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200"
+                      >
+                        <div className="flex-1">
+                          <code className="text-sm font-mono text-gray-900">
+                            {field.name}
+                          </code>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {field.desc}
+                          </p>
+                        </div>
+                        <div className="flex items-center">
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" className="sr-only peer" />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Custom Fields Section */}
+              <div className="mb-6">
+                <button
+                  onClick={() => toggleSection("custom")}
+                  className="flex items-center justify-between w-full text-left mb-4 group"
+                >
+                  <div className="flex items-center space-x-3">
+                    <h4 className="text-md font-semibold text-gray-900">
+                      Custom Fields
+                    </h4>
+                    <span className="text-xs text-gray-500">
+                      Create custom data fields for enhanced segmentation
+                    </span>
+                  </div>
+                  <ChevronDownIcon
+                    className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                      collapsedSections.custom ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {!collapsedSections.custom && (
+                  <div>
+                    {customFields.length === 0 && !showCustomFields ? (
+                      // Empty State
+                      <div className="text-center py-8">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <PlusIcon className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <h5 className="text-sm font-medium text-gray-900 mb-2">
+                          No custom fields yet
+                        </h5>
+                        <p className="text-sm text-gray-500 mb-4">
+                          Create custom data fields to enhance your segmentation
+                          capabilities
+                        </p>
+                        <button
+                          onClick={() => setShowCustomFields(true)}
+                          className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                        >
+                          Create Custom Field
+                        </button>
+                      </div>
+                    ) : showCustomFields ? (
+                      // Create Custom Field Form
+                      <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                        <h5 className="text-sm font-medium text-gray-900">
+                          Create Custom Field
+                        </h5>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Field Name
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="e.g., Vehicle Type"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              value={newCustomField.name}
+                              onChange={(e) =>
+                                setNewCustomField((prev) => ({
+                                  ...prev,
+                                  name: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Description
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="Brief description of the field"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              value={newCustomField.description}
+                              onChange={(e) =>
+                                setNewCustomField((prev) => ({
+                                  ...prev,
+                                  description: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={addCustomField}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                          >
+                            Add Field
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowCustomFields(false);
+                              setNewCustomField({ name: "", description: "" });
+                            }}
+                            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      // Display Custom Fields
+                      <div className="space-y-3">
+                        {customFields.map((field) => (
+                          <div
+                            key={field.id}
+                            className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200"
+                          >
+                            <div className="flex-1">
+                              <code className="text-sm font-mono text-gray-900">
+                                {field.name}
+                              </code>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {field.description}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => removeCustomField(field.id)}
+                              className="text-red-500 hover:text-red-700 transition-colors"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          onClick={() => setShowCustomFields(true)}
+                          className="w-full px-4 py-2 border-2 border-dashed border-gray-300 text-gray-600 rounded-lg text-sm font-medium hover:border-gray-400 hover:text-gray-700 transition-colors"
+                        >
+                          + Add Another Custom Field
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-between pt-6 border-t border-gray-200">
+                <button
+                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                  onClick={handleBack}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                  onClick={handleNext}
+                >
+                  Save & Continue →
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : step === 3 ? (
+          <div>
+            {/* Step Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Step {getCurrentStepNumber()} of 4
+              </h2>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full"
+                  style={{ width: getProgressWidth() }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Knowledge and Inputs Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Knowledge and Inputs
+              </h3>
+              <p className="text-gray-600 text-sm mb-6">
+                Upload documents and configure knowledge sources for your AI
+                assistant
+              </p>
+
+              {/* Knowledge Sources */}
+              <div className="mb-8">
+                <h4 className="text-md font-semibold text-gray-900 mb-2">
+                  Knowledge Sources
+                </h4>
+                <p className="text-gray-600 text-sm mb-6">
+                  What knowledge sources should the AI Agent use to answer
+                  questions for your chosen topics and use-cases
+                </p>
+
+                {/* Search Bar */}
+                <div className="mb-6">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Search your web site"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Add Knowledge Sources */}
+                <div className="mb-6">
+                  <div className="flex items-center space-x-4">
+                    <button className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+                        />
+                      </svg>
+                      <span>Add URL</span>
+                    </button>
+                    <button className="flex items-center space-x-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                      <DocumentIcon className="w-4 h-4" />
+                      <span>Add Document</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sample Knowledge Sources */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex items-center space-x-3">
+                      <GlobeAltIcon className="w-5 h-5 text-blue-500" />
+                      <span className="text-sm font-mono text-gray-900">
+                        https://www.boostmobile.ai/billing
+                      </span>
+                    </div>
+                    <button className="text-red-500 hover:text-red-700">
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex items-center space-x-3">
+                      <DocumentIcon className="w-5 h-5 text-gray-500" />
+                      <span className="text-sm font-mono text-gray-900">
+                        Payment procedures.pdf
+                      </span>
+                    </div>
+                    <button className="text-red-500 hover:text-red-700">
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* GuardRails Section */}
+              <div className="mb-8">
+                <h4 className="text-md font-semibold text-gray-900 mb-2">
+                  Guardrails
+                </h4>
+                <p className="text-gray-600 text-sm mb-6">
+                  Configure safety measures and business rules for your AI
+                  assistant
+                </p>
+
+                {/* System GuardRails */}
+                <div className="mb-6">
+                  <h5 className="text-md font-medium text-gray-900 mb-3">
+                    System Guardrails
+                  </h5>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-sm font-medium text-gray-900">
+                            Hallucination
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            Type: System guardrail
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          2
+                        </span>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          Content: I unfor...
+                        </span>
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                            />
+                          </svg>
+                        </button>
+                        <button className="text-gray-300 cursor-not-allowed">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                          </svg>
+                        </button>
+                        <button className="text-gray-300 cursor-not-allowed">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-sm font-medium text-gray-900">
+                            Moderation API
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            Type: System guardrail
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          2
+                        </span>
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                            />
+                          </svg>
+                        </button>
+                        <button className="text-gray-300 cursor-not-allowed">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                          </svg>
+                        </button>
+                        <button className="text-gray-300 cursor-not-allowed">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Custom GuardRails */}
+                <div className="mb-6">
+                  <h5 className="text-md font-medium text-gray-900 mb-3">
+                    Custom GuardRails
+                  </h5>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-sm font-medium text-gray-900">
+                            Bad User
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            Type: Custom
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            Model: gpt-4o
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                          <svg
+                            className="w-3 h-3 mr-1"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          3
+                        </span>
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                            />
+                          </svg>
+                        </button>
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-sm font-medium text-gray-900">
+                            Competitors
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            Type: Custom
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            Model: gpt-4o
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                          <svg
+                            className="w-3 h-3 mr-1"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          1
+                        </span>
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                            />
+                          </svg>
+                        </button>
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Add Custom GuardRail Button */}
+                <div className="flex justify-center">
+                  <button className="flex items-center space-x-2 px-6 py-3 border-2 border-dashed border-gray-300 text-gray-600 rounded-lg hover:border-gray-400 hover:text-gray-700 transition-colors">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      />
+                    </svg>
+                    <span>Add Custom GuardRail</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between pt-6 border-t border-gray-200">
+              <button
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                onClick={handleBack}
+              >
+                ← Back
+              </button>
+              <button
+                className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                onClick={handleNext}
+              >
+                Save & Continue →
+              </button>
+            </div>
+          </div>
+        ) : step === 4 ? (
+          <div>
+            {/* Step Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Step {getCurrentStepNumber()} of 4
+              </h2>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full"
+                  style={{ width: getProgressWidth() }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Segmentation Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Build Smart Customer Segments
+              </h3>
+              <p className="text-gray-600 text-sm mb-6">
+                Use rule-based logic to create intelligent customer segments for
+                targeted outreach
+              </p>
+
+              <div className="space-y-6">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h4 className="font-semibold text-gray-900 mb-4">
+                    Create New Segment
+                  </h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Segment Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g., High-Value Customers"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Segment Rules
+                      </label>
+                      <textarea
+                        placeholder="Define your segment rules here..."
+                        rows={4}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                      />
+                    </div>
+                    <button className="px-6 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors">
+                      Create Segment
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <h4 className="font-semibold text-gray-900 mb-4">
+                    Existing Segments
+                  </h4>
+                  <p className="text-gray-600 text-sm mb-4">
+                    No segments created yet. Create your first segment above.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between pt-6 border-t border-gray-200">
+              <button
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                onClick={handleBack}
+              >
+                ← Back
+              </button>
+              <button
+                className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+                onClick={() => navigate("/")}
+              >
+                Complete Setup →
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -1,199 +1,286 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PageHeader from "./PageHeader";
 import {
   PlusIcon,
-  ChatBubbleLeftEllipsisIcon,
-  EnvelopeIcon,
-  DevicePhoneMobileIcon,
-  PhoneArrowUpRightIcon,
-  GlobeAltIcon,
-  MicrophoneIcon,
+  MagnifyingGlassIcon,
   ChevronDownIcon,
-} from "@heroicons/react/24/solid";
-import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
-import { Badge } from "./components/ui/badge";
-import { Button } from "./components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./components/ui/dropdown-menu";
+  EllipsisVerticalIcon,
+  ComputerDesktopIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  UserCircleIcon,
+} from "@heroicons/react/24/outline";
 
 const agents = [
   {
+    id: "support-bot-001",
     name: "SupportBot",
     desc: "Handles customer support queries 24/7.",
     channels: ["Chat", "Email", "SMS"],
+    metrics: { conversations: 1247, satisfaction: 94, responseTime: "2.3s" },
   },
   {
+    id: "sales-ai-002",
     name: "SalesAI",
     desc: "Assists with sales inquiries and lead generation.",
     channels: ["Chat", "WhatsApp"],
+    metrics: { conversations: 892, satisfaction: 87, responseTime: "1.8s" },
   },
   {
+    id: "survey-genie-003",
     name: "SurveyGenie",
     desc: "Conducts automated customer surveys.",
     channels: ["Email", "Web"],
+    metrics: { conversations: 567, satisfaction: 91, responseTime: "0.5s" },
   },
   {
+    id: "reminder-bot-004",
     name: "ReminderBot",
     desc: "Sends payment and appointment reminders.",
     channels: ["SMS", "Email"],
+    metrics: { conversations: 2341, satisfaction: 96, responseTime: "1.2s" },
   },
   {
+    id: "onboarding-ai-005",
     name: "OnboardingAI",
     desc: "Guides new users through onboarding steps.",
     channels: ["Chat", "Web"],
+    metrics: { conversations: 445, satisfaction: 89, responseTime: "3.1s" },
   },
   {
+    id: "feedback-bot-006",
     name: "FeedbackBot",
     desc: "Collects user feedback after interactions.",
     channels: ["Email", "Chat"],
+    metrics: { conversations: 678, satisfaction: 92, responseTime: "1.9s" },
   },
 ];
-
-const channelColors = {
-  Chat: "bg-blue-100 text-blue-700",
-  Email: "bg-green-100 text-green-700",
-  SMS: "bg-yellow-100 text-yellow-800",
-  WhatsApp: "bg-emerald-100 text-emerald-700",
-  Web: "bg-zinc-100 text-zinc-700",
-  Voice: "bg-purple-100 text-purple-700",
-};
-
-const filterOptions = ["All", "Chat", "Email", "SMS", "WhatsApp", "Web"];
-const microSegments = ["Auto Loan", "Mortgage", "Credit Card"];
-const channelOptions = ["Voice", "SMS", "Email"];
-
-const attributes = [
-  { name: "account_id", desc: "Unique account identifier.", mandatory: true },
-  {
-    name: "customer_name",
-    desc: "Full name of the customer.",
-    mandatory: true,
-  },
-  {
-    name: "primary_phone_number",
-    desc: "Primary contact number (for Voice/SMS).",
-    mandatory: true,
-  },
-  {
-    name: "email_address",
-    desc: "Primary email contact (for Email).",
-    mandatory: true,
-  },
-  { name: "dpd", desc: "Days Past Due.", mandatory: true },
-  { name: "amount_due", desc: "Current outstanding balance.", mandatory: true },
-  {
-    name: "product_type",
-    desc: "Matches products defined earlier.",
-    mandatory: true,
-  },
-  {
-    name: "timezone",
-    desc: "Customers timezone (e.g., America/New_York).",
-    mandatory: true,
-  },
-];
-
-const channelIcons = {
-  Chat: <ChatBubbleLeftEllipsisIcon className="w-4 h-4 text-blue-500 mr-1" />,
-  Email: <EnvelopeIcon className="w-4 h-4 text-green-500 mr-1" />,
-  SMS: <DevicePhoneMobileIcon className="w-4 h-4 text-yellow-500 mr-1" />,
-  WhatsApp: <PhoneArrowUpRightIcon className="w-4 h-4 text-emerald-500 mr-1" />,
-  Web: <GlobeAltIcon className="w-4 h-4 text-zinc-500 mr-1" />,
-  Voice: <MicrophoneIcon className="w-4 h-4 text-purple-500 mr-1" />,
-};
-
-const statusOptions = ["Active", "Archived", "All"];
 
 export default function AIAgents() {
-  const [status, setStatus] = useState("Active");
+  const [status, setStatus] = useState("All");
+  const [channel, setChannel] = useState("All Channel");
   const navigate = useNavigate();
+
   // For demo, all agents are active
   const filteredAgents =
     status === "All" ? agents : status === "Active" ? agents : [];
 
   return (
-    <div className="text-[14px]">
-      <PageHeader title="AI Agents" />
-      <div className="p-2">
-        <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
-          {/* Proper Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="min-w-[120px] flex items-center gap-2"
-              >
-                {status}
-                <ChevronDownIcon className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {statusOptions.map((option) => (
-                <DropdownMenuItem
-                  key={option}
-                  onClick={() => setStatus(option)}
-                  className={option === status ? "bg-accent" : ""}
-                >
-                  {option}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button
-            className="flex items-center gap-2"
-            onClick={() => navigate("/ai-agents/create")}
-          >
-            <PlusIcon className="w-5 h-5 -ml-1" />
-            Create Assistant
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAgents.map((agent) => (
-            <Card
-              key={agent.name}
-              className="cursor-pointer transition-transform transition-shadow hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] group"
-              tabIndex={0}
-              onClick={() => navigate(`/ai-agents/${agent.name}`)}
+    <div className="min-h-screen bg-white">
+      {/* Page Header matching the design */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">AI Agents</h1>
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search"
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            </div>
+            <button
+              className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center space-x-2"
+              onClick={() => navigate("/ai-agents/create")}
             >
-              <CardHeader>
-                <CardTitle className="text-lg group-hover:underline">
-                  {agent.name}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="text-muted-foreground text-sm mb-2 line-clamp-2">
-                  {agent.desc}
+              <PlusIcon className="h-4 w-4" />
+              <span>New Agent</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters Section */}
+      <div className="bg-white px-6 py-4 border-gray-100">
+        <div className="flex items-center space-x-4">
+          {/* Status Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() =>
+                setStatus(
+                  status === "All"
+                    ? "Active"
+                    : status === "Active"
+                    ? "Archived"
+                    : "All"
+                )
+              }
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center space-x-2 min-w-[120px] justify-between"
+            >
+              <span>{status}</span>
+              <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+            </button>
+          </div>
+
+          {/* Channel Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() =>
+                setChannel(
+                  channel === "All Channel"
+                    ? "Voice"
+                    : channel === "Voice"
+                    ? "SMS"
+                    : channel === "SMS"
+                    ? "Email"
+                    : "All Channel"
+                )
+              }
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center space-x-2 min-w-[140px] justify-between"
+            >
+              <span>{channel}</span>
+              <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredAgents.map((agent, index) => (
+            <div
+              key={agent.name}
+              className={`group relative rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 ${
+                index % 4 === 0
+                  ? "bg-gradient-to-br from-blue-50 via-white to-indigo-50 border border-blue-200/50"
+                  : index % 4 === 1
+                  ? "bg-gradient-to-br from-purple-50 via-white to-pink-50 border border-purple-200/50"
+                  : index % 4 === 2
+                  ? "bg-gradient-to-br from-emerald-50 via-white to-teal-50 border border-emerald-200/50"
+                  : "bg-gradient-to-br from-orange-50 via-white to-amber-50 border border-orange-200/50"
+              }`}
+              onClick={() => navigate(`/ai-agents/${agent.id}`)}
+            >
+              {/* Subtle Pattern Overlay */}
+              <div
+                className={`absolute inset-0 rounded-xl opacity-5 ${
+                  index % 4 === 0
+                    ? "bg-[radial-gradient(circle_at_20%_80%,#3b82f6_0%,transparent_50%)]"
+                    : index % 4 === 1
+                    ? "bg-[radial-gradient(circle_at_80%_20%,#8b5cf6_0%,transparent_50%)]"
+                    : index % 4 === 2
+                    ? "bg-[radial-gradient(circle_at_40%_40%,#10b981_0%,transparent_50%)]"
+                    : "bg-[radial-gradient(circle_at_60%_60%,#f59e0b_0%,transparent_50%)]"
+                }`}
+              ></div>
+              {/* Status Badge */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <div
+                    className={`w-2.5 h-2.5 rounded-full animate-pulse ${
+                      index % 2 === 0 ? "bg-green-500" : "bg-yellow-500"
+                    }`}
+                  ></div>
+                  <span
+                    className={`text-xs font-semibold px-2 py-1 rounded-full flex items-center space-x-1 ${
+                      index % 2 === 0
+                        ? "bg-green-100 text-green-700"
+                        : "bg-yellow-100 text-yellow-700"
+                    }`}
+                  >
+                    {index % 2 === 0 ? (
+                      <>
+                        <CheckCircleIcon className="w-3 h-3" />
+                        <span>Live</span>
+                      </>
+                    ) : (
+                      <>
+                        <ClockIcon className="w-3 h-3" />
+                        <span>Draft</span>
+                      </>
+                    )}
+                  </span>
                 </div>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {/* Tag: 1st Party - Auto Loan (for demo, always this) */}
-                  <Badge variant="default">1st Party - Auto Loan</Badge>
+
+                {/* Menu Button */}
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100">
+                    <EllipsisVerticalIcon className="h-4 w-4" />
+                  </button>
                 </div>
-                <div className="flex flex-wrap gap-2 mt-auto">
-                  {agent.channels.map((ch) => (
-                    <Badge
-                      key={ch}
-                      variant="secondary"
-                      className="flex items-center gap-1"
+              </div>
+
+              {/* Agent Icon */}
+              <div className="mb-4">
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 ${
+                    index % 3 === 0
+                      ? "bg-gradient-to-br from-blue-500 to-blue-600"
+                      : index % 3 === 1
+                      ? "bg-gradient-to-br from-purple-500 to-purple-600"
+                      : "bg-gradient-to-br from-emerald-500 to-emerald-600"
+                  }`}
+                >
+                  <ComputerDesktopIcon className="w-6 h-6 text-white" />
+                </div>
+              </div>
+
+              {/* Agent Name */}
+              <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors duration-200">
+                {agent.name}
+              </h3>
+
+              {/* Description */}
+              <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                {agent.desc}
+              </p>
+
+              {/* Channels */}
+              <div className="mb-6">
+                <p className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">
+                  Channels
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {agent.channels.map((channel, channelIndex) => (
+                    <span
+                      key={channel}
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                        channelIndex % 3 === 0
+                          ? "bg-blue-100 text-blue-700"
+                          : channelIndex % 3 === 1
+                          ? "bg-purple-100 text-purple-700"
+                          : "bg-emerald-100 text-emerald-700"
+                      }`}
                     >
-                      {channelIcons[ch] || null}
-                      {ch}
-                    </Badge>
+                      {channel}
+                    </span>
                   ))}
                 </div>
-                {/* Divider and footer */}
-                <div className="mt-4">
-                  <div className="border-t border-border my-2" />
-                  <div className="text-xs text-muted-foreground mt-5">
-                    Modified by Noor · a few days ago
+              </div>
+
+              {/* Bottom Section */}
+              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center">
+                    <UserCircleIcon className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      John Doe
+                    </p>
+                    <p className="text-xs text-gray-500">Owner</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                <span className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors duration-200">
+                  edited 2 days ago
+                </span>
+              </div>
+
+              {/* Hover Effect Overlay */}
+              <div
+                className={`absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
+                  index % 4 === 0
+                    ? "bg-gradient-to-br from-blue-500/10 to-indigo-500/10"
+                    : index % 4 === 1
+                    ? "bg-gradient-to-br from-purple-500/10 to-pink-500/10"
+                    : index % 4 === 2
+                    ? "bg-gradient-to-br from-emerald-500/10 to-teal-500/10"
+                    : "bg-gradient-to-br from-orange-500/10 to-amber-500/10"
+                }`}
+              ></div>
+            </div>
           ))}
         </div>
       </div>
