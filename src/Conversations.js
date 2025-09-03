@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import PageHeaderWithTabs from "./components/PageHeaderWithTabs";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 
 const conversationsData = [
   {
@@ -12,6 +12,7 @@ const conversationsData = [
     status: "HANGUP",
     campaign: "Q2 Auto Recovery",
     agent: "Susan",
+    assistant: "SupportBot",
   },
   {
     id: 2,
@@ -22,6 +23,7 @@ const conversationsData = [
     status: "USER_HANGUP",
     campaign: "Q2 Auto Recovery",
     agent: "Marcus",
+    assistant: "SalesAI",
   },
   {
     id: 3,
@@ -32,6 +34,7 @@ const conversationsData = [
     status: "COMPLETED",
     campaign: "Q2 Auto Recovery",
     agent: "Susan",
+    assistant: "SupportBot",
   },
   {
     id: 4,
@@ -42,6 +45,7 @@ const conversationsData = [
     status: "HANGUP",
     campaign: "Q2 Auto Recovery",
     agent: "Scarlett",
+    assistant: "FeedbackBot",
   },
   {
     id: 5,
@@ -52,6 +56,7 @@ const conversationsData = [
     status: "COMPLETED",
     campaign: "Q2 Auto Recovery",
     agent: "Marcus",
+    assistant: "SalesAI",
   },
   {
     id: 6,
@@ -62,6 +67,7 @@ const conversationsData = [
     status: "COMPLETED",
     campaign: "Q2 Auto Recovery",
     agent: "Susan",
+    assistant: "SupportBot",
   },
   {
     id: 7,
@@ -72,6 +78,7 @@ const conversationsData = [
     status: "HANGUP",
     campaign: "Q2 Auto Recovery",
     agent: "Jean",
+    assistant: "SurveyGenie",
   },
   {
     id: 8,
@@ -82,6 +89,7 @@ const conversationsData = [
     status: "COMPLETED",
     campaign: "Q2 Auto Recovery",
     agent: "Parker",
+    assistant: "ReminderBot",
   },
   {
     id: 9,
@@ -92,6 +100,7 @@ const conversationsData = [
     status: "USER_HANGUP",
     campaign: "Q2 Auto Recovery",
     agent: "Clark",
+    assistant: "SupportBot",
   },
   {
     id: 10,
@@ -102,6 +111,7 @@ const conversationsData = [
     status: "COMPLETED",
     campaign: "Q2 Auto Recovery",
     agent: "Susan",
+    assistant: "SupportBot",
   },
   {
     id: 11,
@@ -112,6 +122,7 @@ const conversationsData = [
     status: "HANGUP",
     campaign: "Q2 Auto Recovery",
     agent: "Marcus",
+    assistant: "SalesAI",
   },
   {
     id: 12,
@@ -122,7 +133,17 @@ const conversationsData = [
     status: "COMPLETED",
     campaign: "Q2 Auto Recovery",
     agent: "Scarlett",
+    assistant: "FeedbackBot",
   },
+];
+
+// Mock assistant options - removed "All Assistants"
+const assistantOptions = [
+  { id: "support-bot", name: "SupportBot" },
+  { id: "sales-ai", name: "SalesAI" },
+  { id: "feedback-bot", name: "FeedbackBot" },
+  { id: "survey-genie", name: "SurveyGenie" },
+  { id: "reminder-bot", name: "ReminderBot" },
 ];
 
 export default function Conversations() {
@@ -130,19 +151,32 @@ export default function Conversations() {
   const [selectedConversation, setSelectedConversation] = useState(2);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("Live");
+  const [selectedAssistant, setSelectedAssistant] = useState(assistantOptions[0]);
+  const [showAssistantDropdown, setShowAssistantDropdown] = useState(false);
 
-  // Filter conversations based on search query
+  // Filter conversations based on search query and selected assistant
   const filteredConversations = useMemo(() => {
-    if (!searchQuery.trim()) return conversationsData;
+    let filtered = conversationsData;
 
-    const query = searchQuery.toLowerCase();
-    return conversationsData.filter(
-      (conversation) =>
-        conversation.recipient.toLowerCase().includes(query) ||
-        conversation.virtualId.toLowerCase().includes(query) ||
-        conversation.status.toLowerCase().includes(query)
+    // Filter by assistant - now always filters by selected assistant
+    filtered = filtered.filter(conversation => 
+      conversation.assistant === selectedAssistant.name
     );
-  }, [searchQuery]);
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (conversation) =>
+          conversation.recipient.toLowerCase().includes(query) ||
+          conversation.virtualId.toLowerCase().includes(query) ||
+          conversation.status.toLowerCase().includes(query) ||
+          conversation.assistant.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [searchQuery, selectedAssistant]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -162,6 +196,15 @@ export default function Conversations() {
     { value: "Test", label: "Test (0)" },
   ];
 
+  // Create filters array for PageHeaderWithTabs - Assistant filter first
+  const filters = [
+    {
+      key: "assistant",
+      value: selectedAssistant.name,
+      onClick: () => setShowAssistantDropdown(!showAssistantDropdown),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-white">
       <PageHeaderWithTabs
@@ -171,6 +214,7 @@ export default function Conversations() {
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        filters={filters}
         searchPlaceholder="Search conversations..."
         createButtonText="Download Bulk Recordings"
         createButtonIcon={ArrowDownTrayIcon}
@@ -178,6 +222,35 @@ export default function Conversations() {
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
       />
+
+      {/* Assistant Dropdown - positioned relative to the header */}
+      {showAssistantDropdown && (
+        <div className="relative">
+          <div className="absolute top-0 left-6 z-50">
+            <div className="bg-white border border-gray-200 rounded-lg shadow-lg w-48">
+              <div className="p-2">
+                <div className="text-xs text-gray-500 px-2 py-1">Assistant</div>
+                <div className="border-b border-gray-100 mb-1"></div>
+                {assistantOptions.map((assistant) => (
+                  <button
+                    key={assistant.id}
+                    className="w-full text-left px-2 py-1.5 text-sm hover:bg-gray-50 rounded flex items-center justify-between"
+                    onClick={() => {
+                      setSelectedAssistant(assistant);
+                      setShowAssistantDropdown(false);
+                    }}
+                  >
+                    <span>{assistant.name}</span>
+                    {selectedAssistant.id === assistant.id && (
+                      <span className="text-xs text-gray-500">✓</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <div className="flex-1 p-6">
@@ -192,6 +265,9 @@ export default function Conversations() {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Virtual ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Assistant
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Created At
@@ -243,6 +319,11 @@ export default function Conversations() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-600 font-medium">
+                        {conversation.assistant}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-600">
                         {conversation.createdAt}
                       </span>
@@ -277,7 +358,8 @@ export default function Conversations() {
           </div>
           <div className="flex items-center space-x-4">
             <span>Tab: {selectedTab}</span>
-            {searchQuery && <span>Search: "{searchQuery}"</span>}
+            {searchQuery && <span>Search: "${searchQuery}"</span>}
+            <span>Assistant: {selectedAssistant.name}</span>
           </div>
         </div>
       </div>

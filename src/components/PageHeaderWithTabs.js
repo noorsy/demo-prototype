@@ -60,40 +60,45 @@ export default function PageHeaderWithTabs({
           <p className="text-gray-600 text-sm">{description}</p>
         </div>
 
-        {/* Tabs/Filters, Search, and Create Button in One Line */}
+        {/* Filters, Tabs, Search, and Create Button in One Line */}
         <div className="flex items-center justify-between">
-          {/* Tabs or Filters */}
-          {tabs.length > 0 ? (
-            <div className="flex space-x-1">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.value}
-                  onClick={() => onTabChange(tab.value)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === tab.value
-                      ? "bg-gray-900 text-white"
-                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="flex space-x-4">
-              {filters.map((filter) => (
-                <div key={filter.key} className="relative">
+          {/* Filters and Tabs */}
+          <div className="flex items-center space-x-4">
+            {/* Filters - Now rendered first */}
+            {filters.length > 0 && (
+              <div className="flex space-x-2">
+                {filters.map((filter) => (
                   <button
+                    key={filter.key}
                     onClick={filter.onClick}
                     className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center space-x-2 min-w-[120px] justify-between"
                   >
                     <span>{filter.value}</span>
                     <ChevronDownIcon className="w-4 h-4 text-gray-400" />
                   </button>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+            
+            {/* Tabs - Now rendered after filters */}
+            {tabs.length > 0 && (
+              <div className="flex space-x-1">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.value}
+                    onClick={() => onTabChange(tab.value)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      activeTab === tab.value
+                        ? "bg-gray-900 text-white"
+                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Search and Create Button */}
           <div className="flex items-center space-x-4">

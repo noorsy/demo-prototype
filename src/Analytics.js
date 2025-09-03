@@ -239,7 +239,7 @@ function MetricCard({
 
 export default function Analytics() {
   const [product, setProduct] = useState(productOptions[0]);
-  const [dpd, setDpd] = useState(dpdOptions[0]);
+  const [assistant, setAssistant] = useState("SupportBot");  const [dpd, setDpd] = useState(dpdOptions[0]);
   const [segment, setSegment] = useState(segmentOptions[0]);
   const [dateRange, setDateRange] = useState({
     from: "2024-01-01",
@@ -249,6 +249,16 @@ export default function Analytics() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filters = [
+    {
+      key: "assistant",
+      value: assistant,
+      onClick: () => {
+        const assistantOptions = ["SupportBot", "SalesAI", "FeedbackBot", "SurveyGenie", "ReminderBot"];
+        const currentIndex = assistantOptions.indexOf(assistant);
+        const nextIndex = (currentIndex + 1) % assistantOptions.length;
+        setAssistant(assistantOptions[nextIndex]);
+      },
+    },
     {
       key: "product",
       value: product,

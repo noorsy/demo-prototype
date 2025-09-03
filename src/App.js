@@ -18,6 +18,7 @@ import ExperienceCenter from "./ExperienceCenter";
 import AssistantDetail from "./AssistantDetail";
 import VoiceWidget from "./VoiceWidget";
 import Conversations from "./Conversations";
+import AgentPortal from "./AgentPortal";
 
 const Placeholder = ({ title }) => (
   <div className="p-8 text-lg">{title} Page</div>
@@ -27,10 +28,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Onboarding route is top-level, no sidebar */}
+        {/* Full-page routes without sidebar */}
         <Route path="/ai-agents/onboarding" element={<Onboarding />} />
-        {/* Setup Creditor route is also top-level, no sidebar */}
         <Route path="/setup-creditor" element={<SetupCreditor />} />
+        <Route path="/agent-portal" element={<AgentPortal />} />
+        
         {/* All other routes use the main app layout with sidebar */}
         <Route
           path="*"
@@ -65,10 +67,6 @@ function App() {
                       <Route
                         path="/accounts-data"
                         element={<Placeholder title="Accounts Data" />}
-                      />
-                      <Route
-                        path="/agent-portal"
-                        element={<Placeholder title="Agent Portal" />}
                       />
                       <Route
                         path="/journeys"
