@@ -57,7 +57,7 @@ const navLinks = [
   {
     icon: <Mic size={20} />,
     label: "Experience Center",
-    to: "/voice-widget",
+    to: "/experience-center",
   },
   {
     icon: <Users size={20} />,

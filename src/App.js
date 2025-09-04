@@ -19,6 +19,8 @@ import AssistantDetail from "./AssistantDetail";
 import VoiceWidget from "./VoiceWidget";
 import Conversations from "./Conversations";
 import AgentPortal from "./AgentPortal";
+import DemoPage from "./DemoPage";
+import DemoTranscript from "./DemoTranscript";
 
 const Placeholder = ({ title }) => (
   <div className="p-8 text-lg">{title} Page</div>
@@ -32,6 +34,7 @@ function App() {
         <Route path="/ai-agents/onboarding" element={<Onboarding />} />
         <Route path="/setup-creditor" element={<SetupCreditor />} />
         <Route path="/agent-portal" element={<AgentPortal />} />
+        <Route path="/voice-widget" element={<VoiceWidget />} />
         
         {/* All other routes use the main app layout with sidebar */}
         <Route
@@ -85,8 +88,12 @@ function App() {
                         element={<ExperienceCenter />}
                       />
                       <Route
-                        path="/experience-center/:id"
-                        element={<AssistantDetail />}
+                        path="/experience-center/:demoId"
+                        element={<DemoPage />}
+                      />
+                      <Route
+                        path="/demo-transcript/:demoId"
+                        element={<DemoTranscript />}
                       />
                       <Route
                         path="/access-management"
@@ -100,7 +107,6 @@ function App() {
                         path="/access-management/edit"
                         element={<EditUser />}
                       />
-                      <Route path="/voice-widget" element={<VoiceWidget />} />
                     </Routes>
                   </main>
                 </div>
