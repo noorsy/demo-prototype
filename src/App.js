@@ -18,6 +18,7 @@ import ExperienceCenter from "./ExperienceCenter";
 import AssistantDetail from "./AssistantDetail";
 import VoiceWidget from "./VoiceWidget";
 import Conversations from "./Conversations";
+import ConversationDetail from "./ConversationDetail";
 import AgentPortal from "./AgentPortal";
 import DemoPage from "./DemoPage";
 import DemoTranscript from "./DemoTranscript";
@@ -65,6 +66,10 @@ function App() {
                       <Route
                         path="/conversations"
                         element={<Conversations />}
+                      />
+                      <Route
+                        path="/conversations/:conversationId"
+                        element={<ConversationDetail />}
                       />
                       <Route path="/analytics" element={<Analytics />} />
                       <Route

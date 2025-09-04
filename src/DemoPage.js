@@ -152,7 +152,7 @@ const DemoPage = () => {
                 <div className="text-3xl font-mono font-bold text-gray-900 mb-4">{demo.phoneNumber}</div>
                 <div className="w-48 h-48 mx-auto bg-white rounded-lg flex items-center justify-center border-2 border-gray-200">
                   <div className="text-center text-gray-500">
-<img src="/images/qr_code.svg" alt="QR Code" className="w-32 h-32 mx-auto" />
+<img src="/qr_code.svg" alt="QR Code" className="w-32 h-32 mx-auto" />
                     <div className="text-sm">QR Code</div>
                   </div>
                 </div>
