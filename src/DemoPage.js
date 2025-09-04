@@ -31,6 +31,8 @@ const DemoPage = () => {
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState("");
   const [customPhoneNumber, setCustomPhoneNumber] = useState("");
   const [showPreCheck, setShowPreCheck] = useState(false);
+  const [showIncomingCalls, setShowIncomingCalls] = useState(false);
+  const [showCallsList, setShowCallsList] = useState(false);
 
   // Demo data
   const demo = {
@@ -61,6 +63,14 @@ const DemoPage = () => {
     { label: "Custom", number: "custom" }
   ];
 
+  const incomingCalls = [
+    { id: 1, caller: "John Smith", number: "+1 (555) 123-4567", time: "2:30 PM", duration: "0:45", status: "live" },
+    { id: 2, caller: "Sarah Johnson", number: "+1 (555) 234-5678", time: "2:15 PM", duration: "1:23", status: "live" },
+    { id: 3, caller: "Mike Wilson", number: "+1 (555) 345-6789", time: "1:45 PM", duration: "0:32", status: "completed" },
+    { id: 4, caller: "Lisa Brown", number: "+1 (555) 456-7890", time: "1:20 PM", duration: "2:15", status: "live" },
+    { id: 5, caller: "David Lee", number: "+1 (555) 567-8901", time: "12:55 PM", duration: "0:18", status: "completed" }
+  ];
+
   const handleBack = () => {
     navigate("/experience-center");
   };
@@ -71,6 +81,16 @@ const DemoPage = () => {
 
   const handlePhoneModal = () => {
     setShowPhoneModal(true);
+  };
+
+  const handleIncomingCalls = () => {
+    setShowIncomingCalls(true);
+    setShowCallsList(false);
+    
+    // Show calls list after 1 second
+    setTimeout(() => {
+      setShowCallsList(true);
+    }, 1000);
   };
 
   const handlePhoneCall = () => {
@@ -92,6 +112,109 @@ const DemoPage = () => {
       setCustomPhoneNumber("");
     }
   };
+
+  if (showIncomingCalls) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-50">
+        {/* Header */}
+        <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 shadow-sm">
+          <div className="px-6 py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowIncomingCalls(false)}
+                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/50 rounded-full p-2"
+                >
+                  <ArrowLeftIcon className="h-5 w-5" />
+                </Button>
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-gray-100 rounded-xl">
+                    <PhoneIcon className="h-5 w-5 text-gray-700" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-semibold text-gray-900">Incoming Calls</h1>
+                    <p className="text-gray-600 font-medium">Live call monitoring and management</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Left Side - Phone Number and QR Code */}
+            <div className="text-center">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Call This Number</h3>
+                <div className="text-3xl font-mono font-bold text-gray-900 mb-4">{demo.phoneNumber}</div>
+                <div className="w-48 h-48 mx-auto bg-white rounded-lg flex items-center justify-center border-2 border-gray-200">
+                  <div className="text-center text-gray-500">
+                    <div className="w-32 h-32 bg-gray-900 rounded grid grid-cols-8 gap-0.5 p-1 mx-auto">
+                      <div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div>
+                      <div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div>
+                      <div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div>
+                      <div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div>
+                      <div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div>
+                      <div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div>
+                      <div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div>
+                      <div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-gray-900"></div><div className="bg-gray-900"></div><div className="bg-white"></div><div className="bg-white"></div>
+                    </div>
+                    <div className="text-sm">QR Code</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right Side - Live Calls List */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Live Calls</h3>
+              {!showCallsList ? (
+                <div className="text-center py-12 bg-white/80 backdrop-blur-sm rounded-2xl">
+                  <div className="text-gray-500 text-lg">No incoming calls yet</div>
+                  <div className="text-gray-400 text-sm mt-2">Call the number to see calls appear here</div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {incomingCalls.map((call) => (
+                    <div 
+                      key={call.id} 
+                      className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => navigate(`/demo-transcript/${demoId}`)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                            <PhoneIcon className="h-5 w-5 text-gray-600" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-900">{call.caller}</div>
+                            <div className="text-sm text-gray-500">{call.number}</div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-medium text-gray-900">{call.time}</div>
+                          <div className="text-xs text-gray-500">{call.duration}</div>
+                          <Badge 
+                            variant={call.status === "completed" ? "default" : call.status === "live" ? "destructive" : "secondary"}
+                            className="text-xs mt-1"
+                          >
+                            {call.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (showPreCheck) {
     return (
@@ -217,15 +340,12 @@ const DemoPage = () => {
                     
                     <div className="flex items-center justify-between bg-white/60 rounded-2xl p-4">
                       <span className="text-sm text-gray-600 font-medium">or dial <span className="font-mono font-bold text-gray-900">{demo.phoneNumber}</span> directly</span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/demo-transcript/${demoId}`)}
-                        className="flex items-center space-x-2 rounded-full bg-white/80 hover:bg-white border-gray-200"
+                      <button
+                        onClick={handleIncomingCalls}
+                        className="text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium transition-colors"
                       >
-                        <MicrophoneIcon className="h-4 w-4" />
-                        <span>View Transcript</span>
-                      </Button>
+                        5 incoming calls
+                      </button>
                     </div>
                   </div>
                 </CardContent>
