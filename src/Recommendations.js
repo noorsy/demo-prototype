@@ -1,5 +1,5 @@
-import React from "react";
-import PageHeader from "./PageHeader";
+import React, { useState } from "react";
+import PageHeaderWithTabs from "./components/PageHeaderWithTabs";
 import { Button } from "./components/ui/button";
 import {
   Select,
@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./components/ui/select";
+import { PlusIcon, LightBulbIcon } from "@heroicons/react/24/outline";
 
 const recommendations = [
   {
@@ -115,24 +116,49 @@ function AiAvatar() {
 }
 
 export default function Recommendations() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedTimeframe, setSelectedTimeframe] = useState("30");
+
+  // Filter recommendations based on search and filters
+  const filteredRecommendations = recommendations.filter(rec => {
+    const matchesSearch = searchQuery.trim() === "" || 
+      rec.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      rec.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesCategory = selectedCategory === "all" || 
+      rec.category.toLowerCase().includes(selectedCategory);
+    
+    return matchesSearch && matchesCategory;
+  });
+
   return (
-    <div>
-      <div className="w-full mx-auto mb-6 px-6">
-        <PageHeader
-          title="Recommendations"
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Recommendations" },
-          ]}
-        />
-        <div className="flex items-center gap-2 mt-4 mb-4">
+    <div className="min-h-screen bg-white">
+      <PageHeaderWithTabs
+        title="Recommendations"
+        description="AI-powered insights and suggestions to optimize your collection strategies"
+        breadcrumbs={["Home", "Recommendations"]}
+        tabs={[]}
+        filters={[]}
+        showSearch={true}
+        searchPlaceholder="Search recommendations..."
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        createButtonText="Generate Recommendations"
+        createButtonIcon={LightBulbIcon}
+        onCreateClick={() => {}}
+      />
+
+      <div className="max-w-8xl mx-auto p-8">
+        <div className="flex items-center gap-2 mb-6">
           <AiAvatar />
           <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold tracking-wide">
             AI Suggestion
           </span>
         </div>
-        <div className="flex flex-wrap gap-2 items-center mb-4">
-          <Select defaultValue="all">
+
+        <div className="flex flex-wrap gap-2 items-center mb-8">
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="w-[180px] border rounded px-3 py-2 text-sm">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
@@ -145,7 +171,7 @@ export default function Recommendations() {
               </SelectItem>
             </SelectContent>
           </Select>
-          <Select defaultValue="30">
+          <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
             <SelectTrigger className="w-[140px] border rounded px-3 py-2 text-sm">
               <SelectValue placeholder="Last 30 days" />
             </SelectTrigger>
@@ -168,9 +194,9 @@ export default function Recommendations() {
             Export
           </Button>
         </div>
-      </div>
-      <div className="w-full flex flex-col gap-8 px-6">
-        {recommendations.map((rec) => (
+
+        <div className="flex flex-col gap-8">
+        {filteredRecommendations.map((rec) => (
           <div
             key={rec.id}
             className="relative bg-white rounded-2xl shadow-xl border-l-8 border-blue-500 flex flex-col md:flex-row items-start p-8 gap-6 hover:shadow-2xl transition-all"
@@ -247,6 +273,7 @@ export default function Recommendations() {
             </div>
           </div>
         ))}
+        </div>
       </div>
     </div>
   );

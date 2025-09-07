@@ -1,47 +1,41 @@
-import React, { useState, useRef } from "react";
-import PageHeader from "./PageHeader";
-import ReactFlow, {
-  Background,
-  Controls,
-  Handle,
-  useNodesState,
-  useEdgesState,
-  ReactFlowProvider,
-} from "reactflow";
-import "reactflow/dist/style.css";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  ArrowLeftIcon,
+  ArrowDownTrayIcon,
+  ChevronDownIcon,
   CheckCircleIcon,
+  SparklesIcon,
+  PlayIcon,
+  EyeIcon,
   CalendarDaysIcon,
   ClockIcon,
-  PlusIcon,
-  ArrowDownTrayIcon,
-  SparklesIcon,
-  UserGroupIcon,
-  TagIcon,
-  CurrencyDollarIcon,
-} from "@heroicons/react/24/solid";
+  DocumentArrowUpIcon,
+  ServerIcon,
+  UserIcon,
+  PhoneIcon,
+} from "@heroicons/react/24/outline";
 
 const steps = [
-  { title: "Campaign Details", desc: "Name, description, and upload method." },
-  {
-    title: "Column Mapping",
-    desc: "Map your data columns to the required system columns for campaign processing..",
-  },
-  { title: "AI Analysis", desc: "AI is analyzing your portfolio data to create intelligent segments." },
-  { title: "Segmentation Mapping", desc: "Review AI-generated segments and handle unmatched accounts." },
-  { title: "Segments & Journey", desc: "Review segments and journey." },
-  { title: "Forecast & Schedule", desc: "View campaign forecasts and set schedule." },
+  { id: 1, title: "Campaign Details", desc: "Assistant selection and campaign setup" },
+  { id: 2, title: "Upload File", desc: "Upload or select files to begin processing" },
+  { id: 3, title: "Map Columns", desc: "Map file and system columns" },
+  { id: 4, title: "AI Processing", desc: "AI processing portfolio data" },
+  { id: 5, title: "Preview Segments & Journey", desc: "Choose a customer segment and define how you'll reach them" },
+  { id: 6, title: "Forecast & Schedule", desc: "View campaign forecasts and set schedule" },
 ];
 
-const primaryBtn =
-  "px-5 py-2 rounded-lg bg-zinc-900 text-white font-inter text-sm font-semibold hover:bg-black transition";
-const secondaryBtn =
-  "px-5 py-2 rounded-lg bg-zinc-200 text-zinc-900 font-inter text-sm font-semibold hover:bg-zinc-300 transition";
+const assistantOptions = [
+  { id: "support-bot", name: "SupportBot" },
+  { id: "sales-ai", name: "SalesAI" },
+  { id: "feedback-bot", name: "FeedbackBot" },
+  { id: "survey-genie", name: "SurveyGenie" },
+  { id: "reminder-bot", name: "ReminderBot" },
+];
 
 const systemColumns = [
   "account_id",
-  "customer_name",
+  "customer_name", 
   "primary_phone_number",
   "email_address",
   "dpd",
@@ -49,2323 +43,1141 @@ const systemColumns = [
   "product_type",
   "timezone",
 ];
+
 const mockCsvHeaders = [
-  "AccountID",
-  "Name",
+  "Account ID",
+  "Customer Name",
   "Phone",
   "Email",
-  "DPD",
-  "AmountDue",
-  "ProductType",
-  "Timezone",
+  "Days Past Due",
+  "Balance",
+  "Product",
+  "Time Zone",
 ];
 
-const sampleCsvUrl = "/sample-campaign.csv"; // You can provide a real sample file in public/
-
 const aiTasks = [
+  { 
+    id: 1, 
+    title: "Portfolio Analysis", 
+    subtasks: [
+      "Analyzing customer data patterns",
+      "Processing payment histories",
+      "Evaluating risk profiles"
+    ]
+  },
+  { 
+    id: 2, 
+    title: "Segment Mapping", 
+    subtasks: [
+      "Creating customer segments",
+      "Mapping risk categories",
+      "Optimizing segment boundaries"
+    ]
+  },
+  { 
+    id: 3, 
+    title: "Journey Optimization", 
+    subtasks: [
+      "Designing communication flows",
+      "Optimizing contact strategies",
+      "Setting timing preferences"
+    ]
+  },
+  { 
+    id: 4, 
+    title: "Forecast Generation", 
+    subtasks: [
+      "Generating recovery predictions",
+      "Calculating success rates",
+      "Creating timeline estimates"
+    ]
+  },
+];
+
+const sampleSegments = [
   {
     id: 1,
-    title: "Ingesting Portfolio",
-    subtasks: [
-      "Loading account and balance details",
-      "Spotting duplicates, gaps, and formatting issues",
-      "Aligning fields and values with portfolio schema",
-      "Analyzing data integrity and completeness",
-    ],
+    title: "SEG5: High Risk / Significant Delinquency (Non-PTP Breakers)",
+    category: "Early Delinquency",
+    accounts: 1200,
+    amount: "$1,200,000",
+    journey: {
+      steps: [
+        { type: "communication", channel: "Voice", nodeName: "Voice 1", endTime: "6 PM IST" }
+      ]
+    }
   },
   {
     id: 2,
-    title: "Understanding Accounts",
-    subtasks: [
-      "Reviewing core attributes",
-      "Spotting clusters by product, geography, and balance",
-      "Analyzing the distribution of traits across account groups",
-      "Identifying account patterns and relationships",
-    ],
+    title: "SEG3: Mid Risk / Moderate Delinquency",
+    category: "Mid Delinquency", 
+    accounts: 850,
+    amount: "$850,000",
+    journey: {
+      steps: [
+        { type: "communication", channel: "SMS", nodeName: "SMS 1", endTime: "8 PM IST" }
+      ]
+    }
   },
   {
     id: 3,
-    title: "Analyzing Past Engagements",
-    subtasks: [
-      "Found 3483 accounts with previous engagement history",
-      "Retrieving CRM data for previous engagements",
-      "Studying payment gaps, patterns, and broken promises",
-      "Extracting historical insights and trends",
-    ],
+    title: "SEG1: Low Risk / Early Delinquency",
+    category: "Early Delinquency",
+    accounts: 650,
+    amount: "$650,000", 
+    journey: {
+      steps: [
+        { type: "communication", channel: "Email", nodeName: "Email 1", endTime: "9 PM IST" }
+      ]
+    }
+  }
+];
+
+const mockJourneySteps = [
+  {
+    id: 1,
+    user: "John Smith",
+    phone: "+1 (555) 123-4567",
+    amount: "$2,450",
+    step: "Initial Voice Call",
+    details: "Personalized greeting with account summary",
+    recommendation: "Friendly tone, mention recent payment history",
+    reachoutTime: "2:30 PM EST",
+    status: "completed"
+  },
+  {
+    id: 2,
+    user: "Sarah Johnson",
+    phone: "+1 (555) 234-5678",
+    amount: "$1,890",
+    step: "SMS Follow-up",
+    details: "Payment reminder with easy pay link",
+    recommendation: "Include payment options and deadline",
+    reachoutTime: "4:45 PM EST",
+    status: "completed"
+  },
+  {
+    id: 3,
+    user: "Mike Davis",
+    phone: "+1 (555) 345-6789",
+    amount: "$3,200",
+    step: "Email Reminder",
+    details: "Detailed payment breakdown with options",
+    recommendation: "Professional tone, emphasize consequences",
+    reachoutTime: "6:15 PM EST",
+    status: "in-progress"
   },
   {
     id: 4,
-    title: "Matching with Similar Accounts",
-    subtasks: [
-      "Identifying newly added or unseen accounts",
-      "Matching behavior and risk signals across portfolios",
-      "Grouping based on historic response patterns",
-      "Establishing similarity metrics and thresholds",
-    ],
-  },
-];
-
-// Helper to normalize column names for matching
-function normalize(str) {
-  return str.replace(/[_\s]/g, "").toLowerCase();
-}
-
-function AIMagic({ tasks, onComplete }) {
-  const [currentTask, setCurrentTask] = useState(0);
-  const [currentSub, setCurrentSub] = useState(0);
-  const [done, setDone] = useState(false);
-
-  // Calculate progress
-  const totalSubtasks = tasks.reduce((sum, t) => sum + t.subtasks.length, 0);
-  const completedSubtasks =
-    tasks.slice(0, currentTask).reduce((sum, t) => sum + t.subtasks.length, 0) +
-    currentSub;
-  const progress = Math.min((completedSubtasks / totalSubtasks) * 100, 100);
-
-  React.useEffect(() => {
-    if (currentTask < tasks.length) {
-      if (currentSub < tasks[currentTask].subtasks.length - 1) {
-        const timeout = setTimeout(() => setCurrentSub(currentSub + 1), 900);
-        return () => clearTimeout(timeout);
-      } else {
-        if (currentTask < tasks.length - 1) {
-          setTimeout(() => {
-            setCurrentTask(currentTask + 1);
-            setCurrentSub(0);
-          }, 1200);
-        } else {
-          setTimeout(() => setDone(true), 1200);
-        }
-      }
-    }
-  }, [currentTask, currentSub, tasks]);
-  
-  React.useEffect(() => {
-    if (done) setTimeout(onComplete, 1200);
-  }, [done, onComplete]);
-
-  return (
-    <div className="h-full w-full flex items-center justify-center overflow-hidden">
-      <div className="w-full max-w-lg flex flex-col items-center">
-        <div className="mb-4 flex flex-col items-center">
-          <div className="mb-2 animate-pulse">
-          <SparklesIcon className="w-7 h-7 text-blue-500 animate-pulse drop-shadow-md" />
-          </div>
-          <div className="text-xl font-extrabold text-zinc-900 text-center tracking-tight mb-1">
-            Processing Portfolio Data
-        </div>
-          <div className="text-zinc-500 text-center max-w-base mb-2 text-base">
-            Our AI is analyzing your portfolio data to create intelligent segments and journeys.
-        </div>
-        {/* Progress Bar */}
-          <div className="w-full max-w-lg mx-auto mt-2 mb-2">
-          <div className="h-3 bg-zinc-200 rounded-full overflow-hidden">
-            <div
-              className="h-3 bg-blue-600 rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <div className="text-xs text-zinc-500 mt-1 text-right font-inter">
-            {Math.round(progress)}% Complete
-          </div>
-        </div>
-      </div>
-        <div className="w-full flex flex-col gap-4">
-          {tasks.map((task, idx) => {
-            let state = "pending";
-            if (idx < currentTask) state = "done";
-            else if (idx === currentTask) state = "active";
-            
-          return (
-            <div
-              key={task.id}
-                className={
-                  state === "done"
-                    ? "flex items-center justify-between rounded-xl border border-black-100 bg-black-50 px-5 py-3 shadow-sm"
-                    : state === "active"
-                    ? "flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 shadow-sm animate-pulse"
-                    : "flex items-center justify-between rounded-xl border border-zinc-100 bg-zinc-50 px-5 py-3 shadow-sm opacity-70"
-                }
-              >
-                <div className="flex items-center gap-4">
-                  <span
-                    className={
-                      state === "done"
-                        ? "bg-black-100 text-black-600 rounded-full p-1"
-                        : state === "active"
-                        ? "bg-blue-100 text-blue-600 rounded-full p-1"
-                        : "bg-zinc-100 text-zinc-400 rounded-full p-1"
-                    }
-                  >
-                    {state === "done" ? (
-                      <CheckCircleIcon className="w-5 h-5 text-green-500" />
-                    ) : (
-                      <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                    )}
-                  </span>
-                  <div>
-                    <div className="font-medium text-zinc-900 text-base">
-                  {task.title}
-                </div>
-                    {state === "active" && (
-                      <div className="text-xs text-blue-600 mt-1 flex items-center gap-2">
-                        <span className="animate-pulse">
-                    {task.subtasks[currentSub]}
-                        </span>
-                        <span className="inline-block w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-                  </div>
-                    )}
-                    {state === "done" && (
-                      <div className="text-xs text-black-600 mt-1">
-                        Completed
-                </div>
-              )}
-                    {state === "pending" && (
-                      <div className="text-xs text-zinc-400 mt-1">Pending</div>
-                    )}
-                  </div>
-                </div>
-                <div className="text-xs font-medium text-right">
-                  {state === "active"
-                    ? `${currentSub + 1}/${task.subtasks.length}`
-                    : state === "done"
-                    ? "Completed"
-                    : "Pending"}
-                </div>
-            </div>
-          );
-        })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Mock segments and journey for step 4
-const mockSegments = [
-  { 
-    name: "SEG0: Vulnerable / Special Handling", 
-    accounts: 150,
-    logic: 'Vulnerability_Flag IS TRUE OR account_notes CONTAIN keywords ("hardship", "illness", "dispute bureau", etc.)',
-    characteristics: "Customer facing significant personal challenges; potential compliance/reputational risk.",
-    focus: "Understanding, empathy, offering support/options, pausing standard collections."
-  },
-  { 
-    name: "SEG1: High Priority - Broken Promises (PTP Failures)", 
-    accounts: 320,
-    logic: "Number_of_Broken_PTPs_Last_6_Months >= 1 AND Days_Since_Last_Broken_PTP <= 7 (or other short timeframe)",
-    characteristics: "Explicit commitment made and not met recently. Potentially willing but facing new obstacles.",
-    focus: "Direct, reference broken promise, understand reason, secure new firm commitment, reiterate importance."
-  },
-  { 
-    name: "SEG2: High Potential / Active Engagement", 
-    accounts: 450,
-    logic: "Last_Customer_Response_Channel IS NOT NULL AND Days_Since_Last_Customer_Response <= 5 AND Last_Customer_Response_Sentiment IS Positive/Neutral",
-    characteristics: "Recently engaged with client, potentially showing willingness to resolve.",
-    focus: "Conversational, reference prior interaction, easy payment options, gratitude for engagement."
-  },
-  { 
-    name: "SEG3: Forgetful / Early Stage Delinquency", 
-    accounts: 1200,
-    logic: "DPD >= 5 AND DPD <= 30 AND Number_of_Broken_PTPs_Last_12_Months == 0 AND (Payment_History_Shows_Previous_On_Time_Payments OR Client_Risk_Score IS Low OR Client_Risk_Score IS NULL)",
-    characteristics: "Likely good payers who missed a payment. Low history of delinquency. No recent high-risk flags.",
-    focus: 'Gentle, helpful reminders. "Looks like your payment is overdue. Pay easily here..."'
-  },
-  { 
-    name: "SEG4: Repeat Offenders / Consistent Late Payers", 
-    accounts: 800,
-    logic: "(DPD > 30) AND (Number_of_Previous_Delinquency_Cycles_Last_12_Months >= 2-3 OR Payment_History_Shows_Sporadic_Payments) OR (Number_of_Broken_PTPs_Last_12_Months >= 2 but not recent)",
-    characteristics: "History of multiple delinquencies or broken promises over time.",
-    focus: "More direct about overdue status, consequences (compliant), focus on payment plan or firm PTP."
-  },
-  { 
-    name: "SEG5: High Risk / Significant Delinquency (Non-PTP Breakers)", 
-    accounts: 650,
-    logic: "(Client_Risk_Score IS High OR DPD > 60) AND NOT IN SEG1",
-    characteristics: "Represents higher risk due to client scoring or prolonged delinquency, without a recent PTP break.",
-    focus: "Professional, understand situation, negotiate payment plans/settlements, assertiveness based on risk/DPD."
-  },
-  { 
-    name: "SEG6: Long-Term Low Engagement", 
-    accounts: 300,
-    logic: "Days_Since_Last_Customer_Response > 60 AND DPD > 120 AND NOT IN SEG0 or SEG1",
-    characteristics: "Significantly past due with no recent engagement for an extended period.",
-    focus: "Standard reminder messages; less personalization. Focus on re-engagement."
-  },
-  { 
-    name: "SEG7: General Delinquency (Catch-All)", 
-    accounts: 950,
-    logic: "Accounts not fitting other segments AND DPD > Minimum_DPD_for_Action (e.g., 1 day)",
-    characteristics: "Delinquent but doesn't meet specific criteria of other prioritized segments.",
-    focus: "Standard collection messaging, tone adjusted primarily by DPD."
-  },
-];
-
-// Custom node component for journey
-function CommNode({ data, type, selected }) {
-  // Icon and color mapping for node types
-  const nodeTypeMeta = {
-    start: {
-      icon: (
-        <span className="w-7 h-7 flex items-center justify-center rounded-full bg-zinc-900 text-white font-bold">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="#fff">S</text></svg>
-        </span>
-      ),
-      border: "border-zinc-900",
-      bg: "bg-zinc-900",
-      text: "text-white",
-      title: "Start",
-    },
-    voice: {
-      icon: (
-        <span className="w-7 h-7 flex items-center justify-center rounded-full bg-blue-100 text-blue-700">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.05 5.05a7 7 0 01.9 9.19l-1.41 1.41a2 2 0 01-2.83 0l-2.12-2.12a2 2 0 010-2.83l1.41-1.41a7 7 0 019.19-.9z" /></svg>
-        </span>
-      ),
-      border: "border-blue-400",
-      bg: "bg-blue-50",
-      text: "text-blue-900",
-      title: "Communication",
-    },
-    sms: {
-      icon: (
-        <span className="w-7 h-7 flex items-center justify-center rounded-full bg-green-100 text-green-700">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8s-9-3.582-9-8 4.03-8 9-8 9 3.582 9 8z" /></svg>
-        </span>
-      ),
-      border: "border-green-400",
-      bg: "bg-green-50",
-      text: "text-green-900",
-      title: "Communication",
-    },
-    delay: {
-      icon: (
-        <span className="w-7 h-7 flex items-center justify-center rounded-full bg-yellow-100 text-yellow-700">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="2" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" /></svg>
-        </span>
-      ),
-      border: "border-yellow-400",
-      bg: "bg-yellow-50",
-      text: "text-yellow-900",
-      title: "Delay",
-    },
-    condition: {
-      icon: (
-        <span className="w-7 h-7 flex items-center justify-center rounded-full bg-purple-100 text-purple-700">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="#7c3aed">?</text></svg>
-        </span>
-      ),
-      border: "border-purple-400",
-      bg: "bg-purple-50",
-      text: "text-purple-900",
-      title: "Conditions",
-    },
-  };
-  const meta = nodeTypeMeta[data.type] || nodeTypeMeta.voice;
-
-  return (
-    <div
-      className={`group relative flex flex-col items-stretch min-w-[220px] max-w-xs px-4 py-3 rounded-2xl shadow-lg border-2 ${meta.border} ${meta.bg} ${selected ? 'ring-2 ring-blue-400' : ''} transition-all`}
-      style={{ position: "relative" }}
-    >
-      {/* Handles for edge connections */}
-      <Handle
-        type="target"
-        position="top"
-        style={{ background: "#000", width: 10, height: 10, borderRadius: 5 }}
-      />
-      <div className="flex items-center gap-2 mb-2">
-        {meta.icon}
-        <div className={`font-bold text-base ${meta.text}`}>{meta.title}</div>
-        {/* Edit/Delete icons (show on hover) */}
-        <div className="ml-auto flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button className="text-zinc-400 hover:text-blue-600 p-1">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 11l6 6M3 17v4h4l10-10a2 2 0 00-2.828-2.828l-10 10z" /></svg>
-          </button>
-          <button className="text-zinc-400 hover:text-red-600 p-1">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-      </div>
-      {/* Node details */}
-      <div className="flex flex-col gap-1 text-xs text-zinc-700">
-        {data.type === "voice" || data.type === "sms" ? (
-          <>
-            <div><span className="font-semibold">Node Name:</span> {data.label || "Voice"}</div>
-            <div><span className="font-semibold">Channel:</span> {data.type === "voice" ? "Voice" : "SMS"}</div>
-            {data.endTime && <div><span className="font-semibold">End Time:</span> {data.endTime}</div>}
-          </>
-        ) : null}
-        {data.type === "condition" && (
-          <>
-            <div><span className="font-semibold">Due Amount:</span> +1000</div>
-            <div className="mt-1"><span className="inline-block bg-green-100 text-green-700 rounded px-2 py-0.5 text-xs font-semibold">+5 more conditions applied</span></div>
-          </>
-        )}
-        {data.type === "delay" && (
-          <>
-            <div><span className="font-semibold">Delay Type:</span> {data.delayType || "Start Immediately"}</div>
-            {data.startTime && <div><span className="font-semibold">Start Time:</span> {data.startTime}</div>}
-          </>
-        )}
-      </div>
-      <Handle
-        type="source"
-        position="bottom"
-        style={{ background: "#000", width: 10, height: 10, borderRadius: 5 }}
-      />
-    </div>
-  );
-}
-
-const nodeTypes = {
-  comm: CommNode,
-};
-
-function JourneyCanvas({ onNodeClick, selectedNode }) {
-  // Vertical journey with split after CONDITION
-  const [nodes, setNodes, onNodesChange] = useNodesState([
-    {
-      id: "start",
-      type: "comm",
-      position: { x: 200, y: 0 },
-      data: { label: "Start", type: "start" },
-    },
-    {
-      id: "voice1",
-      type: "comm",
-      position: { x: 200, y: 120 },
-      data: {
-        label: "Voice",
-        type: "voice",
-        message: "Call script here",
-        formality: "Neutral",
-        directness: "Balanced",
-        urgency: "Medium",
-        focus: "Relationship Building",
-        content: "Default voice content.",
-      },
-    },
-    {
-      id: "condition",
-      type: "comm",
-      position: { x: 200, y: 240 },
-      data: {
-        label: "Condition",
-        type: "condition",
-        rule: "Payment received?",
-      },
-    },
-    {
-      id: "voice2",
-      type: "comm",
-      position: { x: 80, y: 360 },
-      data: { label: "Voice", type: "voice", message: "Follow-up call" },
-    },
-    {
-      id: "sms",
-      type: "comm",
-      position: { x: 320, y: 360 },
-      data: { label: "SMS", type: "sms", message: "Send SMS here" },
-    },
-  ]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([
-    {
-      id: "e1-2",
-      source: "start",
-      target: "voice1",
-      animated: false,
-      type: "straight",
-      style: { stroke: "#000", strokeWidth: 3 },
-    },
-    {
-      id: "e2-3",
-      source: "voice1",
-      target: "condition",
-      animated: false,
-      type: "straight",
-      style: { stroke: "#000", strokeWidth: 3 },
-    },
-    {
-      id: "e3-4",
-      source: "condition",
-      target: "voice2",
-      animated: false,
-      type: "straight",
-      style: { stroke: "#000", strokeWidth: 3 },
-    },
-    {
-      id: "e3-5",
-      source: "condition",
-      target: "sms",
-      animated: false,
-      type: "straight",
-      style: { stroke: "#000", strokeWidth: 3 },
-    },
-  ]);
-  return (
-    <div
-      className="bg-zinc-100 rounded-xl w-full"
-      style={{ width: "100%", height: 600 }}
-    >
-      <ReactFlowProvider>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          fitView
-          panOnDrag={true}
-          zoomOnScroll={true}
-          zoomOnPinch={true}
-          zoomOnDoubleClick={true}
-          nodesDraggable={true}
-          nodesConnectable={false}
-          elementsSelectable={true}
-          onNodeClick={(_, node) => onNodeClick(node)}
-          selectionKeyCode={null}
-          selectNodesOnDrag={false}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          defaultEdgeOptions={{
-            type: "straight",
-            markerEnd: { type: "arrowclosed", color: "#3B82F6" },
-          }}
-          style={{ background: "transparent", width: "100%", height: "100%" }}
-        >
-          <Background color="#F1F5F9" gap={24} />
-          <Controls showInteractive={false} />
-        </ReactFlow>
-      </ReactFlowProvider>
-    </div>
-  );
-}
-
-function NodePropertiesPanel({ node, onClose }) {
-  const [localData, setLocalData] = React.useState({});
-
-  // Update localData when node changes
-  React.useEffect(() => {
-    if (node) setLocalData({ ...node.data });
-  }, [node]);
-
-  React.useEffect(() => {
-    if (node && node.data.type === "voice") {
-      setLocalData((prev) => ({
-        ...prev,
-        content: generateContent({
-          formality: prev.formality,
-          directness: prev.directness,
-          urgency: prev.urgency,
-          focus: prev.focus || [],
-        }),
-      }));
-    }
-    // eslint-disable-next-line
-  }, [
-    localData.formality,
-    localData.directness,
-    localData.urgency,
-    JSON.stringify(localData.focus),
-    node,
-  ]);
-
-  if (!node) return null;
-  const { data } = node;
-
-  const formalityOptions = ["Casual", "Neutral", "Formal"];
-  const directnessOptions = ["Indirect", "Balanced", "Direct"];
-  const urgencyOptions = ["Low", "Medium", "High"];
-  const focusOptions = [
-    "Relationship Building",
-    "Payment Request",
-    "Reminder",
-    "Escalation",
-  ];
-
-  // Dummy content generator
-  function generateContent({ formality, directness, urgency, focus }) {
-    let intro = "";
-    if (formality === "Casual") intro = "Hey there,";
-    else if (formality === "Neutral") intro = "Hello,";
-    else intro = "Dear Customer,";
-    let ask = "";
-    if (directness === "Indirect")
-      ask = "We wanted to gently remind you about your account.";
-    else if (directness === "Balanced")
-      ask = "This is a reminder regarding your overdue account.";
-    else ask = "Your account is overdue. Please make a payment immediately.";
-    let urgencyText = "";
-    if (urgency === "Low") urgencyText = "There's still time to resolve this.";
-    else if (urgency === "Medium")
-      urgencyText = "We encourage you to address this soon.";
-    else urgencyText = "Immediate action is required.";
-    let focusLines = [];
-    if (Array.isArray(focus) && focus.length) {
-      if (focus.includes("Relationship Building")) {
-        focusLines.push(
-          "We're here to support you and find the best solution together."
-        );
-      }
-      if (focus.includes("Payment Request")) {
-        focusLines.push(
-          "Please make a payment at your earliest convenience to avoid further action."
-        );
-      }
-      if (focus.includes("Reminder")) {
-        focusLines.push(
-          "This is a friendly reminder to help you stay on track with your account."
-        );
-      }
-      if (focus.includes("Escalation")) {
-        focusLines.push(
-          "If we do not hear from you, your account may be escalated for further review."
-        );
-      }
-    }
-    return [intro, ask, urgencyText, ...focusLines].join("\n");
-  }
-
-  // Save changes to node (if you want to persist to the journey, you can add a callback)
-
-  return (
-    <div className="fixed top-0 right-0 w-full max-w-xs h-full bg-white border-l border-zinc-200 shadow-lg z-50 p-6 flex flex-col">
-      <div className="flex justify-between items-center mb-4">
-        <div className="font-bold text-lg text-zinc-900">
-          {data.label} Properties
-        </div>
-        <button
-          className="text-zinc-400 hover:text-zinc-900 text-xl"
-          onClick={onClose}
-        >
-          &times;
-        </button>
-      </div>
-      <div className="flex-1 flex flex-col gap-4">
-        <div className="text-sm text-zinc-500">
-          Type: <span className="font-semibold text-zinc-900">{data.type}</span>
-        </div>
-        {data.type === "voice" && (
-          <>
-            <div className="font-semibold text-zinc-900 mt-2 mb-1">
-              Tonality
-            </div>
-            {/* Formality */}
-            <div className="mb-2">
-              <div className="flex justify-between items-center mb-1">
-                <div className="text-xs text-zinc-500">Formality</div>
-                <div className="text-xs font-medium text-zinc-900">
-                  {localData.formality}
-                </div>
-              </div>
-              <div className="flex gap-1">
-                {formalityOptions.map((option) => (
-                  <button
-                    key={option}
-                    className={`flex-1 px-2 py-1 rounded-full text-xs font-semibold border transition-colors ${
-                      localData.formality === option
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-zinc-100 text-zinc-900 border-zinc-200 hover:bg-blue-50"
-                    }`}
-                    onClick={() =>
-                      setLocalData((prev) => ({ ...prev, formality: option }))
-                    }
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {/* Directness */}
-            <div className="mb-2">
-              <div className="flex justify-between items-center mb-1">
-                <div className="text-xs text-zinc-500">Directness</div>
-                <div className="text-xs font-medium text-zinc-900">
-                  {localData.directness}
-                </div>
-              </div>
-              <div className="flex gap-1">
-                {directnessOptions.map((option) => (
-                  <button
-                    key={option}
-                    className={`flex-1 px-2 py-1 rounded-full text-xs font-semibold border transition-colors ${
-                      localData.directness === option
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-zinc-100 text-zinc-900 border-zinc-200 hover:bg-blue-50"
-                    }`}
-                    onClick={() =>
-                      setLocalData((prev) => ({ ...prev, directness: option }))
-                    }
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {/* Urgency */}
-            <div className="mb-2">
-              <div className="flex justify-between items-center mb-1">
-                <div className="text-xs text-zinc-500">Urgency</div>
-                <div className="text-xs font-medium text-zinc-900">
-                  {localData.urgency}
-                </div>
-              </div>
-              <div className="flex gap-1">
-                {urgencyOptions.map((option) => (
-                  <button
-                    key={option}
-                    className={`flex-1 px-2 py-1 rounded-full text-xs font-semibold border transition-colors ${
-                      localData.urgency === option
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-zinc-100 text-zinc-900 border-zinc-200 hover:bg-blue-50"
-                    }`}
-                    onClick={() =>
-                      setLocalData((prev) => ({ ...prev, urgency: option }))
-                    }
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {/* Conversation Focus */}
-            <div className="font-semibold text-zinc-900 mt-2 mb-1">
-              Conversation Focus
-            </div>
-            <div className="flex flex-col gap-1 mb-2">
-              {focusOptions.map((option) => (
-                <label key={option} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={
-                      localData.focus && localData.focus.includes(option)
-                    }
-                    onChange={() => {
-                      setLocalData((prev) => {
-                        const focus = prev.focus || [];
-                        return {
-                          ...prev,
-                          focus: focus.includes(option)
-                            ? focus.filter((f) => f !== option)
-                            : [...focus, option],
-                        };
-                      });
-                    }}
-                  />
-                  <span>{option}</span>
-                </label>
-              ))}
-            </div>
-            {/* Content with AI button */}
-            <div className="flex items-center justify-between mt-2 mb-1">
-              <div className="font-semibold text-zinc-900">Content</div>
-              <button className="text-xs px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200 transition">
-                Improve with AI
-              </button>
-            </div>
-            <textarea
-              className="w-full border border-zinc-200 rounded-md p-2 text-sm min-h-[100px]"
-              value={localData.content}
-              onChange={(e) =>
-                setLocalData((prev) => ({ ...prev, content: e.target.value }))
-              }
-            />
-          </>
-        )}
-        {data.type === "sms" && (
-          <div>
-            <div className="text-xs text-zinc-500 mb-1">Message</div>
-            <textarea
-              className="w-full border border-zinc-200 rounded-md p-2 text-sm"
-              value={data.message}
-              readOnly
-            />
-          </div>
-        )}
-        {data.type === "delay" && (
-          <div>
-            <div className="text-xs text-zinc-500 mb-1">Duration</div>
-            <input
-              className="w-full border border-zinc-200 rounded-md p-2 text-sm"
-              value={data.duration}
-              readOnly
-            />
-          </div>
-        )}
-        {data.type === "condition" && (
-          <div>
-            <div className="text-xs text-zinc-500 mb-1">Rule</div>
-            <input
-              className="w-full border border-zinc-200 rounded-md p-2 text-sm"
-              value={data.rule}
-              readOnly
-            />
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-const timelineEvents = [
-  {
-    type: "voice",
-    date: "19th March 2025, 10:30AM",
-    channel: "Voice",
-    label: "Voice Call",
-    color: "green",
-    summary:
-      "Customer acknowledged the reminder and promised to make payment by the due date.",
-    intent: "Promise to Pay",
-    sentiment: "Positive",
-    planned: false,
+    user: "Lisa Wilson",
+    phone: "+1 (555) 456-7890",
+    amount: "$1,650",
+    step: "Second Voice Call",
+    details: "Escalated conversation with payment plans",
+    recommendation: "Empathetic approach, offer payment plans",
+    reachoutTime: "8:00 PM EST",
+    status: "pending"
   },
   {
-    type: "sms",
-    date: "19th March 2025, 10:40AM",
-    channel: "SMS",
-    label: "SMS / Text",
-    color: "yellow",
-    planned: true,
-    plannedContent:
-      "Hi Sarah, thanks for your chat and for your commitment to pay. Glad you're feeling up to it! Payment link: [Payment Link] You'll receive a confirmation once the payment is processed.",
-    tonality: "Warmly Appreciative",
-    focus: "Payment_Link_Delivery",
-    aiRecommended: true,
-  },
-];
-
-function renderTimelineCard(event) {
-  if (event.type === "voice") {
-    return (
-      <>
-        <div className="flex items-center gap-2 mb-2">
-          <span className="font-semibold text-green-700 text-base">
-            Past Communication
-          </span>
-          <span className="ml-2 bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-            {event.channel}
-          </span>
-        </div>
-        <div className="text-sm text-zinc-700 mb-2">{event.summary}</div>
-        <div className="flex gap-4 mt-2">
-          <div className="flex items-center gap-1 text-xs text-zinc-500">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3"
-              />
-            </svg>
-            Intent: <span className="font-semibold ml-1">{event.intent}</span>
-          </div>
-          <div className="flex items-center gap-1 text-xs text-zinc-500">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 17v-2a4 4 0 014-4h4"
-              />
-            </svg>
-            Sentiment:{" "}
-            <span className="font-semibold ml-1">{event.sentiment}</span>
-          </div>
-        </div>
-      </>
-    );
-  } else if (event.type === "scheduler") {
-    return (
-      <>
-        <div className="flex items-center gap-2 mb-2">
-          <span className="font-semibold text-blue-700 text-base">
-            Scheduled Communication
-          </span>
-          <span className="ml-2 bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full text-xs font-semibold">
-            {event.channel}
-          </span>
-        </div>
-        <div className="text-sm text-zinc-700 mb-2">{event.summary}</div>
-        <div className="flex gap-4 mt-2">
-          <div className="flex items-center gap-1 text-xs text-zinc-500">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3"
-              />
-            </svg>
-            Decider: <span className="font-semibold ml-1">{event.decider}</span>
-          </div>
-        </div>
-      </>
-    );
-  } else if (event.type === "sms" && event.planned) {
-    return (
-      <>
-        <div className="flex items-center gap-2 mb-2">
-          <span className="font-semibold text-yellow-700 text-base">
-            Planned Communication
-          </span>
-          <span className="ml-2 bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full text-xs font-semibold">
-            {event.channel}
-          </span>
-        </div>
-        <div className="text-sm text-zinc-700 mb-2">
-          <span className="font-semibold">Content:</span> {event.plannedContent}
-        </div>
-        <div className="flex gap-4 mt-2">
-          <div className="flex items-center gap-1 text-xs text-zinc-500">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3"
-              />
-            </svg>
-            Tonality:{" "}
-            <span className="font-semibold ml-1">{event.tonality}</span>
-          </div>
-          <div className="flex items-center gap-1 text-xs text-zinc-500">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 17v-2a4 4 0 014-4h4"
-              />
-            </svg>
-            Focus: <span className="font-semibold ml-1">{event.focus}</span>
-          </div>
-        </div>
-      </>
-    );
+    id: 5,
+    user: "Robert Brown",
+    phone: "+1 (555) 567-8901",
+    amount: "$2,100",
+    step: "Final Notice",
+    details: "Last attempt before escalation",
+    recommendation: "Urgent tone, clear next steps",
+    reachoutTime: "9:30 PM EST",
+    status: "pending"
   }
-  return null;
-}
-
-// Segmentation Results Component
-function SegmentationResults({ segments, unmatchedAccounts, onCreateSegment, onApplyDefault }) {
-  const totalAccounts = segments.reduce((sum, seg) => sum + seg.accounts, 0) + unmatchedAccounts.length;
-  const matchedAccounts = segments.reduce((sum, seg) => sum + seg.accounts, 0);
-  
-  // AI Recommendations for segment enhancements and new segments
-  const aiRecommendations = {
-    segmentEnhancements: [
-      {
-        segmentName: "SEG3: Forgetful / Early Stage Delinquency",
-        currentLogic: "DPD >= 5 AND DPD <= 30 AND Number_of_Broken_PTPs_Last_12_Months == 0",
-        suggestedEnhancement: "Include accounts with DPD 1-4 days and good payment history",
-        accountsToInclude: 320
-      },
-      {
-        segmentName: "SEG2: High Potential / Active Engagement",
-        currentLogic: "Last_Customer_Response_Channel IS NOT NULL AND Days_Since_Last_Customer_Response <= 5",
-        suggestedEnhancement: "Extend to accounts with responses within 10 days and positive sentiment",
-        accountsToInclude: 180
-      }
-    ],
-    newSegmentSuggestions: [
-      {
-        name: "SEG8: New Customer / First-Time Delinquent",
-        logic: "DPD >= 1 AND DPD <= 15 AND has_payment_history == false AND previous_engagement == false",
-        accounts: 450,
-        characteristics: "First-time customers who missed their first payment",
-        focus: "Educational approach, payment reminders, account setup assistance"
-      },
-      {
-        name: "SEG9: Self-Employed / Variable Income",
-        logic: "employment_status == 'Self-employed' AND income_level == 'Variable' AND DPD >= 10",
-        accounts: 280,
-        characteristics: "Self-employed individuals with irregular income patterns",
-        focus: "Flexible payment plans, income-based scheduling, understanding approach"
-      },
-      {
-        name: "SEG10: High Credit Score / Low Risk",
-        logic: "credit_score >= 700 AND risk_score == 'Low' AND DPD <= 30",
-        accounts: 350,
-        characteristics: "High credit score customers with temporary financial hiccups",
-        focus: "Gentle reminders, premium service approach, quick resolution"
-      }
-    ]
-  };
-  
-  return (
-    <div className="w-full max-w-6xl mx-auto">
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
-          <div className="text-2xl font-bold text-zinc-900">{totalAccounts.toLocaleString()}</div>
-          <div className="text-sm text-zinc-500">Total Accounts</div>
-        </div>
-        <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
-          <div className="text-2xl font-bold text-green-600">{matchedAccounts.toLocaleString()}</div>
-          <div className="text-sm text-zinc-500">Matched with Existing Segments</div>
-        </div>
-        <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
-          <div className="text-2xl font-bold text-orange-600">{unmatchedAccounts.length}</div>
-          <div className="text-sm text-zinc-500">Unmatched Accounts</div>
-        </div>
-      </div>
-
-      {/* AI Recommendations */}
-      {unmatchedAccounts.length > 0 && (
-        <div className="space-y-6">
-          {/* Header Box */}
-          <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 bg-zinc-100 rounded-full flex items-center justify-center">
-                <SparklesIcon className="w-5 h-5 text-zinc-600" />
-              </div>
-              <div className="text-lg font-semibold text-zinc-900">
-                {unmatchedAccounts.length} accounts need segmentation
-              </div>
-            </div>
-            <div className="text-sm text-zinc-600 ml-11">
-              Our AI has analyzed these accounts and recommends the following actions:
-            </div>
-          </div>
-          
-          {/* Segment Enhancements Box */}
-          <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              </div>
-              <div className="text-sm font-semibold text-zinc-900">
-                Enhance existing segments for 500 accounts
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {aiRecommendations.segmentEnhancements.map((enhancement, idx) => (
-                <div key={idx} className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <div className="font-medium text-blue-900 text-sm">{enhancement.segmentName}</div>
-                      <div className="text-xs text-blue-700 mt-1">
-                        <span className="font-medium">Current:</span> {enhancement.currentLogic}
-                      </div>
-                      <div className="text-xs text-blue-700 mt-1">
-                        <span className="font-medium">Suggested:</span> {enhancement.suggestedEnhancement}
-                      </div>
-                    </div>
-                    <div className="text-right ml-3">
-                      <div className="text-base font-bold text-blue-900">{enhancement.accountsToInclude}</div>
-                      <div className="text-xs text-blue-600">accounts</div>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-semibold hover:bg-blue-700 transition">
-                      Apply Enhancement
-                    </button>
-                    <button className="px-2 py-1.5 bg-zinc-100 text-zinc-600 rounded text-xs hover:bg-zinc-200 transition" title="Push to Default Segment">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* New Segment Suggestions Box */}
-          <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </div>
-              <div className="text-sm font-semibold text-zinc-900">
-                Create new segments for 1,080 accounts
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {aiRecommendations.newSegmentSuggestions.map((suggestion, idx) => (
-                <div key={idx} className="bg-green-50 rounded-lg p-3 border border-green-200">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <div className="font-medium text-green-900 text-sm">{suggestion.name}</div>
-                      <div className="text-xs text-green-700 mt-1">{suggestion.characteristics}</div>
-                    </div>
-                    <div className="text-right ml-3">
-                      <div className="text-base font-bold text-green-900">{suggestion.accounts}</div>
-                      <div className="text-xs text-green-600">accounts</div>
-                    </div>
-                  </div>
-                  <div className="text-xs text-green-800 bg-green-100 rounded p-2 mb-2">
-                    <span className="font-medium">Focus:</span> {suggestion.focus}
-                  </div>
-                  <div className="text-xs text-green-600 mb-2">
-                    <span className="font-medium">Logic:</span> {suggestion.logic}
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="px-3 py-1.5 bg-green-600 text-white rounded text-xs font-semibold hover:bg-green-700 transition">
-                      Create Segment
-                    </button>
-                    <button className="px-2 py-1.5 bg-zinc-100 text-zinc-600 rounded text-xs hover:bg-zinc-200 transition" title="Push to Default Segment">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Sample Unmatched Accounts Table */}
-          <div className="overflow-x-auto">
-            <div className="bg-white rounded-lg border border-zinc-200 shadow-sm">
-              <div className="px-4 py-3 border-b border-zinc-200">
-                <div className="text-base font-semibold text-zinc-900">Preview - Unmatched Accounts</div>
-                <div className="text-xs text-zinc-500 mt-1">Showing first 10 of {unmatchedAccounts.length} accounts</div>
-              </div>
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="bg-zinc-50 text-zinc-700 border-b border-zinc-200">
-                    <th className="px-4 py-2 text-left font-semibold">Account ID</th>
-                    <th className="px-4 py-2 text-left font-semibold">Customer Name</th>
-                    <th className="px-4 py-2 text-left font-semibold">Amount Due</th>
-                    <th className="px-4 py-2 text-left font-semibold">DPD</th>
-                    <th className="px-4 py-2 text-left font-semibold">Product</th>
-                    <th className="px-4 py-2 text-left font-semibold">Risk Score</th>
-                    <th className="px-4 py-2 text-left font-semibold">Reason</th>
-                    <th className="px-4 py-2 text-left font-semibold">Recommended Segment</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {unmatchedAccounts.slice(0, 10).map((acc, index) => {
-                    // Generate realistic customer names
-                    const customerNames = [
-                      "Sarah Johnson", "Michael Chen", "Emily Rodriguez", "David Thompson", "Lisa Wang",
-                      "James Wilson", "Maria Garcia", "Robert Brown", "Jennifer Lee", "Christopher Davis"
-                    ];
-                    
-                    // Generate recommended segments based on account characteristics
-                    const getRecommendedSegment = (account) => {
-                      if (account.dpd <= 4 && account.risk_score === 'Low') {
-                        return "SEG3 Enhancement";
-                      } else if (account.previous_engagement && account.dpd <= 10) {
-                        return "SEG2 Enhancement";
-                      } else if (!account.has_payment_history && account.dpd <= 15) {
-                        return "SEG8: New Customer";
-                      } else if (account.employment_status === 'Self-employed') {
-                        return "SEG9: Self-Employed";
-                      } else if (account.credit_score >= 700 && account.risk_score === 'Low') {
-                        return "SEG10: High Credit Score";
-                      } else {
-                        return "Default Segment";
-                      }
-                    };
-                    
-                    return (
-                      <tr key={acc.account_id} className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors">
-                        <td className="px-4 py-2 font-medium text-zinc-900">{acc.account_id}</td>
-                        <td className="px-4 py-2 text-zinc-900">{customerNames[index]}</td>
-                        <td className="px-4 py-2 text-zinc-900">${acc.amount_due.toLocaleString()}</td>
-                        <td className="px-4 py-2 text-zinc-900">{acc.dpd}</td>
-                        <td className="px-4 py-2 text-zinc-900">{acc.product_name}</td>
-                        <td className="px-4 py-2">
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                            acc.risk_score === 'High' ? 'bg-red-100 text-red-700' :
-                            acc.risk_score === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-green-100 text-green-700'
-                          }`}>
-                            {acc.risk_score}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2 text-zinc-600">{acc.reason}</td>
-                        <td className="px-4 py-2">
-                          <span className="px-2 py-0.5 bg-zinc-100 text-zinc-700 rounded-full text-xs font-semibold">
-                            {getRecommendedSegment(acc)}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      
-    </div>
-  );
-}
-
-// Create Segment Modal Component
-function CreateSegmentModal({ isOpen, onClose, onCreateSegment, unmatchedAccounts }) {
-  const [segmentName, setSegmentName] = useState("");
-  const [segmentLogic, setSegmentLogic] = useState("");
-  const [selectedAccounts, setSelectedAccounts] = useState([]);
-
-  const handleCreate = () => {
-    if (segmentName && segmentLogic) {
-      onCreateSegment({
-        name: segmentName,
-        logic: segmentLogic,
-        accounts: selectedAccounts.length,
-        characteristics: `Custom segment for ${selectedAccounts.length} accounts`,
-        focus: "Custom strategy"
-      });
-      setSegmentName("");
-      setSegmentLogic("");
-      setSelectedAccounts([]);
-      onClose();
-    }
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-60">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-4xl max-h-[90vh] overflow-auto">
-        <div className="flex justify-between items-center mb-6">
-          <div className="text-2xl font-bold text-zinc-900">Create New Segment</div>
-          <button
-            className="text-zinc-400 hover:text-zinc-900 text-3xl"
-            onClick={onClose}
-          >
-            &times;
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Left: Segment Details */}
-          <div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Segment Name</label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., SEG8: Custom Segment"
-                value={segmentName}
-                onChange={(e) => setSegmentName(e.target.value)}
-              />
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Segment Logic</label>
-              <textarea
-                className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
-                placeholder="Define the logic for this segment..."
-                value={segmentLogic}
-                onChange={(e) => setSegmentLogic(e.target.value)}
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Segment Focus</label>
-              <textarea
-                className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Describe the collection strategy for this segment..."
-                defaultValue="Custom collection strategy based on account characteristics"
-              />
-            </div>
-          </div>
-
-          {/* Right: Account Selection */}
-          <div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">
-                Select Accounts ({selectedAccounts.length} selected)
-              </label>
-              <div className="max-h-60 overflow-y-auto border border-zinc-200 rounded-md">
-                {unmatchedAccounts.map((acc) => (
-                  <label key={acc.account_id} className="flex items-center gap-2 p-2 hover:bg-zinc-50 border-b border-zinc-100 last:border-b-0">
-                    <input
-                      type="checkbox"
-                      checked={selectedAccounts.includes(acc.account_id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedAccounts([...selectedAccounts, acc.account_id]);
-                        } else {
-                          setSelectedAccounts(selectedAccounts.filter(id => id !== acc.account_id));
-                        }
-                      }}
-                    />
-                    <div className="flex-1">
-                      <div className="font-medium text-sm">{acc.customer_name}</div>
-                      <div className="text-xs text-zinc-500">
-                        {acc.account_id} • ${acc.amount_due.toLocaleString()} • DPD: {acc.dpd}
-                      </div>
-                    </div>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-zinc-50 rounded-lg p-4">
-              <div className="text-sm font-medium text-zinc-900 mb-2">Quick Actions</div>
-              <div className="flex gap-2">
-                <button
-                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200"
-                  onClick={() => setSelectedAccounts(unmatchedAccounts.map(acc => acc.account_id))}
-                >
-                  Select All
-                </button>
-                <button
-                  className="px-3 py-1 bg-zinc-100 text-zinc-700 rounded text-xs font-semibold hover:bg-zinc-200"
-                  onClick={() => setSelectedAccounts([])}
-                >
-                  Clear All
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-zinc-200">
-          <button
-            className="px-4 py-2 bg-zinc-200 text-zinc-700 rounded-lg font-semibold hover:bg-zinc-300"
-            onClick={onClose}
-          >
-            Cancel
-          </button>
-          <button
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
-            onClick={handleCreate}
-            disabled={!segmentName || !segmentLogic || selectedAccounts.length === 0}
-          >
-            Create Segment
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+];
 
 export default function CreateCampaign() {
-  const [step, setStep] = useState(1);
-  const [form, setForm] = useState({
-    name: "",
-    desc: "",
-    uploadType: "CSV",
-    file: null,
-    sftp: { host: "", user: "", path: "" },
-  });
-  const [columnMap, setColumnMap] = useState(() => {
-    // Map system columns to first matching CSV column by default
-    const map = {};
-    systemColumns.forEach((sysCol) => {
-      const match = mockCsvHeaders.find(
-        (csvCol) => normalize(csvCol) === normalize(sysCol)
-      );
-      map[sysCol] = match || "";
-    });
-    return map;
-  });
-  const fileInputRef = useRef();
-  const [showAIMagic, setShowAIMagic] = useState(false);
-  const [selectedNode, setSelectedNode] = useState(null);
-  const [scheduleNow, setScheduleNow] = useState(true);
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [businessStart, setBusinessStart] = useState("09:00");
-  const [businessEnd, setBusinessEnd] = useState("18:00");
   const navigate = useNavigate();
-  const [showAccountsModal, setShowAccountsModal] = useState(false);
-  const [modalAccounts, setModalAccounts] = useState([]);
-  const [modalSegment, setModalSegment] = useState(null);
-  const [showInspectModal, setShowInspectModal] = useState(false);
-  const [inspectAccount, setInspectAccount] = useState(null);
-  const [unmatchedAccounts, setUnmatchedAccounts] = useState([]);
-  const [showCreateSegmentModal, setShowCreateSegmentModal] = useState(false);
-  const [newSegmentName, setNewSegmentName] = useState("");
-  const [newSegmentLogic, setNewSegmentLogic] = useState("");
-  const [customSegments, setCustomSegments] = useState([]);
-  const [showAllSegments, setShowAllSegments] = useState(false);
+  const fileInputRef = useRef();
+  
+  const [currentStep, setCurrentStep] = useState(1);
+  const [stepAnimating, setStepAnimating] = useState(false);
+  const [form, setForm] = useState({
+    assistant: "SupportBot",
+    name: "",
+    virtualNumber: "",
+    pacing: "Normal",
+    campaignType: "standard", // standard or ai-powered
+  });
 
-  function handleNext() {
-    if (step === 2) {
-      setStep(3);
-      setShowAIMagic(true);
-    } else if (step === steps.length) {
+  const [showAdditionalDetails, setShowAdditionalDetails] = useState(false);
+  const [uploadMethod, setUploadMethod] = useState("csv");
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [sftpConfig, setSftpConfig] = useState({
+    host: "",
+    username: "",
+    filePath: "",
+  });
+
+  const [columnMappings, setColumnMappings] = useState({});
+  const [aiProcessing, setAiProcessing] = useState(false);
+  const [completedTasks, setCompletedTasks] = useState([]);
+  const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
+  const [currentSubtaskIndex, setCurrentSubtaskIndex] = useState(0);
+  const [selectedSegments, setSelectedSegments] = useState([]);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewSegment, setPreviewSegment] = useState(null);
+
+  const [scheduleType, setScheduleType] = useState("immediate");
+  const [scheduleConfig, setScheduleConfig] = useState({
+    startDate: "",
+    endDate: "",
+    runContinuously: false,
+  });
+
+  // Animation effect when step changes
+  useEffect(() => {
+    setStepAnimating(true);
+    const timer = setTimeout(() => setStepAnimating(false), 300);
+    return () => clearTimeout(timer);
+  }, [currentStep]);
+
+  const handleBack = () => {
+    if (currentStep === 1) {
       navigate("/campaigns");
+    } else if (currentStep === 4 && aiProcessing) {
+      // Don't allow going back during AI processing
+      return;
     } else {
-      setStep((s) => Math.min(s + 1, steps.length));
+      setCurrentStep(currentStep - 1);
     }
-  }
-  function handleBack() {
-    setStep((s) => Math.max(s - 1, 1));
-  }
-  function handleDrop(e) {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setForm((f) => ({ ...f, file: e.dataTransfer.files[0] }));
-    }
-  }
-  function handleDragOver(e) {
-    e.preventDefault();
-  }
-  function handleFileChange(e) {
-    setForm((f) => ({ ...f, file: e.target.files[0] }));
-  }
-  function handleRemoveFile() {
-    setForm((f) => ({ ...f, file: null }));
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  }
-
-  // Replace mockAccounts with a larger sample and more attributes
-  const mockAccounts = Array.from({ length: 60 }, (_, i) => ({
-    account_id: `A${(1000 + i).toString()}`,
-    customer_name:
-      [
-        "John Doe",
-        "Jane Smith",
-        "Sam Patel",
-        "Alex Kim",
-        "Priya Singh",
-        "Maria Garcia",
-        "Chen Wei",
-        "Ahmed Ali",
-        "Emily Clark",
-        "David Lee",
-      ][i % 10] + ` ${i}`,
-    amount_due: Math.floor(Math.random() * 5000) + 500,
-    dpd: Math.floor(Math.random() * 120) + 1,
-    due_date: `2025-03-${(10 + (i % 20)).toString().padStart(2, "0")}`,
-    product_name: ["Auto Loan", "Mortgage", "Credit Card"][i % 3],
-    pay_off_amount: Math.floor(Math.random() * 7000) + 1000,
-    missed_installments: Math.floor(Math.random() * 6),
-    risk_score: ["Low", "Medium", "High"][i % 3],
-  }));
-
-  const handleCreateSegment = (newSegment) => {
-    setCustomSegments([...customSegments, newSegment]);
-    setUnmatchedAccounts([]); // Clear unmatched accounts as they're now in the new segment
-    setShowCreateSegmentModal(false);
   };
 
-  const handleApplyDefaultSegment = () => {
-    // Create a default segment for unmatched accounts
-    const defaultSegment = {
-      name: "SEG8: Default Segment",
-      accounts: unmatchedAccounts.length,
-      logic: "Default segment for accounts not matching other criteria",
-      characteristics: "Accounts that don't fit into specific segments",
-      focus: "Standard collection approach"
-    };
-    setCustomSegments([...customSegments, defaultSegment]);
-    setUnmatchedAccounts([]); // Clear unmatched accounts
+  const handleNext = () => {
+    if (currentStep === 3) {
+      // Start AI processing
+      setCurrentStep(4);
+      setAiProcessing(true);
+      setCompletedTasks([]);
+      setCurrentTaskIndex(0);
+      setCurrentSubtaskIndex(0);
+      
+      // Simulate AI tasks completing with subtasks - faster animation
+      let taskIndex = 0;
+      let subtaskIndex = 0;
+      
+      const processNextSubtask = () => {
+        if (taskIndex < aiTasks.length) {
+          const currentTask = aiTasks[taskIndex];
+          
+          if (subtaskIndex < currentTask.subtasks.length) {
+            setTimeout(() => {
+              setCurrentSubtaskIndex(subtaskIndex + 1);
+              subtaskIndex++;
+              processNextSubtask();
+            }, 800); // Faster: reduced from 1500ms to 800ms
+          } else {
+            // Task completed
+            setTimeout(() => {
+              setCompletedTasks(prev => [...prev, currentTask.id]);
+              taskIndex++;
+              subtaskIndex = 0;
+              setCurrentTaskIndex(taskIndex);
+              setCurrentSubtaskIndex(0);
+              
+              if (taskIndex < aiTasks.length) {
+                processNextSubtask();
+              } else {
+                // All tasks completed
+                setTimeout(() => {
+                  setAiProcessing(false);
+                }, 500);
+              }
+            }, 300); // Faster: reduced from 500ms to 300ms
+          }
+        }
+      };
+      
+      processNextSubtask();
+      return;
+    }
+    
+    if (currentStep < steps.length) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      // Finish campaign creation
+      navigate("/campaigns");
+    }
   };
 
-  const allSegments = [...mockSegments, ...customSegments];
+  const handleFileUpload = (file) => {
+    setUploadedFile(file);
+    // Initialize column mappings
+    const mappings = {};
+    mockCsvHeaders.forEach((header, index) => {
+      if (index < systemColumns.length) {
+        mappings[systemColumns[index]] = header;
+      }
+    });
+    setColumnMappings(mappings);
+  };
 
-  return (
-    <div className="min-h-screen font-inter">
-      <div className="relative z-10">
-        <PageHeader
-          title="Create Campaign"
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Campaigns", href: "/campaigns" },
-            { label: "Create Campaign" },
-          ]}
-        />
-      </div>
-      <div className=" mx-auto bg-white  p-2 min-h-[calc(100vh-64px)] flex flex-col">
-        <div className="mb-4">
-          <div className="flex items-center gap-4 mb-2">
-            <div className="text-xs uppercase tracking-widest text-zinc-400 font-semibold">
-              Step {step} of {steps.length}
-            </div>
-            <div className="h-1 w-32 bg-zinc-200 rounded-full overflow-hidden">
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handlePreviewSegment = (segment) => {
+    setPreviewSegment(segment);
+    setShowPreviewModal(true);
+  };
+
+  const renderStepIndicator = () => (
+    <div className="flex items-center justify-center mb-6">
+      <div className="flex items-center space-x-4">
+        {steps.map((step, index) => (
+          <React.Fragment key={step.id}>
+            <div className="flex items-center">
               <div
-                className="h-1 bg-zinc-900 rounded-full transition-all"
-                style={{ width: `${(step / steps.length) * 100}%` }}
-              />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-zinc-900 mb-1">
-            {steps[step - 1].title}
-          </div>
-          <div className="text-zinc-500 text-sm mb-2">
-            {steps[step - 1].desc}
-          </div>
-        </div>
-        <div className="flex-1">
-          {step === 1 && (
-            <div className="w-full">
-              <div className="w-full md:w-1/2">
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Campaign Name
-                  </label>
-                  <input
-                    className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
-                    value={form.name || "Q2 Auto Loan Recovery"}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, name: e.target.value }))
-                    }
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
-                    value={
-                      form.desc ||
-                      "Automated campaign for Q2 auto loan collections."
-                    }
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, desc: e.target.value }))
-                    }
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">
-                    Upload Method
-                  </label>
-                  <div className="flex gap-4 mb-4">
-                    <button
-                      className={`px-4 py-2 rounded-lg font-semibold border transition-colors ${
-                        form.uploadType === "CSV"
-                          ? "bg-zinc-900 text-white border-zinc-900"
-                          : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50"
-                      }`}
-                      onClick={() =>
-                        setForm((f) => ({ ...f, uploadType: "CSV" }))
-                      }
-                    >
-                      CSV Upload
-                    </button>
-                    <button
-                      className={`px-4 py-2 rounded-lg font-semibold border transition-colors ${
-                        form.uploadType === "SFTP"
-                          ? "bg-zinc-900 text-white border-zinc-900"
-                          : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50"
-                      }`}
-                      onClick={() =>
-                        setForm((f) => ({ ...f, uploadType: "SFTP" }))
-                      }
-                    >
-                      SFTP
-                    </button>
-                  </div>
-                  {form.uploadType === "CSV" ? (
-                    <div className="mb-2">
-                      <div
-                        className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-300 rounded-xl bg-zinc-50 py-10 cursor-pointer hover:border-zinc-400 transition w-full"
-                        style={{ maxWidth: "100%" }}
-                        onDrop={handleDrop}
-                        onDragOver={handleDragOver}
-                        onClick={() =>
-                          fileInputRef.current && fileInputRef.current.click()
-                        }
-                      >
-                        <svg
-                          width="36"
-                          height="36"
-                          fill="none"
-                          className="mb-2"
-                        >
-                          <rect width="36" height="36" rx="8" fill="#F1F5F9" />
-                          <path
-                            d="M18 10v12m0 0l-4-4m4 4l4-4"
-                            stroke="#18181B"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <rect
-                            x="10"
-                            y="26"
-                            width="16"
-                            height="2"
-                            rx="1"
-                            fill="#D4D4D8"
-                          />
-                        </svg>
-                        {form.file ? (
-                          <>
-                            <div className="text-zinc-900 font-medium mb-1">
-                              {form.file.name}
-                            </div>
-                            <button
-                              className="text-xs text-blue-600 hover:underline mt-1"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveFile();
-                              }}
-                            >
-                              Remove
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <div className="text-zinc-700 font-medium">
-                              Drag & drop your CSV file here
-                            </div>
-                            <div className="text-xs text-zinc-400 mt-1">
-                              or click to browse
-                            </div>
-                          </>
-                        )}
-                        <input
-                          type="file"
-                          accept=".csv"
-                          ref={fileInputRef}
-                          className="hidden"
-                          onChange={handleFileChange}
-                        />
-                      </div>
-                      <a
-                        href={sampleCsvUrl}
-                        download
-                        className="inline-block mt-3 text-xs text-blue-600 hover:underline"
-                      >
-                        Download Sample File
-                      </a>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-2 mt-2">
-                      <input
-                        className="w-full px-3 py-2 border border-zinc-200 rounded-md font-inter text-sm"
-                        placeholder="SFTP Host"
-                        value={form.sftp.host}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            sftp: { ...f.sftp, host: e.target.value },
-                          }))
-                        }
-                      />
-                      <input
-                        className="w-full px-3 py-2 border border-zinc-200 rounded-md font-inter text-sm"
-                        placeholder="SFTP User"
-                        value={form.sftp.user}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            sftp: { ...f.sftp, user: e.target.value },
-                          }))
-                        }
-                      />
-                      <input
-                        className="w-full px-3 py-2 border border-zinc-200 rounded-md font-inter text-sm"
-                        placeholder="SFTP Path"
-                        value={form.sftp.path}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            sftp: { ...f.sftp, path: e.target.value },
-                          }))
-                        }
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-          {step === 2 && (
-            <div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full border-separate border-spacing-y-2 bg-white rounded-xl shadow font-inter text-sm">
-                  <thead>
-                    <tr className="bg-zinc-50 text-zinc-700 text-sm text-left">
-                      <th className="px-4 py-2 rounded-tl-xl">System Column</th>
-                      <th className="px-4 py-2">Description</th>
-                      <th className="px-4 py-2 rounded-tr-xl">CSV Column</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {systemColumns.map((col) => (
-                      <tr
-                        key={col}
-                        className="bg-zinc-50 hover:bg-blue-50 transition rounded-xl"
-                      >
-                        <td className="px-4 py-2 font-medium text-zinc-900 whitespace-nowrap">
-                          {col}
-                        </td>
-                        <td className="px-4 py-2 text-zinc-500">
-                          {/* Random/placeholder description for now */}
-                          {(() => {
-                            switch (col) {
-                              case "account_id":
-                                return "Unique account identifier.";
-                              case "customer_name":
-                                return "Full name of the customer.";
-                              case "primary_phone_number":
-                                return "Primary contact number.";
-                              case "email_address":
-                                return "Primary email address.";
-                              case "dpd":
-                                return "Days past due.";
-                              case "amount_due":
-                                return "Outstanding balance.";
-                              case "product_type":
-                                return "Type of product/loan.";
-                              case "timezone":
-                                return "Customer timezone.";
-                              default:
-                                return "Column description.";
-                            }
-                          })()}
-                        </td>
-                        <td className="px-4 py-2">
-                          <select
-                            className="w-full px-3 py-2 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-inter text-sm"
-                            value={columnMap[col]}
-                            onChange={(e) =>
-                              setColumnMap((prev) => ({
-                                ...prev,
-                                [col]: e.target.value,
-                              }))
-                            }
-                          >
-                            <option value="">Select column</option>
-                            {mockCsvHeaders.map((header) => (
-                              <option key={header} value={header}>
-                                {header}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-          {step === 3 && showAIMagic && (
-            <AIMagic
-              tasks={aiTasks}
-              onComplete={() => {
-                // Generate unmatched accounts when AI analysis completes
-                const totalAccounts = 6000; // Higher total to ensure unmatched accounts
-                const matchedAccounts = mockSegments.reduce((sum, seg) => sum + seg.accounts, 0);
-                const unmatchedCount = totalAccounts - matchedAccounts; // This should be 1280 accounts
-                
-                // Generate some sample unmatched accounts with more realistic patterns
-                const unmatched = Array.from({ length: unmatchedCount }, (_, i) => ({
-                  account_id: `UN${(1000 + i).toString()}`,
-                  customer_name: `Unmatched Customer ${i + 1}`,
-                  amount_due: Math.floor(Math.random() * 5000) + 500,
-                  dpd: Math.floor(Math.random() * 120) + 1,
-                  due_date: `2025-03-${(10 + (i % 20)).toString().padStart(2, "0")}`,
-                  product_name: ["Auto Loan", "Mortgage", "Credit Card"][i % 3],
-                  pay_off_amount: Math.floor(Math.random() * 7000) + 1000,
-                  missed_installments: Math.floor(Math.random() * 6),
-                  risk_score: ["Low", "Medium", "High"][i % 3],
-                  reason: ["New Account", "Unique Pattern", "Data Anomaly", "Complex Profile", "Missing Data"][i % 5],
-                  // Add characteristics that can be used for recommendations
-                  has_payment_history: Math.random() > 0.3,
-                  previous_engagement: Math.random() > 0.4,
-                  credit_score: Math.floor(Math.random() * 300) + 500,
-                  employment_status: ["Employed", "Self-employed", "Unemployed", "Retired"][i % 4],
-                  income_level: ["Low", "Medium", "High"][i % 3]
-                }));
-                
-                setUnmatchedAccounts(unmatched);
-                setShowAIMagic(false);
-                setStep(4);
-              }}
-            />
-          )}
-          {step === 4 && (
-            <SegmentationResults
-              segments={mockSegments}
-              unmatchedAccounts={unmatchedAccounts}
-              onCreateSegment={() => setShowCreateSegmentModal(true)}
-              onApplyDefault={handleApplyDefaultSegment}
-            />
-          )}
-          {step === 5 && (
-            <div className="flex flex-col md:flex-row gap-10 w-full">
-              {/* Segments List */}
-              <div className="w-full md:w-[30%] flex flex-col gap-4">
-                <div className="text-lg font-bold text-zinc-900 mb-2">
-                  Segments
-                </div>
-                {(showAllSegments ? allSegments : allSegments.slice(0, 4)).map((seg, idx) => (
-                  <div
-                    key={seg.name}
-                    className="bg-zinc-50 border border-zinc-200 rounded-xl px-5 py-4 shadow-sm flex flex-col gap-2 relative"
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <UserGroupIcon className="w-5 h-5 text-blue-500" />
-                      <span className="font-semibold text-zinc-800 text-base">
-                        {seg.name}
-                      </span>
-                      <span
-                        className="ml-auto inline-flex items-center gap-1 cursor-pointer text-blue-700 hover:underline text-sm font-medium"
-                        onClick={() => {
-                          setShowAccountsModal(true);
-                          setModalAccounts(mockAccounts);
-                          setModalSegment(seg);
-                        }}
-                      >
-                        <span>{seg.accounts}</span>
-                        <span>accounts</span>
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-zinc-700">
-                      <CurrencyDollarIcon className="w-4 h-4 text-green-500" />
-                      <span>
-                        Value: $ {(seg.accounts * 1000).toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <TagIcon className="w-4 h-4 text-zinc-400" />
-                      <span className="inline-block bg-zinc-200 text-zinc-700 px-2 py-0.5 rounded text-xs font-semibold">
-                        DPD: Early Delinquency
-                      </span>
-                    </div>
-                  </div>
-                ))}
-                {allSegments.length > 4 && (
-                  <button
-                    className="mt-2 text-xs text-blue-600 hover:underline font-semibold self-start"
-                    onClick={() => setShowAllSegments((v) => !v)}
-                  >
-                    {showAllSegments ? 'View Less' : 'View More'}
-                  </button>
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
+                  currentStep === step.id
+                    ? "bg-gray-900 text-white"
+                    : currentStep > step.id
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-200 text-gray-600"
+                }`}
+              >
+                {currentStep > step.id ? (
+                  <CheckCircleIcon className="w-5 h-5" />
+                ) : (
+                  step.id
                 )}
               </div>
-              {/* Journey Canvas */}
-              <div className="w-full md:w-[70%] flex flex-col items-left">
-                <div className="text-lg font-bold text-zinc-900 mb-4">
-                  Communication Journey
-                </div>
-                <JourneyCanvas
-                  onNodeClick={setSelectedNode}
-                  selectedNode={selectedNode}
-                />
-                <NodePropertiesPanel
-                  node={selectedNode}
-                  onClose={() => setSelectedNode(null)}
-                />
+              <div className="ml-3 hidden md:block">
+                <p className={`text-sm font-medium ${
+                  currentStep >= step.id ? "text-gray-900" : "text-gray-500"
+                }`}>
+                  {step.title}
+                </p>
               </div>
             </div>
-          )}
-          {step === 6 && (
-            <div className="w-full space-y-8">
-              {/* Forecasting Section */}
-              <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-8">
-                <div className="text-xl font-bold text-zinc-900 mb-6 font-inter">
-                  Campaign Forecast
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-blue-900">78%</div>
-                        <div className="text-sm text-blue-700 font-medium">Expected Connectivity</div>
-                      </div>
-                    </div>
-                    <div className="text-xs text-blue-600">
-                      Based on historical data and segment analysis
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 rounded-xl p-6 border border-green-200">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-green-900">$2.4M</div>
-                        <div className="text-sm text-green-700 font-medium">Expected Recovery</div>
-                      </div>
-                    </div>
-                    <div className="text-xs text-green-600">
-                      32% recovery rate from total portfolio value
-                    </div>
-                  </div>
-
-                  <div className="bg-orange-50 rounded-xl p-6 border border-orange-200">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                        <svg className="w-5 h-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-orange-900">15%</div>
-                        <div className="text-sm text-orange-700 font-medium">Expected Liquidation Rate</div>
-                      </div>
-                    </div>
-                    <div className="text-xs text-orange-600">
-                      Accounts likely to be Liquidated
-                    </div>
-                  </div>
-
-                  <div className="bg-purple-50 rounded-xl p-6 border border-purple-200">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-purple-900">12%</div>
-                        <div className="text-sm text-purple-700 font-medium">Expected Agent Transfers</div>
-                      </div>
-                    </div>
-                    <div className="text-xs text-purple-600">
-                      Accounts requiring human intervention
-                    </div>
-                  </div>
-                </div>
-
-                {/* Additional Forecast Details */}
-                <div className="mt-8">
-                  <div className="bg-zinc-50 rounded-xl p-6 w-full">
-                    <div className="text-lg font-semibold text-zinc-900 mb-4">Segment Performance Forecast</div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-zinc-600">SEG3: Forgetful / Early Stage</span>
-                        <span className="text-sm font-semibold text-green-600">Recovery: 82–88% &bull; Cure Rate: 60–65% &bull; Connectivity: 89–93%</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-zinc-600">SEG1: High Priority - Broken Promises</span>
-                        <span className="text-sm font-semibold text-orange-600">Recovery: 42–48% &bull; Cure Rate: 25–31% &bull; Connectivity: 71–77%</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-zinc-600">SEG5: High Risk / Significant Delinquency</span>
-                        <span className="text-sm font-semibold text-red-600">Recovery: 15–21% &bull; Cure Rate: 5–9% &bull; Connectivity: 50–56%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Schedule Section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Campaign Duration Card */}
-              <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-8 flex flex-col">
-                <div className="text-xl font-bold text-zinc-900 mb-2 font-inter">
-                  Campaign Duration
-                </div>
-                <div className="text-base text-zinc-500 mb-6 font-inter">
-                  Set when your campaign should start and end
-                </div>
-                <div className="mb-6">
-                  <label className="block text-base font-semibold mb-2 font-inter text-zinc-900">
-                    Start Date
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">
-                      <svg width="20" height="20" fill="none">
-                        <path
-                          d="M6 2v2M14 2v2M3 6h14M4 18h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1Z"
-                          stroke="#A1A1AA"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </span>
-                    <input
-                      type="date"
-                      className="w-full pl-10 pr-3 py-3 border border-zinc-200 rounded-lg font-inter text-base text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={startTime.split("T")[0]}
-                      onChange={(e) =>
-                        setStartTime(
-                          e.target.value + (endTime.slice(10) || "T08:00")
-                        )
-                      }
-                      placeholder="dd/mm/yyyy"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-base font-semibold mb-2 font-inter text-zinc-900">
-                    End Date
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">
-                      <svg width="20" height="20" fill="none">
-                        <path
-                          d="M6 2v2M14 2v2M3 6h14M4 18h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1Z"
-                          stroke="#A1A1AA"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </span>
-                    <input
-                      type="date"
-                      className="w-full pl-10 pr-3 py-3 border border-zinc-200 rounded-lg font-inter text-base text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={endTime.split("T")[0]}
-                      onChange={(e) =>
-                        setEndTime(
-                          e.target.value + (endTime.slice(10) || "T20:00")
-                        )
-                      }
-                      placeholder="dd/mm/yyyy"
-                    />
-                  </div>
-                </div>
-              </div>
-              {/* Contact Hours Card */}
-              <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-8 flex flex-col">
-                <div className="text-xl font-bold text-zinc-900 mb-2 font-inter">
-                  Contact Hours
-                </div>
-                <div className="text-base text-zinc-500 mb-6 font-inter">
-                  Set the hours when contacts can be made
-                </div>
-                <div className="flex gap-4 mb-6">
-                  <div className="flex-1">
-                    <label className="block text-base font-semibold mb-2 font-inter text-zinc-900">
-                      Start Time
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">
-                        <svg width="20" height="20" fill="none">
-                          <circle
-                            cx="10"
-                            cy="10"
-                            r="9"
-                            stroke="#A1A1AA"
-                            strokeWidth="1.5"
-                          />
-                          <path
-                            d="M10 5v5l3 3"
-                            stroke="#A1A1AA"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      </span>
-                      <input
-                        type="time"
-                        className="w-full pl-10 pr-3 py-3 border border-zinc-200 rounded-lg font-inter text-base text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        value={businessStart}
-                        onChange={(e) => setBusinessStart(e.target.value)}
-                        placeholder="08:00"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-base font-semibold mb-2 font-inter text-zinc-900">
-                      End Time
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">
-                        <svg width="20" height="20" fill="none">
-                          <circle
-                            cx="10"
-                            cy="10"
-                            r="9"
-                            stroke="#A1A1AA"
-                            strokeWidth="1.5"
-                          />
-                          <path
-                            d="M10 5v5l3 3"
-                            stroke="#A1A1AA"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      </span>
-                      <input
-                        type="time"
-                        className="w-full pl-10 pr-3 py-3 border border-zinc-200 rounded-lg font-inter text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        value={businessEnd}
-                        onChange={(e) => setBusinessEnd(e.target.value)}
-                        placeholder="20:00"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="mb-2 font-inter font-semibold text-base text-zinc-900">
-                  Active Days
-                </div>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
-                    (day, idx) => (
-                      <button
-                        key={day}
-                        type="button"
-                        className={`px-4 py-2 rounded-xl font-inter text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          (form.activeDays || []).includes(day)
-                            ? "bg-blue-600 text-white"
-                            : "bg-zinc-100 text-zinc-900 hover:bg-blue-50"
-                        }`}
-                        onClick={() => {
-                          setForm((f) => {
-                            const active = f.activeDays || [];
-                            return {
-                              ...f,
-                              activeDays: active.includes(day)
-                                ? active.filter((d) => d !== day)
-                                : [...active, day],
-                            };
-                          });
-                        }}
-                      >
-                        {day}
-                      </button>
-                    )
-                  )}
-                </div>
-                <div className="text-xs text-zinc-500 mt-2">
-                  Calls and messages will only be sent during these hours.
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-        {/* Sticky Next button */}
-        <div className="sticky bottom-0 bg-white border-t border-zinc-200 p-4 z-10 -mx-10 rounded-b-xl">
-          <div className="flex justify-end gap-2">
-            {step > 1 && (
-              <button className={secondaryBtn} onClick={handleBack}>
-                Back
-              </button>
+            {index < steps.length - 1 && (
+              <div className={`w-12 h-0.5 transition-all duration-300 ${
+                currentStep > step.id ? "bg-green-500" : "bg-gray-200"
+              }`} />
             )}
-            <button className={primaryBtn} onClick={handleNext}>
-              {step === steps.length ? "Create" : "Next"}
-            </button>
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderStep1 = () => (
+    <div className={`transition-all duration-300 ${stepAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Campaign Details</h3>
+          <p className="text-gray-600">Assistant selection and campaign setup</p>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-lg p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left side - Form inputs */}
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium text-gray-700 mb-4">Campaign Configuration</h4>
+              
+              {/* Assistant Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Assistant</label>
+                <div className="relative">
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent appearance-none bg-white text-sm"
+                    value={form.assistant}
+                    onChange={(e) => setForm(f => ({ ...f, assistant: e.target.value }))}
+                  >
+                    {assistantOptions.map(option => (
+                      <option key={option.id} value={option.name}>{option.name}</option>
+                    ))}
+                  </select>
+                  <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Campaign Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Campaign Name</label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm"
+                  value={form.name}
+                  onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
+                  placeholder="Enter campaign name"
+                />
+              </div>
+
+              {/* Additional Details - Collapsible */}
+              <div className="border border-gray-200 rounded-lg bg-gray-50">
+                <button
+                  onClick={() => setShowAdditionalDetails(!showAdditionalDetails)}
+                  className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-100 transition-colors"
+                >
+                  <span className="text-sm font-medium text-gray-700">Additional Details</span>
+                  <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform ${showAdditionalDetails ? 'rotate-180' : ''}`} />
+                </button>
+
+                {showAdditionalDetails && (
+                  <div className="border-t border-gray-200 p-3 space-y-3 bg-white">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Virtual Number</label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm"
+                        value={form.virtualNumber}
+                        onChange={(e) => setForm(f => ({ ...f, virtualNumber: e.target.value }))}
+                        placeholder="Enter virtual number"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Pacing</label>
+                      <div className="relative">
+                        <select
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent appearance-none bg-white text-sm"
+                          value={form.pacing}
+                          onChange={(e) => setForm(f => ({ ...f, pacing: e.target.value }))}
+                        >
+                          <option value="Slow">Slow</option>
+                          <option value="Normal">Normal</option>
+                          <option value="Fast">Fast</option>
+                          <option value="Aggressive">Aggressive</option>
+                        </select>
+                        <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right side - Campaign Type Cards */}
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium text-gray-700 mb-4">Choose Campaign Type</h4>
+              
+              {/* Standard Campaign Card */}
+              <div 
+                onClick={() => setForm(f => ({ ...f, campaignType: "standard" }))}
+                className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
+                  form.campaignType === "standard" 
+                    ? "border-gray-900 bg-gray-50" 
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-start space-x-3">
+                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 ${
+                    form.campaignType === "standard" 
+                      ? "border-gray-900 bg-gray-900" 
+                      : "border-gray-300"
+                  }`}>
+                    {form.campaignType === "standard" && (
+                      <div className="w-full h-full rounded-full bg-white scale-50"></div>
+                    )}
+                  </div>
+                  <div>
+                    <h5 className="font-medium text-gray-900 mb-1">Standard Campaign</h5>
+                    <p className="text-xs text-gray-600">
+                      Traditional setup with manual configuration.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* AI Powered Campaign Card */}
+              <div 
+                onClick={() => setForm(f => ({ ...f, campaignType: "ai-powered" }))}
+                className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
+                  form.campaignType === "ai-powered" 
+                    ? "border-gray-900 bg-gray-50" 
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-start space-x-3">
+                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 ${
+                    form.campaignType === "ai-powered" 
+                      ? "border-gray-900 bg-gray-900" 
+                      : "border-gray-300"
+                  }`}>
+                    {form.campaignType === "ai-powered" && (
+                      <div className="w-full h-full rounded-full bg-white scale-50"></div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-2 mb-1">
+                      <h5 className="font-medium text-gray-900">AI Powered Campaign</h5>
+                      <SparklesIcon className="w-4 h-4 text-blue-500" />
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      Intelligent campaign with AI-driven optimization.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      {/* Modal for accounts (root level, always overlays canvas/segments) */}
-      {showAccountsModal && (
-        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black bg-opacity-60">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full h-full max-w-7xl max-h-[95vh] overflow-auto relative flex flex-col">
+    </div>
+  );
+
+  const renderStep2 = () => (
+    <div className={`transition-all duration-300 ${stepAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
+      <div className="w-full">
+        <div className="text-center mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload File</h3>
+          <p className="text-gray-600">Upload or select files to begin processing</p>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-lg p-8">
+          {/* Upload Method Tabs */}
+          <div className="flex mb-6 bg-gray-100 rounded-lg p-1 max-w-md mx-auto">
             <button
-              className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-900 text-3xl"
-              onClick={() => setShowAccountsModal(false)}
-              aria-label="Close"
+              onClick={() => setUploadMethod("csv")}
+              className={`flex-1 flex items-center justify-center py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                uploadMethod === "csv"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
             >
-              &times;
+              <DocumentArrowUpIcon className="w-5 h-5 mr-2" />
+              CSV Upload
             </button>
-            <div className="text-2xl font-bold mb-6">
-              Accounts in {modalSegment?.name}
+            <button
+              onClick={() => setUploadMethod("sftp")}
+              className={`flex-1 flex items-center justify-center py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                uploadMethod === "sftp"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              <ServerIcon className="w-5 h-5 mr-2" />
+              SFTP
+            </button>
+          </div>
+
+          {uploadMethod === "csv" ? (
+            <div className="space-y-6">
+              {/* Drag & Drop Area - Full Width */}
+              <div
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                className={`border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer ${
+                  isDragOver
+                    ? "border-gray-400 bg-gray-50"
+                    : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
+                }`}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <div className="mx-auto w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
+                  <ArrowDownTrayIcon className="w-8 h-8 text-gray-600" />
+                </div>
+                <h4 className="text-xl font-medium text-gray-900 mb-3">
+                  {uploadedFile ? uploadedFile.name : "Drop your CSV file here"}
+                </h4>
+                <p className="text-gray-600 mb-6">
+                  {uploadedFile ? "File uploaded successfully" : "or click to browse files"}
+                </p>
+                {uploadedFile && (
+                  <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                    <CheckCircleIcon className="w-5 h-5 mr-2" />
+                    Ready for processing
+                  </div>
+                )}
+              </div>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={(e) => {
+                  if (e.target.files[0]) {
+                    handleFileUpload(e.target.files[0]);
+                  }
+                }}
+                className="hidden"
+              />
+
+              {/* File Requirements - Better display */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h5 className="text-sm font-medium text-blue-900 mb-3">File Requirements</h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-blue-800">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                    <span>CSV format with headers</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                    <span>Maximum 50MB file size</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                    <span>Required: Account ID, Name, Phone</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <span>Optional: Email, DPD, Product Type</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm border border-zinc-100 rounded-xl">
-                <thead>
-                  <tr className="bg-zinc-50 text-zinc-700">
-                    <th className="px-4 py-2 text-left">Account ID</th>
-                    <th className="px-4 py-2 text-left">Customer Name</th>
-                    <th className="px-4 py-2 text-left">Amount Due</th>
-                    <th className="px-4 py-2 text-left">DPD</th>
-                    <th className="px-4 py-2 text-left">Due Date</th>
-                    <th className="px-4 py-2 text-left">Product Name</th>
-                    <th className="px-4 py-2 text-left">Pay Off Amount</th>
-                    <th className="px-4 py-2 text-left">Missed Installments</th>
-                    <th className="px-4 py-2 text-left">Risk Score</th>
-                    <th className="px-4 py-2 text-left">Action</th>
+          ) : (
+            <div className="space-y-6 max-w-2xl mx-auto">
+              {/* SFTP Configuration */}
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <h4 className="text-lg font-medium text-gray-900 mb-4">SFTP Configuration</h4>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Host</label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                      value={sftpConfig.host}
+                      onChange={(e) => setSftpConfig(prev => ({ ...prev, host: e.target.value }))}
+                      placeholder="sftp.example.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                      value={sftpConfig.username}
+                      onChange={(e) => setSftpConfig(prev => ({ ...prev, username: e.target.value }))}
+                      placeholder="your-username"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">File Path</label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                      value={sftpConfig.filePath}
+                      onChange={(e) => setSftpConfig(prev => ({ ...prev, filePath: e.target.value }))}
+                      placeholder="/path/to/your/file.csv"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Connection Status */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-yellow-400 rounded-full mr-3"></div>
+                  <span className="text-sm text-yellow-800">Ready to connect when you proceed to next step</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStep3 = () => (
+    <div className={`transition-all duration-300 ${stepAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
+      <div className="w-full">
+        <div className="text-center mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Map Columns</h3>
+          <p className="text-gray-600">Map file and system columns</p>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h4 className="text-sm font-medium text-gray-900">Column Mapping</h4>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    System Column
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Your File Column
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Required
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {systemColumns.map((column, index) => (
+                  <tr key={column} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {column.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <select
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                        value={columnMappings[column] || ""}
+                        onChange={(e) => setColumnMappings(prev => ({ ...prev, [column]: e.target.value }))}
+                      >
+                        <option value="">Select column...</option>
+                        {mockCsvHeaders.map(header => (
+                          <option key={header} value={header}>{header}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {index < 4 ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          Required
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          Optional
+                        </span>
+                      )}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {modalAccounts.map((acc) => (
-                    <tr key={acc.account_id} className="even:bg-zinc-50">
-                      <td className="px-4 py-2">{acc.account_id}</td>
-                      <td className="px-4 py-2">{acc.customer_name}</td>
-                      <td className="px-4 py-2">${acc.amount_due.toLocaleString()}</td>
-                      <td className="px-4 py-2">{acc.dpd}</td>
-                      <td className="px-4 py-2">{acc.due_date}</td>
-                      <td className="px-4 py-2">{acc.product_name}</td>
-                      <td className="px-4 py-2">
-                        ${acc.pay_off_amount.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-2">{acc.missed_installments}</td>
-                      <td className="px-4 py-2">{acc.risk_score}</td>
-                      <td className="px-4 py-2">
-                        <button
-                          className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 border border-blue-200 text-xs font-semibold"
-                          onClick={() => {
-                            setInspectAccount(acc);
-                            setShowInspectModal(true);
-                          }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                          Inspect
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
-      )}
-      {/* Inspect modal remains as is, already at z-70 and root level */}
-      {showInspectModal && inspectAccount && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-70">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full h-full max-w-3xl max-h-[95vh] overflow-auto relative flex flex-col">
-            <button
-              className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-900 text-3xl"
-              onClick={() => setShowInspectModal(false)}
-              aria-label="Close"
-            >
-              &times;
-            </button>
-            <div className="text-2xl font-bold mb-6">
-              Account Timeline: {inspectAccount.account_id} -{" "}
-              {inspectAccount.customer_name}
-            </div>
-            {timelineEvents.map((event, idx) => (
-              <div key={idx} className="flex items-stretch relative">
-                {/* Left: Dot, line, and label */}
-                <div className="flex flex-col items-center w-28 min-w-[7rem] pr-2 relative">
-                  {/* Dot */}
-                  <span
-                    className={`w-4 h-4 rounded-full border-4 ${
-                      event.color === "green"
-                        ? "bg-green-500 border-green-200"
-                        : "bg-yellow-400 border-yellow-100"
-                    } z-10`}
-                  ></span>
-                  {/* Vertical line connecting dots */}
-                  {idx < timelineEvents.length - 1 && (
-                    <span
-                      className={`w-1 h-full bg-zinc-200 absolute left-1/2 top-4 z-0`}
-                    ></span>
-                  )}
-                  {/* Label */}
-                  <span className="mt-2 text-xs font-semibold text-zinc-500 text-center">
-                    {event.label}
-                  </span>
-                  {/* Channel icon */}
-                  <span className="mt-1">
-                    {event.channel === "Voice" && (
-                      <span className="inline-block bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-                        <svg
-                          className="inline w-4 h-4 mr-1"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15.05 5.05a7 7 0 01.9 9.19l-1.41 1.41a2 2 0 01-2.83 0l-2.12-2.12a2 2 0 010-2.83l1.41-1.41a7 7 0 019.19-.9z"
-                          />
-                        </svg>
-                        Voice
-                      </span>
-                    )}
-                    {event.channel === "SMS" && (
-                      <span className="inline-block bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-                        <svg
-                          className="inline w-4 h-4 mr-1"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8s-9-3.582-9-8 4.03-8 9-8 9 3.582 9 8z"
-                          />
-                        </svg>
-                        SMS
-                      </span>
-                    )}
-                  </span>
-                </div>
-                {/* Right: Card */}
-                <div
-                  className={`flex-1 ml-2 mb-8 rounded-2xl shadow-lg border border-zinc-100 bg-white p-6 transition-all ${
-                    event.color === "green"
-                      ? "border-green-200 bg-green-50"
-                      : "border-yellow-200 bg-yellow-50"
-                  }`}
-                  style={{ minWidth: 0 }}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs text-zinc-400 font-semibold">
-                      {event.date}
-                    </span>
-                    {event.aiRecommended && (
-                      <span className="ml-auto bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs font-semibold">
-                        AI Recommended
-                      </span>
+      </div>
+    </div>
+  );
+
+  const renderStep4 = () => (
+    <div className={`transition-all duration-300 ${stepAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">AI Processing</h3>
+          <p className="text-gray-600">AI processing portfolio data</p>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-lg p-8">
+          <div className="text-center mb-6">
+            <SparklesIcon className="w-12 h-12 text-blue-500 mx-auto mb-4" />
+            <h4 className="text-lg font-medium text-gray-900 mb-2">Our AI is analyzing your data</h4>
+            <p className="text-gray-600">Creating optimized segments and communication strategies</p>
+          </div>
+
+          <div className="space-y-4">
+            {aiTasks.map((task, index) => (
+              <div key={task.id} className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
+                      completedTasks.includes(task.id)
+                        ? "bg-green-500"
+                        : currentTaskIndex === index
+                        ? "bg-blue-500"
+                        : "bg-gray-200"
+                    }`}>
+                      {completedTasks.includes(task.id) ? (
+                        <CheckCircleIcon className="w-5 h-5 text-white" />
+                      ) : currentTaskIndex === index ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <SparklesIcon className="w-5 h-5 text-gray-400" />
+                      )}
+                    </div>
+                    <h4 className="text-sm font-medium text-gray-900">{task.title}</h4>
+                  </div>
+                  <div className="text-right">
+                    {completedTasks.includes(task.id) ? (
+                      <span className="text-sm text-green-600 font-medium">Completed</span>
+                    ) : currentTaskIndex === index ? (
+                      <span className="text-sm text-blue-600 font-medium">Processing...</span>
+                    ) : (
+                      <span className="text-sm text-gray-400">Pending</span>
                     )}
                   </div>
-                  {renderTimelineCard(event)}
                 </div>
+                
+                {/* Show only current subtask, hide completed ones */}
+                {currentTaskIndex === index && currentSubtaskIndex > 0 && (
+                  <div className="ml-11">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                      <span className="text-xs text-blue-600">
+                        {task.subtasks[Math.min(currentSubtaskIndex - 1, task.subtasks.length - 1)]}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
         </div>
-      )}
-      {/* Create Segment Modal */}
-      <CreateSegmentModal
-        isOpen={showCreateSegmentModal}
-        onClose={() => setShowCreateSegmentModal(false)}
-        onCreateSegment={handleCreateSegment}
-        unmatchedAccounts={unmatchedAccounts}
-      />
+      </div>
     </div>
   );
-}
+
+  const renderStep5 = () => (
+    <div className={`transition-all duration-300 ${stepAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
+      <div className="w-full">
+        <div className="text-center mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Preview Segments & Journey</h3>
+          <p className="text-gray-600">Choose a customer segment and define how you'll reach them</p>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-lg p-8">
+          <div className="space-y-6">
+            {sampleSegments.map((segment) => (
+              <div key={segment.id} className="bg-white rounded-lg border p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">{segment.title}</h4>
+                    <p className="text-sm text-gray-600 mb-4">{segment.category}</p>
+                    <div className="flex items-center space-x-6 text-sm">
+                      <div className="flex items-center">
+                        <span className="text-blue-600 font-semibold">👥 {segment.accounts.toLocaleString()} accounts</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-green-600 font-semibold">{segment.amount}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handlePreviewSegment(segment)}
+                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <EyeIcon className="w-4 h-4 mr-2" />
+                    Preview
+                  </button>
+                </div>
+
+                {/* Journey Preview */}
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                  <h5 className="text-sm font-medium text-gray-700 mb-3">Journey Preview</h5>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center">
+                      <PlayIcon className="w-4 h-4 text-gray-400 mr-2" />
+                      <span className="text-sm text-gray-600">Start</span>
+                    </div>
+                    {segment.journey.steps.map((step, index) => (
+                      <React.Fragment key={index}>
+                        <div className="w-2 h-0.5 bg-gray-300" />
+                        <div className="bg-white border rounded-lg px-3 py-2">
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-2 h-2 rounded-full ${
+                              step.channel === "Voice" ? "bg-blue-500" :
+                              step.channel === "SMS" ? "bg-green-500" : "bg-purple-500"
+                            }`} />
+                            <span className="text-xs font-medium">{step.nodeName}</span>
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Channel: {step.channel} • End Time: {step.endTime}
+                          </div>
+                        </div>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Unmatched Accounts */}
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-medium text-yellow-900">Unmatched Accounts</h4>
+                <p className="text-sm text-yellow-700 mt-1">
+                  156 accounts couldn't be automatically segmented and will use the default journey
+                </p>
+              </div>
+              <button className="text-sm text-yellow-800 hover:text-yellow-900 font-medium">
+                Review →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStep6 = () => {
+    return (
+      <div className={`transition-all duration-300 ${stepAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Forecast & Schedule</h3>
+            <p className="text-gray-600">View campaign forecasts and set schedule</p>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-lg p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Left side - Campaign Schedule */}
+              <div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Set up your desired start and end time for a seamless schedule</h4>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Campaign Start</label>
+                    <div className="flex items-center space-x-4">
+                      <input
+                        type="date"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={scheduleConfig.startDate}
+                        onChange={(e) => setScheduleConfig(prev => ({ ...prev, startDate: e.target.value }))}
+                      />
+                      <input
+                        type="time"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        defaultValue="09:00"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                    <div className="flex items-center space-x-4">
+                      <input
+                        type="date"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={scheduleConfig.endDate}
+                        onChange={(e) => setScheduleConfig(prev => ({ ...prev, endDate: e.target.value }))}
+                      />
+                      <input
+                        type="time"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        defaultValue="17:00"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="runContinuously"
+                      checked={scheduleConfig.runContinuously}
+                      onChange={(e) => setScheduleConfig(prev => ({ ...prev, runContinuously: e.target.checked }))}
+                      className="mr-2"
+                    />
+                    <label htmlFor="runContinuously" className="text-sm text-gray-700">
+                      Run Continuously
+                    </label>
+                  </div>
+                  {scheduleConfig.runContinuously && (
+                    <p className="text-xs text-gray-500">End date will be ignored when continuous mode is active</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Right side - AI-Powered Campaign Predictions */}
+              <div>
+                <div className="flex items-center mb-4">
+                  <SparklesIcon className="w-5 h-5 text-blue-600 mr-2" />
+                  <h4 className="text-lg font-semibold text-gray-900">AI-Powered Campaign Predictions</h4>
+                </div>
+                <p className="text-sm text-gray-600 mb-6">Preview what will likely happen if this campaign is launched as-is</p>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-gray-600">Expected Connectivity</span>
+                      <span className="text-sm font-semibold text-green-600">+10.1%</span>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900 mb-1">78%</div>
+                    <div className="text-xs text-gray-500">vs 67.9% baseline</div>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                      <div className="bg-green-500 h-2 rounded-full" style={{ width: "78%" }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-gray-600">Expected Recovery</span>
+                      <span className="text-sm font-semibold text-green-600">+15.2%</span>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900 mb-1">$13,400</div>
+                    <div className="text-xs text-gray-500">vs $11,635</div>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: "65%" }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-gray-600">Expected Liquidation Rate</span>
+                      <span className="text-sm font-semibold text-green-600">+4.5%</span>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900 mb-1">32.5%</div>
+                    <div className="text-xs text-gray-500">vs 28% previous</div>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: "32%" }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-gray-600">Expected Agent Transfers</span>
+                      <span className="text-sm font-semibold text-green-600">+4.5%</span>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900 mb-1">14.6%</div>
+                    <div className="text-xs text-gray-500">Target: &lt;15%</div>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                      <div className="bg-green-500 h-2 rounded-full" style={{ width: "14.6%" }} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-3 bg-yellow-50 rounded-lg">
+                  <h5 className="text-sm font-semibold text-gray-900 mb-1">Disclaimer</h5>
+                  <p className="text-xs text-gray-600">
+                    Predictions are estimates based on historical data and machine learning models. Actual results may vary due to 
+                    market conditions, customer behavior changes, and external factors. These forecasts should be used as guidance 
+                    alongside professional judgment.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Header - Similar to ConversationDetail */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={handleBack}
+                className="text-gray-600 hover:text-gray-900 rounded-full p-2 hover:bg-gray-100 transition-colors"
+              >
+                <ArrowLeftIcon className="h-5 w-5" />
+              </button>
+              <div>
+                <div className="flex items-center space-x-3">
+                  <h1 className="text-xl font-bold text-gray-900">Create Campaign</h1>
+                  <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                    Step {currentStep} of {steps.length}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-6 pb-24">
+        {renderStepIndicator()}
+
+        <div className="bg-white">
+          {currentStep === 1 && renderStep1()}
+          {currentStep === 2 && renderStep2()}
+          {currentStep === 3 && renderStep3()}
+          {currentStep === 4 && renderStep4()}
+          {currentStep === 5 && renderStep5()}
+          {currentStep === 6 && renderStep6()}
+        </div>
+      </div>
+
+      {/* Sticky Footer Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex justify-between">
+          <button
+            onClick={handleBack}
+            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+              currentStep === 1 || (currentStep === 4 && aiProcessing)
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+            }`}
+            disabled={currentStep === 1 || (currentStep === 4 && aiProcessing)}
+          >
+            {currentStep === 1 ? "Cancel" : "Back"}
+          </button>
+          
+          <button
+            onClick={handleNext}
+            disabled={currentStep === 4 && aiProcessing}
+            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+              currentStep === 4 && aiProcessing
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-gray-900 text-white hover:bg-gray-800"
+            }`}
+          >
+            {currentStep === steps.length ? "Launch Campaign" : "Next"}
+          </button>
+        </div>
+      </div>
+
+      {/* Preview Modal */}
+      {showPreviewModal && previewSegment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Journey Preview: {previewSegment.title}
+              </h3>
+              <button
+                onClick={() => setShowPreviewModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {mockJourneySteps.map((step, index) => (
+                  <div key={step.id} className={`border rounded-lg p-4 ${
+                    step.status === 'completed' ? 'bg-green-50 border-green-200' :
+                    step.status === 'in-progress' ? 'bg-blue-50 border-blue-200' :
+                    'bg-gray-50 border-gray-200'
+                  }`}>
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium ${
+                          step.status === 'completed' ? 'bg-green-500' :
+                          step.status === 'in-progress' ? 'bg-blue-500' :
+                          'bg-gray-400'
+                        }`}>
+                          {index + 1}
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">{step.step}</h4>
+                          <p className="text-sm text-gray-600">{step.user} • {step.phone}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-900">{step.amount}</p>
+                        <p className="text-xs text-gray-500">{step.reachoutTime}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="ml-11 space-y-2">
+                      <div>
+                        <p className="text-sm text-gray-700"><strong>Details:</strong> {step.details}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-700"><strong>Recommendation:</strong> {step.recommendation}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+} 

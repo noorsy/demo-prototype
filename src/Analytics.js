@@ -3,7 +3,6 @@ import { Listbox, Transition } from "@headlessui/react";
 import PageHeaderWithTabs from "./components/PageHeaderWithTabs";
 import {
   ChevronDownIcon,
-  UsersIcon,
   CurrencyDollarIcon,
   ChartBarIcon,
   CheckCircleIcon,
@@ -46,138 +45,27 @@ import {
   Bar,
   Legend,
   Cell,
+  ComposedChart,
 } from "recharts";
 
 const productOptions = ["All Products", "Auto Loan", "Credit Card", "Mortgage"];
 const dpdOptions = ["All DPD", "0-30", "31-60", "61-90", "91+"];
 const segmentOptions = ["All Segments", "High Value", "Mid Risk", "Late Stage"];
 const tabOptions = [
-  "Overview",
-  "Engagement",
+  "Performance Overview",
+  "DPD Performance",
+  "Outbound Campaign",
+  "Inbound Analysis",
+  "User Experience",
   "Compliance",
-  "Voice",
-  "SMS",
-  "Email",
+  // "Engagement",
+  // "Voice",
+  // "SMS",
+  // "Email",
   "Utilization",
 ];
 
 // Dummy data
-const recoveryRateData = [
-  { name: "Oct 1", "Recovery Rate": 12.5 },
-  { name: "Oct 8", "Recovery Rate": 13.2 },
-  { name: "Oct 15", "Recovery Rate": 14.8 },
-  { name: "Oct 22", "Recovery Rate": 15.3 },
-  { name: "Oct 29", "Recovery Rate": 14.5 },
-];
-const amountRecoveredData = [
-  { name: "Oct 1", "Amount Recovered": 125000 },
-  { name: "Oct 8", "Amount Recovered": 132000 },
-  { name: "Oct 15", "Amount Recovered": 148000 },
-  { name: "Oct 22", "Amount Recovered": 153000 },
-  { name: "Oct 29", "Amount Recovered": 145000 },
-];
-const recoveryRateByBucketData = [
-  { name: "Pre-due", "Recovery Rate": 18.5 },
-  { name: "Grace Period", "Recovery Rate": 15.2 },
-  { name: "Early Delinquency", "Recovery Rate": 12.8 },
-  { name: "Late Delinquency", "Recovery Rate": 8.4 },
-];
-const dpdBucketData = [
-  {
-    bucket: "Pre-due",
-    totalAccounts: 12500,
-    totalValue: "$6,250,000",
-    newInflows: 2500,
-    newInflowsAmount: "$1,250,000",
-    cured: 1875,
-    curedAmount: "$937,500",
-    rolledForward: 1250,
-    rolledForwardAmount: "$625,000",
-    recoveredAmount: "$1,156,250",
-    resolvedAccounts: 11875,
-  },
-  {
-    bucket: "Grace Period",
-    totalAccounts: 8750,
-    totalValue: "$4,375,000",
-    newInflows: 1250,
-    newInflowsAmount: "$625,000",
-    cured: 1312,
-    curedAmount: "$656,250",
-    rolledForward: 875,
-    rolledForwardAmount: "$437,500",
-    recoveredAmount: "$665,000",
-    resolvedAccounts: 7813,
-  },
-  {
-    bucket: "Early Delinquency",
-    totalAccounts: 6250,
-    totalValue: "$3,125,000",
-    newInflows: 875,
-    newInflowsAmount: "$437,500",
-    cured: 625,
-    curedAmount: "$312,500",
-    rolledForward: 625,
-    rolledForwardAmount: "$312,500",
-    recoveredAmount: "$400,000",
-    resolvedAccounts: 5875,
-  },
-  {
-    bucket: "Late Delinquency",
-    totalAccounts: 3750,
-    totalValue: "$1,875,000",
-    newInflows: 625,
-    newInflowsAmount: "$312,500",
-    cured: 187,
-    curedAmount: "$93,750",
-    rolledForward: 0,
-    rolledForwardAmount: "$0",
-    recoveredAmount: "$157,500",
-    resolvedAccounts: 4188,
-  },
-];
-const riskMetricsData = [
-  {
-    riskType: "Straw Purchase Risk",
-    accounts: 28,
-    value: "$1,400,000",
-    impactMetric: "Rollforward Rate",
-    impactValue: "+2.5%",
-    trend: "up",
-  },
-  {
-    riskType: "Bankruptcy Filings",
-    accounts: 15,
-    value: "$750,000",
-    impactMetric: "Charge-off Rate",
-    impactValue: "+1.8%",
-    trend: "up",
-  },
-  {
-    riskType: "Nearing Charge-off",
-    accounts: 42,
-    value: "$2,100,000",
-    impactMetric: "Recovery Rate",
-    impactValue: "-3.2%",
-    trend: "down",
-  },
-  {
-    riskType: "Multiple Complaints",
-    accounts: 23,
-    value: "$1,150,000",
-    impactMetric: "Regulatory Risk",
-    impactValue: "High",
-    trend: "neutral",
-  },
-  {
-    riskType: "Cease & Desist Requests",
-    accounts: 18,
-    value: "$900,000",
-    impactMetric: "Contact Rate",
-    impactValue: "-2.1%",
-    trend: "down",
-  },
-];
 
 function FilterDropdown({ options, value, onChange }) {
   return (
@@ -324,374 +212,1325 @@ export default function Analytics() {
 
       {/* Tab Content */}
       <div className="max-w-8xl mx-auto p-8">
-        {tab === "Overview" && (
+        {tab === "Performance Overview" && (
           <>
             <div className="text-2xl font-bold text-zinc-900 mb-4">
-              Overview (Portfolio Health)
+              Performance Overview
             </div>
-            {/* KPI Row */}
+            
+            {/* Top KPI Cards Row */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <MetricCard
-                icon={<UsersIcon className="w-5 h-5" />}
-                label="Total Accounts"
-                value="12,340"
-              />
+              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
+                    <CurrencyDollarIcon className="w-5 h-5" />
+                  </span>
+                  <span className="text-xs text-zinc-500 font-medium">Total Collections</span>
+                </div>
+                <div className="text-2xl font-bold text-zinc-900">$1,247,392</div>
+                <div className="text-xs text-green-600">↗ +12.5%</div>
+                <div className="text-xs text-zinc-400">$1.25M payments received</div>
+              </div>
+              
+              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
+                    <CheckCircleIcon className="w-5 h-5" />
+                  </span>
+                  <span className="text-xs text-zinc-500 font-medium">Cure Rate</span>
+                </div>
+                <div className="text-2xl font-bold text-zinc-900">11.4%</div>
+                <div className="text-xs text-green-600">↗ +2.1%</div>
+                <div className="text-xs text-zinc-400">11,400 accounts cured</div>
+              </div>
+              
+              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
+                    <ArrowTrendingUpIcon className="w-5 h-5" />
+                  </span>
+                  <span className="text-xs text-zinc-500 font-medium">Collection Rate</span>
+                </div>
+                <div className="text-2xl font-bold text-zinc-900">13.3%</div>
+                <div className="text-xs text-green-600">↗ +8.4%</div>
+                <div className="text-xs text-zinc-400">$1.25M of $9.35M balance</div>
+              </div>
+              
+              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
+                    <ChartBarIcon className="w-5 h-5" />
+                  </span>
+                  <span className="text-xs text-zinc-500 font-medium">Portfolio Penetration</span>
+                </div>
+                <div className="text-2xl font-bold text-zinc-900">92.0%</div>
+                <div className="text-xs text-green-600">↗ +3.2%</div>
+                <div className="text-xs text-zinc-400">92,000 accounts contacted</div>
+              </div>
+            </div>
+
+            {/* Second Row KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
+                    <BanknotesIcon className="w-5 h-5" />
+                  </span>
+                  <span className="text-xs text-zinc-500 font-medium">Portfolio Balance</span>
+                </div>
+                <div className="text-2xl font-bold text-zinc-900">$9,347,582</div>
+                <div className="text-xs text-green-600">↗ +5.2%</div>
+                <div className="text-xs text-zinc-400">Total outstanding debt</div>
+              </div>
+              
+              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
+                    <CurrencyDollarIcon className="w-5 h-5" />
+                  </span>
+                  <span className="text-xs text-zinc-500 font-medium">Balance Cured</span>
+                </div>
+                <div className="text-2xl font-bold text-zinc-900">$1,892,456</div>
+                <div className="text-xs text-green-600">↗ +8.4%</div>
+                <div className="text-xs text-zinc-400">Balance resolved to current</div>
+              </div>
+              
+              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
+                    <PhoneIcon className="w-5 h-5" />
+                  </span>
+                  <span className="text-xs text-zinc-500 font-medium">Contact Rate</span>
+                </div>
+                <div className="text-2xl font-bold text-zinc-900">48.0%</div>
+                <div className="text-xs text-green-600">↗ +2.1%</div>
+                <div className="text-xs text-zinc-400">48,000 contacts</div>
+              </div>
+              
+              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
+                    <HandThumbUpIcon className="w-5 h-5" />
+                  </span>
+                  <span className="text-xs text-zinc-500 font-medium">PTP Rate</span>
+                </div>
+                <div className="text-2xl font-bold text-zinc-900">17.6%</div>
+                <div className="text-xs text-green-600">↗ +1.8%</div>
+                <div className="text-xs text-zinc-400">17,567 promises secured</div>
+              </div>
+            </div>
+
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Weekly Collections Trend */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Weekly Collections Trend
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Amount collected (bar) · Cost per Dollar collected (line)
+                </div>
+                                 <ResponsiveContainer width="100%" height={220}>
+                   <ComposedChart
+                     data={[
+                       { week: "Week 1", amount: 180000, cost: 0.12 },
+                       { week: "Week 2", amount: 220000, cost: 0.11 },
+                       { week: "Week 3", amount: 195000, cost: 0.13 },
+                       { week: "Week 4", amount: 250000, cost: 0.10 },
+                       { week: "Week 5", amount: 285000, cost: 0.09 },
+                     ]}
+                     margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                   >
+                     <CartesianGrid strokeDasharray="3 3" />
+                     <XAxis dataKey="week" />
+                     <YAxis yAxisId="left" tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                     <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => `$${v.toFixed(2)}`} />
+                     <Tooltip 
+                       formatter={(v, name) => 
+                         name === "amount" ? `$${v.toLocaleString()}` : `$${v.toFixed(2)}`
+                       } 
+                     />
+                     <Bar yAxisId="left" dataKey="amount" fill="#2563eb" name="Amount Collected" />
+                     <Line yAxisId="right" type="monotone" dataKey="cost" stroke="#ef4444" strokeWidth={2} name="Cost per $" />
+                   </ComposedChart>
+                 </ResponsiveContainer>
+              </div>
+
+              {/* Monthly DSO Waterfall Chart */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Monthly DSO
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Waterfall chart
+                </div>
+                <div className="flex items-center justify-center h-[220px] text-zinc-400 bg-zinc-50 rounded-lg border border-dashed border-zinc-200">
+                  <div className="text-center">
+                    <div className="text-sm font-medium">DSO Waterfall Chart</div>
+                    <div className="text-xs mt-1">Monthly DSO → New AR → Collections → Projected DSO</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Charts Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Conversion Funnel */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Conversion Funnel
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Waterfall chart/Funnel
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Calls Connected</span>
+                    <span className="font-medium">100,000</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: "100%" }}></div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm">
+                    <span>RPC</span>
+                    <span className="font-medium">42,000</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: "42%" }}></div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Due communicated</span>
+                    <span className="font-medium">35,000</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-blue-400 h-2 rounded-full" style={{ width: "35%" }}></div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Promise to Pay</span>
+                    <span className="font-medium">18,000</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-blue-300 h-2 rounded-full" style={{ width: "18%" }}></div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Cured</span>
+                    <span className="font-medium">12,000</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-blue-200 h-2 rounded-full" style={{ width: "12%" }}></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Agent transfer by time of day */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Agent transfer by time of day (last 7days)
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Agent Transfers (%) · Last 7 days
+                </div>
+                <ResponsiveContainer width="100%" height={180}>
+                  <LineChart
+                    data={[
+                      { time: "6AM", transfers: 2.1 },
+                      { time: "9AM", transfers: 8.5 },
+                      { time: "12PM", transfers: 15.2 },
+                      { time: "3PM", transfers: 22.8 },
+                      { time: "6PM", transfers: 18.4 },
+                      { time: "9PM", transfers: 12.1 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="time" />
+                    <YAxis tickFormatter={(v) => v + "%"} />
+                    <Tooltip formatter={(v) => v + "%"} />
+                    <Line
+                      type="monotone"
+                      dataKey="transfers"
+                      stroke="#2563eb"
+                      strokeWidth={2}
+                      dot={{ r: 4, fill: "#2563eb" }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Bottom Charts Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Cured trend */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Cured trend
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Portfolio connected ($) Bar · Share of connected Portfolio cured (%) - Line · Last 7 days
+                </div>
+                                 <ResponsiveContainer width="100%" height={180}>
+                   <ComposedChart
+                     data={[
+                       { day: "Day 1", portfolio: 250000, curedRate: 12.5 },
+                       { day: "Day 2", portfolio: 280000, curedRate: 13.2 },
+                       { day: "Day 3", portfolio: 265000, curedRate: 11.8 },
+                       { day: "Day 4", portfolio: 290000, curedRate: 14.1 },
+                       { day: "Day 5", portfolio: 315000, curedRate: 15.2 },
+                       { day: "Day 6", portfolio: 295000, curedRate: 13.8 },
+                       { day: "Day 7", portfolio: 325000, curedRate: 16.1 },
+                     ]}
+                     margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                   >
+                     <CartesianGrid strokeDasharray="3 3" />
+                     <XAxis dataKey="day" />
+                     <YAxis yAxisId="left" tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                     <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => v + "%"} />
+                     <Tooltip 
+                       formatter={(v, name) => 
+                         name === "portfolio" ? `$${v.toLocaleString()}` : `${v}%`
+                       } 
+                     />
+                     <Bar yAxisId="left" dataKey="portfolio" fill="#6366f1" name="Portfolio Connected" />
+                     <Line yAxisId="right" type="monotone" dataKey="curedRate" stroke="#22c55e" strokeWidth={2} name="Cured Rate" />
+                   </ComposedChart>
+                 </ResponsiveContainer>
+              </div>
+
+              {/* Conversion by time of day */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Conversion by time of day
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Line · Last 7 days
+                </div>
+                <ResponsiveContainer width="100%" height={180}>
+                  <LineChart
+                    data={[
+                      { time: "6AM", paid: 8.2, ptp: 12.1, rpc: 18.5 },
+                      { time: "9AM", paid: 12.5, ptp: 18.2, rpc: 28.4 },
+                      { time: "12PM", paid: 15.8, ptp: 22.5, rpc: 35.2 },
+                      { time: "3PM", paid: 18.2, ptp: 25.8, rpc: 42.1 },
+                      { time: "6PM", paid: 14.5, ptp: 20.2, rpc: 32.8 },
+                      { time: "9PM", paid: 10.1, ptp: 15.5, rpc: 24.2 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="time" />
+                    <YAxis tickFormatter={(v) => v + "%"} />
+                    <Tooltip formatter={(v) => v + "%"} />
+                    <Legend />
+                    <Line type="monotone" dataKey="paid" stroke="#22c55e" strokeWidth={2} name="Paid" />
+                    <Line type="monotone" dataKey="ptp" stroke="#f59e42" strokeWidth={2} name="Promise to pay" />
+                    <Line type="monotone" dataKey="rpc" stroke="#2563eb" strokeWidth={2} name="RPC" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </>
+        )}
+        {tab === "DPD Performance" && (
+          <>
+            <div className="text-2xl font-bold text-zinc-900 mb-4">
+              DPD Performance
+            </div>
+            
+            {/* Top Charts Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Collections heat map */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Collections heat map
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Cured% by DPD bucket
+                </div>
+                <div className="flex items-center justify-center h-[220px] text-zinc-400 bg-zinc-50 rounded-lg border border-dashed border-zinc-200">
+                  <div className="text-center">
+                    <div className="text-sm font-medium">DPD Heat Map</div>
+                    <div className="text-xs mt-1">Visual representation of cure rates across DPD buckets</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Top 3 Factors impacting Collection Success */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Top 3 Factors impacting Collection Success by DPD bucket
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Key success factors analysis
+                </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-4 gap-2 text-xs font-medium text-zinc-700 border-b pb-2">
+                    <span>Factor</span>
+                    <span>0-30 DPD</span>
+                    <span>31-60 DPD</span>
+                    <span>61+ DPD</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-sm">
+                    <span className="font-medium">Contact Rate</span>
+                    <span className="text-green-600">85%</span>
+                    <span className="text-yellow-600">72%</span>
+                    <span className="text-red-600">58%</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-sm">
+                    <span className="font-medium">Response Rate</span>
+                    <span className="text-green-600">68%</span>
+                    <span className="text-yellow-600">52%</span>
+                    <span className="text-red-600">35%</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-sm">
+                    <span className="font-medium">PTP Conversion</span>
+                    <span className="text-green-600">45%</span>
+                    <span className="text-yellow-600">32%</span>
+                    <span className="text-red-600">18%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Middle Charts Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Collections by DPD Bucket - Stacked column */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Collections by DPD Bucket
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Stacked column chart · Period selected
+                </div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart
+                    data={[
+                      { period: "Week 1", "0-30": 180000, "31-60": 120000, "61-90": 80000, "90+": 45000 },
+                      { period: "Week 2", "0-30": 195000, "31-60": 135000, "61-90": 75000, "90+": 42000 },
+                      { period: "Week 3", "0-30": 210000, "31-60": 128000, "61-90": 85000, "90+": 48000 },
+                      { period: "Week 4", "0-30": 225000, "31-60": 142000, "61-90": 78000, "90+": 38000 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="period" />
+                    <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                    <Tooltip formatter={(v) => `$${v.toLocaleString()}`} />
+                    <Legend />
+                    <Bar dataKey="0-30" stackId="a" fill="#22c55e" name="0-30 DPD" />
+                    <Bar dataKey="31-60" stackId="a" fill="#f59e42" name="31-60 DPD" />
+                    <Bar dataKey="61-90" stackId="a" fill="#ef4444" name="61-90 DPD" />
+                    <Bar dataKey="90+" stackId="a" fill="#991b1b" name="90+ DPD" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Cure-rate by DPD Bucket */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Cure-rate by DPD Bucket
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Weekly cure rates by DPD bucket
+                </div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart
+                    data={[
+                      { week: "Week 1", "0-30": 18.5, "31-60": 12.8, "61-90": 8.2, "90+": 4.5 },
+                      { week: "Week 2", "0-30": 19.2, "31-60": 13.1, "61-90": 8.8, "90+": 4.2 },
+                      { week: "Week 3", "0-30": 18.8, "31-60": 12.5, "61-90": 8.5, "90+": 4.8 },
+                      { week: "Week 4", "0-30": 20.1, "31-60": 14.2, "61-90": 9.1, "90+": 3.8 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="week" />
+                    <YAxis tickFormatter={(v) => v + "%"} />
+                    <Tooltip formatter={(v) => v + "%"} />
+                    <Legend />
+                    <Line type="monotone" dataKey="0-30" stroke="#22c55e" strokeWidth={2} name="0-30 DPD" />
+                    <Line type="monotone" dataKey="31-60" stroke="#f59e42" strokeWidth={2} name="31-60 DPD" />
+                    <Line type="monotone" dataKey="61-90" stroke="#ef4444" strokeWidth={2} name="61-90 DPD" />
+                    <Line type="monotone" dataKey="90+" stroke="#991b1b" strokeWidth={2} name="90+ DPD" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Lower Charts Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Collections by DPD Bucket - Timeline */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Collections by DPD Bucket
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Weekly collections trend by DPD bucket
+                </div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart
+                    data={[
+                      { week: "Week 1", "0-30": 180000, "31-60": 120000, "61-90": 80000, "90+": 45000 },
+                      { week: "Week 2", "0-30": 195000, "31-60": 135000, "61-90": 75000, "90+": 42000 },
+                      { week: "Week 3", "0-30": 210000, "31-60": 128000, "61-90": 85000, "90+": 48000 },
+                      { week: "Week 4", "0-30": 225000, "31-60": 142000, "61-90": 78000, "90+": 38000 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="week" />
+                    <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                    <Tooltip formatter={(v) => `$${v.toLocaleString()}`} />
+                    <Legend />
+                    <Line type="monotone" dataKey="0-30" stroke="#22c55e" strokeWidth={2} name="0-30 DPD" />
+                    <Line type="monotone" dataKey="31-60" stroke="#f59e42" strokeWidth={2} name="31-60 DPD" />
+                    <Line type="monotone" dataKey="61-90" stroke="#ef4444" strokeWidth={2} name="61-90 DPD" />
+                    <Line type="monotone" dataKey="90+" stroke="#991b1b" strokeWidth={2} name="90+ DPD" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Collections by Channel by DPD buckets */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Collections by Channel by DPD buckets
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Stacked column chart by communication channel
+                </div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart
+                    data={[
+                      { channel: "Voice", "0-30": 85000, "31-60": 65000, "61-90": 45000, "90+": 25000 },
+                      { channel: "SMS", "0-30": 45000, "31-60": 35000, "61-90": 20000, "90+": 8000 },
+                      { channel: "Email", "0-30": 35000, "31-60": 22000, "61-90": 12000, "90+": 5000 },
+                      { channel: "WhatsApp", "0-30": 25000, "31-60": 18000, "61-90": 8000, "90+": 2000 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="channel" />
+                    <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                    <Tooltip formatter={(v) => `$${v.toLocaleString()}`} />
+                    <Legend />
+                    <Bar dataKey="0-30" stackId="a" fill="#22c55e" name="0-30 DPD" />
+                    <Bar dataKey="31-60" stackId="a" fill="#f59e42" name="31-60 DPD" />
+                    <Bar dataKey="61-90" stackId="a" fill="#ef4444" name="61-90 DPD" />
+                    <Bar dataKey="90+" stackId="a" fill="#991b1b" name="90+ DPD" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Bottom Charts Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Cost per $ collected by channel */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Cost per $ collected by channel
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Line chart showing efficiency by communication channel
+                </div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart
+                    data={[
+                      { week: "Week 1", Voice: 0.12, SMS: 0.08, Email: 0.05, WhatsApp: 0.09 },
+                      { week: "Week 2", Voice: 0.11, SMS: 0.07, Email: 0.04, WhatsApp: 0.08 },
+                      { week: "Week 3", Voice: 0.13, SMS: 0.09, Email: 0.06, WhatsApp: 0.10 },
+                      { week: "Week 4", Voice: 0.10, SMS: 0.06, Email: 0.03, WhatsApp: 0.07 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="week" />
+                    <YAxis tickFormatter={(v) => `$${v.toFixed(2)}`} />
+                    <Tooltip formatter={(v) => `$${v.toFixed(2)}`} />
+                    <Legend />
+                    <Line type="monotone" dataKey="Voice" stroke="#2563eb" strokeWidth={2} name="Voice" />
+                    <Line type="monotone" dataKey="SMS" stroke="#22c55e" strokeWidth={2} name="SMS" />
+                    <Line type="monotone" dataKey="Email" stroke="#f59e42" strokeWidth={2} name="Email" />
+                    <Line type="monotone" dataKey="WhatsApp" stroke="#8b5cf6" strokeWidth={2} name="WhatsApp" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Spend by Channel */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Spend by Channel
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Line chart showing weekly spend by communication channel
+                </div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart
+                    data={[
+                      { week: "Week 1", Voice: 26400, SMS: 9600, Email: 1750, WhatsApp: 2025 },
+                      { week: "Week 2", Voice: 21450, SMS: 9450, Email: 1080, WhatsApp: 1680 },
+                      { week: "Week 3", Voice: 27300, SMS: 11520, Email: 2040, WhatsApp: 2400 },
+                      { week: "Week 4", Voice: 22500, SMS: 8520, Email: 810, WhatsApp: 1330 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="week" />
+                    <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                    <Tooltip formatter={(v) => `$${v.toLocaleString()}`} />
+                    <Legend />
+                    <Line type="monotone" dataKey="Voice" stroke="#2563eb" strokeWidth={2} name="Voice" />
+                    <Line type="monotone" dataKey="SMS" stroke="#22c55e" strokeWidth={2} name="SMS" />
+                    <Line type="monotone" dataKey="Email" stroke="#f59e42" strokeWidth={2} name="Email" />
+                    <Line type="monotone" dataKey="WhatsApp" stroke="#8b5cf6" strokeWidth={2} name="WhatsApp" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </>
+        )}
+        {tab === "Outbound Campaign" && (
+          <>
+            <div className="text-2xl font-bold text-zinc-900 mb-6">
+              Outbound Campaign analysis
+            </div>
+
+            {/* Campaign Selection */}
+            <div className="mb-6">
+              <div className="flex items-center space-x-4">
+                <label className="text-sm font-medium text-zinc-700">Select Campaigns</label>
+                <div className="flex-1 max-w-md">
+                  <select className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option>All Campaigns</option>
+                    <option>Q4 Collections Drive</option>
+                    <option>Early Stage Outreach</option>
+                    <option>Late Stage Recovery</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            {/* Top KPI Cards Row */}
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
               <MetricCard
                 icon={<CurrencyDollarIcon className="w-5 h-5" />}
-                label="Money Moved"
-                value="$2,340,000"
+                label="Total Campaign Portfolio ($)"
+                value="$2.4M"
+                sublabel="trend & number"
               />
               <MetricCard
-                icon={<ArrowTrendingUpIcon className="w-5 h-5" />}
-                label="Recovery Rate"
-                value="68%"
-                sublabel="$1,591,200"
+                icon={<UserGroupIcon className="w-5 h-5" />}
+                label="No. of Delinquent accounts"
+                value="15,240"
+                sublabel="trend & number"
+              />
+              <MetricCard
+                icon={<PhoneIcon className="w-5 h-5" />}
+                label="Calls connected"
+                value="68.5%"
+                sublabel="no of accounts (%)"
+              />
+              <MetricCard
+                icon={<ChatBubbleLeftRightIcon className="w-5 h-5" />}
+                label="Messages sent"
+                value="12,450"
+                sublabel="no of accounts (%)"
+              />
+              <MetricCard
+                icon={<ClockIcon className="w-5 h-5" />}
+                label="Average Handle time"
+                value="178s"
+                sublabel=""
+              />
+              <MetricCard
+                icon={<ExclamationTriangleIcon className="w-5 h-5" />}
+                label="Call Abandonment Rate"
+                value="7.2%"
+                sublabel=""
+              />
+            </div>
+
+            {/* Charts Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* Collections by campaign */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Collections by campaign($)
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  % connected, % Cured
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Bar and line chart</div>
+                  <div className="text-xs mt-2">Campaign</div>
+                </div>
+              </div>
+
+              {/* Conversion across Campaign Funnel chart */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Conversion across Campaign Funnel chart
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Calls Connected → RPC → Due communicated → Promise to Pay → Cured
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartPieIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Funnel chart</div>
+                  <div className="text-xs mt-2">All selected campaigns Campaign</div>
+                </div>
+              </div>
+
+              {/* Campaign Spend */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Campaign Spend ($)
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Collection per $ spent
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Bar chart</div>
+                  <div className="text-xs mt-2">Campaign</div>
+                </div>
+              </div>
+
+              {/* Convertion by Campaign */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Convertion by Campaign
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Grouped column
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">RPC, Promise to pay, Cured (%)</div>
+                  <div className="text-xs mt-2">Campaign</div>
+                </div>
+              </div>
+
+              {/* Campaign Engagement */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Campaign Engagement
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  share of calls by duration bucket
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Stacked column chart</div>
+                  <div className="text-xs mt-2">Campaign</div>
+                </div>
+              </div>
+
+              {/* Collections by Channel by campaign */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Collections by Channel by campaign
+                </div>
+                <div className="text-xs text-zinc-500 mb-4"></div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Stacked column chart</div>
+                  <div className="text-xs mt-2">Campaign</div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+        {tab === "Inbound Analysis" && (
+          <>
+            <div className="text-2xl font-bold text-zinc-900 mb-6">
+              Inbound analysis
+            </div>
+
+            {/* Days Selection */}
+            <div className="mb-6">
+              <div className="flex items-center space-x-4">
+                <label className="text-sm font-medium text-zinc-700">Select Days</label>
+                <div className="flex-1 max-w-md">
+                  <select className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option>Last 7 Days</option>
+                    <option>Last 30 Days</option>
+                    <option>Last 90 Days</option>
+                    <option>Custom Range</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Top KPI Cards Row */}
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
+              <MetricCard
+                icon={<CurrencyDollarIcon className="w-5 h-5" />}
+                label="Total Portfolio ($) of inbound calls"
+                value="$3.2M"
+                sublabel="trend & number"
+              />
+              <MetricCard
+                icon={<UserGroupIcon className="w-5 h-5" />}
+                label="No. of Delinquent accounts"
+                value="18,450"
+                sublabel="trend & number"
+              />
+              <MetricCard
+                icon={<PhoneIcon className="w-5 h-5" />}
+                label="Calls handled"
+                value="85.2%"
+                sublabel="no of accounts (%)"
               />
               <MetricCard
                 icon={<CheckCircleIcon className="w-5 h-5" />}
-                label="Accounts Resolved"
-                value="7,800"
+                label="Cure Rate"
+                value="12.8%"
+                sublabel="no of accounts (%)"
+              />
+              <MetricCard
+                icon={<ClockIcon className="w-5 h-5" />}
+                label="Average Handle time"
+                value="245s"
+                sublabel=""
+              />
+              <MetricCard
+                icon={<ExclamationTriangleIcon className="w-5 h-5" />}
+                label="Call Abandonment Rate"
+                value="4.3%"
+                sublabel=""
               />
             </div>
-            {/* Charts Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {/* Recovery Rate Over Time */}
+
+            {/* Charts Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* Daily Collections */}
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
                 <div className="font-semibold text-zinc-900 mb-2">
-                  Recovery Rate Over Time
+                  Daily Collections ($)
                 </div>
-                <ResponsiveContainer width="100%" height={220}>
-                  <LineChart
-                    data={recoveryRateData}
-                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis
-                      domain={[0, "auto"]}
-                      tickFormatter={(v) => v + "%"}
-                    />
-                    <Tooltip formatter={(v) => v + "%"} />
-                    <Line
-                      type="monotone"
-                      dataKey="Recovery Rate"
-                      stroke="#2563eb"
-                      strokeWidth={2}
-                      dot={{ r: 4 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="text-xs text-zinc-500 mb-4">
+                  % PTP,% Cured
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Bar chart</div>
+                  <div className="text-xs mt-2">Selected period (daily)</div>
+                </div>
               </div>
-              {/* Recovery Amount (Trend) */}
+
+              {/* Conversion across Campaign Funnel chart */}
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
                 <div className="font-semibold text-zinc-900 mb-2">
-                  Recovery Amount (Trend)
+                  Conversion across Campaign Funnel chart
                 </div>
-                <ResponsiveContainer width="100%" height={220}>
-                  <LineChart
-                    data={amountRecoveredData}
-                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis
-                      tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
-                    />
-                    <Tooltip formatter={(v) => `$${v.toLocaleString()}`} />
-                    <Line
-                      type="monotone"
-                      dataKey="Amount Recovered"
-                      stroke="#059669"
-                      strokeWidth={2}
-                      dot={{ r: 4 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Calls Connected → RPC → Due communicated → Promise to Pay → Cured
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartPieIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Funnel chart</div>
+                  <div className="text-xs mt-2">Selected period</div>
+                </div>
               </div>
-            </div>
-            {/* Recovery Rate by DPD Bucket & DPD Bucket Breakdown */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {/* Recovery Rate by DPD Bucket */}
+
+              {/* Collection effectiveness */}
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
                 <div className="font-semibold text-zinc-900 mb-2">
-                  Recovery Rate by DPD Bucket
+                  Collection effectiveness ($)
                 </div>
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart
-                    data={recoveryRateByBucketData}
-                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis
-                      domain={[0, "auto"]}
-                      tickFormatter={(v) => v + "%"}
-                    />
-                    <Tooltip formatter={(v) => v + "%"} />
-                    <Bar
-                      dataKey="Recovery Rate"
-                      fill="#6366f1"
-                      radius={[6, 6, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Collection per $ spent
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Bar chart</div>
+                  <div className="text-xs mt-2">Selected period (daily)</div>
+                </div>
               </div>
-              {/* DPD Bucket Breakdown */}
+
+              {/* Convertion rate */}
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
                 <div className="font-semibold text-zinc-900 mb-2">
-                  DPD Bucket Breakdown
+                  Convertion rate
                 </div>
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart
-                    data={dpdBucketData}
-                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="bucket" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar
-                      dataKey="totalAccounts"
-                      fill="#2563eb"
-                      name="Total Accounts"
-                    />
-                    <Bar dataKey="cured" fill="#059669" name="Cured" />
-                    <Bar
-                      dataKey="rolledForward"
-                      fill="#f59e42"
-                      name="Rolled Forward"
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="text-xs text-zinc-500 mb-4">
+                  RPC, Promise to pay, Cured, Extension (%)
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Line chart</div>
+                  <div className="text-xs mt-2">Selected period (daily)</div>
+                </div>
+              </div>
+
+              {/* Top 3 Drivers for inbound connects */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Top 3 Drivers for inbound connects
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Reason | Share of calls
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <DocumentTextIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Table</div>
+                  <div className="text-xs mt-2">others</div>
+                </div>
+              </div>
+
+              {/* Agent Transfer Trend */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Agent Transfer Trend
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Agent Transfer (%)
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Bar chart</div>
+                  <div className="text-xs mt-2">Selected period (daily)</div>
+                </div>
               </div>
             </div>
-            {/* Risk Metrics */}
+
+            {/* Bottom Charts Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Repeat Contacts - 7 days */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Repeat Contacts - 7 days
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  number | % of calls
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <DocumentTextIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Table</div>
+                  <div className="text-xs mt-2">Campaign</div>
+                </div>
+              </div>
+
+              {/* Previous connect Outcome - Repeat contacts */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Previous connect Outcome - Repeat contacts
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Agent Transfer, PTP, RPC w/o PTP, Cured, Partial Payment, Extension, others
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartPieIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">pie-chart</div>
+                  <div className="text-xs mt-2">Campaign</div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+        {tab === "User Experience" && (
+          <>
+            <div className="text-2xl font-bold text-zinc-900 mb-6">
+              User Experience
+            </div>
+
+            {/* Note */}
+            <div className="mb-6">
+              <div className="text-sm text-zinc-600">
+                * based on 10% of audited calls
+              </div>
+            </div>
+
+            {/* Top Section - Word Cloud */}
+            <div className="mb-8">
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="text-center text-zinc-400 py-16">
+                  <div className="text-lg font-medium mb-4">Word Cloud</div>
+                  <div className="text-sm">Interactive word cloud visualization would appear here</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Middle Section - 4 Charts Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* Average Latency */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Average Latency
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Average Latency (ms)
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Area chart</div>
+                  <div className="text-xs mt-2">Selected period</div>
+                </div>
+              </div>
+
+              {/* Share of calls with Errors */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Share of calls with Errors (as identified by customer)
+                </div>
+                <div className="text-xs text-zinc-500 mb-4"></div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Bar chart</div>
+                  <div className="text-xs mt-2">Selected period (Weekly)</div>
+                </div>
+              </div>
+
+              {/* Share of calls where client had to repeat themselves */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Share of calls where client had to repeat themselves (as identified by customer)
+                </div>
+                <div className="text-xs text-zinc-500 mb-4"></div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Bar chart</div>
+                  <div className="text-xs mt-2">Selected period (Weekly)</div>
+                </div>
+              </div>
+
+              {/* Average Handling time by Outcome */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Average Handling time by Outcome
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Collection | Promise to pay | Agent Transfer | FAQs | Other
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Area chart</div>
+                  <div className="text-xs mt-2">Selected period (weekly)</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Section - 3 Charts Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Average Handling time by Sentiment */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Average Handling time by Sentiment
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Collection | Promise to pay | Agent Transfer | FAQs | Other
+                </div>
+                <div className="text-center text-zinc-400 py-8">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                  <div className="text-sm">Area chart</div>
+                  <div className="text-xs mt-2">Selected period (weekly)</div>
+                </div>
+              </div>
+
+              {/* Word cloud - negative sentiment calls */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Word cloud - negative sentiment calls
+                </div>
+                <div className="text-xs text-zinc-500 mb-4"></div>
+                <div className="text-center text-zinc-400 py-8">
+                  <div className="text-lg font-medium mb-4">Word Cloud</div>
+                  <div className="text-sm">Negative sentiment word cloud would appear here</div>
+                </div>
+              </div>
+
+              {/* Call Experience by Intent - Full Width */}
+              <div className="lg:col-span-2 bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Call Experience by Intent (to be modified)
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Call Driver Sentiment
+                </div>
+                
+                {/* Sentiment Chart Placeholder */}
+                <div className="mb-6">
+                  <div className="text-center text-zinc-400 py-8">
+                    <ChartBarIcon className="w-12 h-12 mx-auto mb-2" />
+                    <div className="text-sm">Horizontal Bar Chart</div>
+                    <div className="text-xs mt-2">Sentiment analysis by call intent</div>
+                  </div>
+                </div>
+
+                {/* Distribution Chart */}
+                <div className="bg-gray-800 rounded-lg p-4">
+                  <div className="text-white text-sm font-medium mb-4">
+                    Distribution of Customer Sentiment
+                  </div>
+                  <div className="text-center text-zinc-400 py-8">
+                    <ChartBarIcon className="w-12 h-12 mx-auto mb-2 text-orange-400" />
+                    <div className="text-sm text-white">Histogram Chart</div>
+                    <div className="text-xs mt-2 text-gray-300">Sentiment distribution visualization</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+        {tab === "Compliance" && (
+          <>
+            <div className="text-2xl font-bold text-zinc-900 mb-6">
+              Compliance
+            </div>
+
+            {/* Digital Agent Containment Analysis */}
+            <div className="mb-8">
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="text-lg font-semibold text-zinc-900 mb-6">
+                  Digital Agent Containment Analysis
+                </div>
+                
+                {/* Containment Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                  {/* Full Containment */}
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-blue-600 mb-2">87.2%</div>
+                    <div className="text-sm font-medium text-zinc-900 mb-1">Full Containment</div>
+                    <div className="text-xs text-zinc-500 mb-1">31,392 interactions</div>
+                    <div className="text-xs text-zinc-400">Complete digital resolution</div>
+                  </div>
+                  
+                  {/* Partial Containment */}
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-blue-600 mb-2">7.8%</div>
+                    <div className="text-sm font-medium text-zinc-900 mb-1">Partial Containment</div>
+                    <div className="text-xs text-zinc-500 mb-1">2,808 interactions</div>
+                    <div className="text-xs text-zinc-400">Digital + minimal human touch</div>
+                  </div>
+                  
+                  {/* Human Escalation */}
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-blue-600 mb-2">4.8%</div>
+                    <div className="text-sm font-medium text-zinc-900 mb-1">Human Escalation</div>
+                    <div className="text-xs text-zinc-500 mb-1">1,728 interactions</div>
+                    <div className="text-xs text-zinc-400">Required human intervention</div>
+                  </div>
+                  
+                  {/* System Issues */}
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-blue-600 mb-2">0.2%</div>
+                    <div className="text-sm font-medium text-zinc-900 mb-1">System Issues</div>
+                    <div className="text-xs text-zinc-500 mb-1">72 interactions</div>
+                    <div className="text-xs text-zinc-400">Technical resolution needed</div>
+                  </div>
+                </div>
+
+                {/* Overall Adherence */}
+                <div className="text-center mb-8">
+                  <div className="text-6xl font-bold text-zinc-700 mb-2">99.98%</div>
+                  <div className="text-sm text-zinc-600">Overall Adherence</div>
+                </div>
+
+                {/* Call Analysis Report */}
+                <div className="mb-6">
+                  <div className="text-lg font-semibold text-zinc-900 mb-4">
+                    Call Analysis - Report
+                  </div>
+                  
+                  {/* Parameters Table */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div className="font-medium text-zinc-700">Parameter</div>
+                      <div className="font-medium text-zinc-700 text-center">Weight (out of 100)</div>
+                      <div className="font-medium text-zinc-700 text-right">Adherence (%)</div>
+                    </div>
+                    
+                    <div className="mt-4 space-y-3">
+                      {[
+                        { name: "Identify Company", weight: 12, adherence: 100 },
+                        { name: "Identify Self", weight: 12, adherence: 100 },
+                        { name: "Mini Miranda", weight: 12, adherence: 100 },
+                        { name: "Call Recording Disclosure", weight: 12, adherence: 100 },
+                        { name: "Dignity Enquiry Beginning", weight: 10, adherence: 100 },
+                        { name: "RTP Due", weight: 9, adherence: 100 },
+                        { name: "No Excessive Silence (> 5 Sec)", weight: 6, adherence: 99.7 },
+                        { name: "Digital Enquiry Ending", weight: 9, adherence: 100 },
+                        { name: "Consent to Call", weight: 9, adherence: 100 },
+                        { name: "Further Assistance", weight: 9, adherence: 100 }
+                      ].map((item, index) => (
+                        <div key={index} className="grid grid-cols-3 gap-4 text-sm">
+                          <div className="text-zinc-700">{item.name}</div>
+                          <div className="text-center text-zinc-600">{item.weight}</div>
+                          <div className="text-right">
+                            <div className="flex items-center justify-end">
+                              <span className="text-zinc-700 mr-2">{item.adherence}</span>
+                              <div className="w-16 bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="bg-blue-600 h-2 rounded-full" 
+                                  style={{ width: `${item.adherence}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Interaction Audit Log */}
             <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
-              <div className="font-semibold text-zinc-900 mb-2">
-                Risk Metrics
+              <div className="text-lg font-semibold text-zinc-900 mb-6">
+                Interaction Audit Log
               </div>
+              
               <div className="overflow-x-auto">
-                <table className="min-w-full text-sm border-separate border-spacing-y-2">
+                <table className="min-w-full text-sm">
                   <thead>
-                    <tr className="bg-zinc-50 text-zinc-700">
-                      <th className="px-4 py-2 text-left">Risk Type</th>
-                      <th className="px-4 py-2 text-left">Accounts</th>
-                      <th className="px-4 py-2 text-left">Value</th>
-                      <th className="px-4 py-2 text-left">Impact Metric</th>
-                      <th className="px-4 py-2 text-left">Impact Value</th>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 font-medium text-zinc-700">Account ID</th>
+                      <th className="text-left py-3 px-4 font-medium text-zinc-700">Date/Time</th>
+                      <th className="text-left py-3 px-4 font-medium text-zinc-700">Channels Used</th>
+                      <th className="text-left py-3 px-4 font-medium text-zinc-700">Duration</th>
+                      <th className="text-left py-3 px-4 font-medium text-zinc-700">Final Outcome</th>
+                      <th className="text-left py-3 px-4 font-medium text-zinc-700">Amount</th>
+                      <th className="text-left py-3 px-4 font-medium text-zinc-700">Recording/Transcript</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {riskMetricsData.map((risk) => (
-                      <tr key={risk.riskType} className="bg-white">
-                        <td className="px-4 py-2 font-medium text-zinc-900">
-                          {risk.riskType}
-                        </td>
-                        <td className="px-4 py-2">{risk.accounts}</td>
-                        <td className="px-4 py-2">{risk.value}</td>
-                        <td className="px-4 py-2">{risk.impactMetric}</td>
-                        <td className="px-4 py-2">
-                          <span
-                            className={
-                              risk.trend === "up"
-                                ? "text-green-600"
-                                : risk.trend === "down"
-                                ? "text-red-600"
-                                : "text-zinc-700"
-                            }
-                          >
-                            {risk.impactValue}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                  <tbody className="divide-y divide-gray-100">
+                    <tr className="hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <span className="text-blue-600 font-medium">ACC001234</span>
+                      </td>
+                      <td className="py-3 px-4 text-zinc-700">6/28 2:34 PM</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center">
+                          <PhoneIcon className="w-4 h-4 text-blue-600 mr-1" />
+                          <span className="text-zinc-700">Voice</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-zinc-700">00:02:45</td>
+                      <td className="py-3 px-4 text-zinc-700">PTP Secured</td>
+                      <td className="py-3 px-4 text-zinc-700">$245</td>
+                      <td className="py-3 px-4">
+                        <div className="flex space-x-2">
+                          <button className="text-blue-600 hover:text-blue-800 text-xs">▶ Listen</button>
+                          <button className="text-blue-600 hover:text-blue-800 text-xs">📄 View Call</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <span className="text-blue-600 font-medium">ACC005678</span>
+                      </td>
+                      <td className="py-3 px-4 text-zinc-700">6/28 3:15 PM</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center space-x-1">
+                          <ChatBubbleLeftRightIcon className="w-4 h-4 text-green-600" />
+                          <span className="text-zinc-700">SMS→Voice</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-zinc-700">00:01:32</td>
+                      <td className="py-3 px-4 text-zinc-700">Self-Pay Complete</td>
+                      <td className="py-3 px-4 text-zinc-700">$180</td>
+                      <td className="py-3 px-4">
+                        <div className="flex space-x-2">
+                          <button className="text-blue-600 hover:text-blue-800 text-xs">▶ Listen</button>
+                          <button className="text-blue-600 hover:text-blue-800 text-xs">📄 View Call</button>
+                          <button className="text-purple-600 hover:text-purple-800 text-xs">📱 View SMS</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <span className="text-blue-600 font-medium">ACC009876</span>
+                      </td>
+                      <td className="py-3 px-4 text-zinc-700">6/28 4:22 PM</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center">
+                          <EnvelopeIcon className="w-4 h-4 text-purple-600 mr-1" />
+                          <span className="text-zinc-700">SMS Only</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-zinc-700">N/A</td>
+                      <td className="py-3 px-4 text-zinc-700">Payment Link Sent</td>
+                      <td className="py-3 px-4 text-zinc-700">$0</td>
+                      <td className="py-3 px-4">
+                        <button className="text-purple-600 hover:text-purple-800 text-xs">📱 View SMS</button>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <span className="text-blue-600 font-medium">ACC002468</span>
+                      </td>
+                      <td className="py-3 px-4 text-zinc-700">6/28 1:18 PM</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center">
+                          <PhoneIcon className="w-4 h-4 text-blue-600 mr-1" />
+                          <span className="text-zinc-700">Voice</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-zinc-700">00:04:12</td>
+                      <td className="py-3 px-4 text-zinc-700">Escalated - Dispute</td>
+                      <td className="py-3 px-4 text-zinc-700">$0</td>
+                      <td className="py-3 px-4">
+                        <div className="flex space-x-2">
+                          <button className="text-blue-600 hover:text-blue-800 text-xs">▶ Listen</button>
+                          <button className="text-blue-600 hover:text-blue-800 text-xs">📄 View Call</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <span className="text-blue-600 font-medium">ACC003579</span>
+                      </td>
+                      <td className="py-3 px-4 text-zinc-700">6/28 5:45 PM</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center">
+                          <EnvelopeIcon className="w-4 h-4 text-purple-600 mr-1" />
+                          <span className="text-zinc-700">SMS Only</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-zinc-700">N/A</td>
+                      <td className="py-3 px-4 text-zinc-700">Account Info Request</td>
+                      <td className="py-3 px-4 text-zinc-700">$0</td>
+                      <td className="py-3 px-4">
+                        <button className="text-purple-600 hover:text-purple-800 text-xs">📱 View SMS</button>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <span className="text-blue-600 font-medium">ACC004680</span>
+                      </td>
+                      <td className="py-3 px-4 text-zinc-700">6/28 11:22 AM</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center space-x-1">
+                          <PhoneIcon className="w-4 h-4 text-blue-600" />
+                          <span className="text-zinc-700">Voice→SMS</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-zinc-700">00:03:18</td>
+                      <td className="py-3 px-4 text-zinc-700">Payment Plan Setup</td>
+                      <td className="py-3 px-4 text-zinc-700">$125</td>
+                      <td className="py-3 px-4">
+                        <div className="flex space-x-2">
+                          <button className="text-blue-600 hover:text-blue-800 text-xs">▶ Listen</button>
+                          <button className="text-blue-600 hover:text-blue-800 text-xs">📄 View Call</button>
+                        </div>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
             </div>
           </>
         )}
-        {tab === "Engagement" && (
+        {tab === "Utilization" && (
           <>
             <div className="text-2xl font-bold text-zinc-900 mb-4">
-              Engagement
-            </div>
-            {/* Engagement Metrics Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
-              <MetricCard
-                icon={<UserGroupIcon className="w-5 h-5" />}
-                label="Accounts Reached"
-                value="62,500"
-                sublabel={"+8.5% from last month"}
-              />
-              <MetricCard
-                icon={<SignalIcon className="w-5 h-5" />}
-                label="Connectivity %"
-                value="78.5%"
-                sublabel={"+2.3% from last month"}
-              />
-              <MetricCard
-                icon={<ChatBubbleLeftRightIcon className="w-5 h-5" />}
-                label="RPC Rate"
-                value="42.1%"
-                sublabel={"+1.5% from last month"}
-              />
-              <MetricCard
-                icon={<HandThumbUpIcon className="w-5 h-5" />}
-                label="PTP Rate"
-                value="19.3%"
-                sublabel={"+2.5% from last month"}
-              />
-              <MetricCard
-                icon={<CheckBadgeIcon className="w-5 h-5" />}
-                label="Resolution Rate"
-                value="12.5%"
-                sublabel={"+1.8% from last month"}
-              />
-            </div>
-
-            {/* Engagement Rates Chart */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6 mb-8">
-              <div className="font-semibold text-zinc-900 mb-2">
-                Engagement Rates
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Connectivity, RPC, PTP, and Resolution rates over time
-              </div>
-              <ResponsiveContainer width="100%" height={260}>
-                <LineChart
-                  data={[
-                    {
-                      date: "2023-10-01",
-                      connectivity: 78.5,
-                      rpc: 42.1,
-                      ptp: 19.3,
-                      resolution: 12.5,
-                    },
-                    {
-                      date: "2023-10-02",
-                      connectivity: 78.7,
-                      rpc: 42.3,
-                      ptp: 19.4,
-                      resolution: 12.6,
-                    },
-                    {
-                      date: "2023-10-03",
-                      connectivity: 78.9,
-                      rpc: 42.5,
-                      ptp: 19.5,
-                      resolution: 12.7,
-                    },
-                    {
-                      date: "2023-10-04",
-                      connectivity: 79.0,
-                      rpc: 42.7,
-                      ptp: 19.6,
-                      resolution: 12.8,
-                    },
-                    {
-                      date: "2023-10-05",
-                      connectivity: 79.2,
-                      rpc: 42.9,
-                      ptp: 19.7,
-                      resolution: 12.9,
-                    },
-                    {
-                      date: "2023-10-06",
-                      connectivity: 79.3,
-                      rpc: 43.0,
-                      ptp: 19.8,
-                      resolution: 13.0,
-                    },
-                    {
-                      date: "2023-10-07",
-                      connectivity: 79.5,
-                      rpc: 43.2,
-                      ptp: 19.9,
-                      resolution: 13.1,
-                    },
-                  ]}
-                  margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis domain={[0, 100]} tickFormatter={(v) => v + "%"} />
-                  <Tooltip formatter={(v) => v + "%"} />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="connectivity"
-                    name="connectivity"
-                    stroke="#2563eb"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="rpc"
-                    name="rpc"
-                    stroke="#06b6d4"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="ptp"
-                    name="ptp"
-                    stroke="#f59e42"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="resolution"
-                    name="resolution"
-                    stroke="#22c55e"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Customer Engagement Funnel */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6 mb-8">
-              <div className="font-semibold text-zinc-900 mb-2">
-                Customer Engagement Funnel
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Conversion rates through the engagement process
-              </div>
-              <div className="flex flex-col gap-2">
-                <div className="bg-blue-600 text-white font-semibold rounded-md px-4 py-2 w-full max-w-xl">
-                  Accounts Reached: 62,500
-                </div>
-                <div className="bg-blue-500 text-white font-semibold rounded-md px-4 py-2 w-11/12 max-w-lg">
-                  Connected: 49,063 (78.5%)
-                </div>
-                <div className="bg-blue-400 text-white font-semibold rounded-md px-4 py-2 w-9/12 max-w-md">
-                  Right Party Contact: 26,314 (42.1%)
-                </div>
-                <div className="bg-blue-300 text-white font-semibold rounded-md px-4 py-2 w-7/12 max-w-sm">
-                  Promise to Pay: 5,067 (19.3% of RPCs)
-                </div>
-                <div className="bg-blue-200 text-blue-900 font-semibold rounded-md px-4 py-2 w-6/12 max-w-xs">
-                  PTP Kept: 4,145 (15.8% of RPCs)
-                </div>
-                <div className="bg-blue-100 text-blue-900 font-semibold rounded-md px-4 py-2 w-5/12 max-w-xs">
-                  Resolution: 3,281 (12.5% of RPCs)
-                </div>
-              </div>
-            </div>
-
-            {/* Channel Performance Table */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6 mb-8">
-              <div className="font-semibold text-zinc-900 mb-2">
-                Channel Performance
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Engagement metrics by communication channel
+              Utilization
+            {/* Utilization KPIs Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm border-separate border-spacing-y-2">
@@ -766,13 +1605,13 @@ export default function Analytics() {
               </div>
             </div>
 
-            {/* Campaign Summary Table */}
+            {/* Outbound Campaign Summary Table */}
             <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
               <div className="font-semibold text-zinc-900 mb-2">
-                Campaign Summary
+                Outbound Campaign Summary
               </div>
               <div className="text-xs text-zinc-500 mb-4">
-                Overview of all collection campaigns
+                Overview of all outbound campaigns
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm border-separate border-spacing-y-2">
@@ -882,805 +1721,6 @@ export default function Analytics() {
                     </tr>
                   </tbody>
                 </table>
-              </div>
-            </div>
-          </>
-        )}
-        {tab === "Compliance" && (
-          <>
-            <div className="text-2xl font-bold text-zinc-900 mb-4">
-              Compliance
-            </div>
-            {/* Compliance KPIs Row */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <MetricCard
-                icon={<ShieldCheckIcon className="w-5 h-5" />}
-                label="Overall Compliance"
-                value="99.2%"
-                sublabel={"+0.3% from last month"}
-              />
-              <MetricCard
-                icon={<SignalIcon className="w-5 h-5" />}
-                label="Reachability Compliance"
-                value="98.7%"
-                sublabel={"+0.2% from last month"}
-              />
-              <MetricCard
-                icon={<ChatBubbleLeftRightIcon className="w-5 h-5" />}
-                label="Conversational Compliance"
-                value="99.5%"
-                sublabel={"+0.4% from last month"}
-              />
-              <MetricCard
-                icon={<ExclamationTriangleIcon className="w-5 h-5" />}
-                label="Complaint Rate"
-                value="0.31%"
-                sublabel={"-0.05% from last month"}
-              />
-            </div>
-
-            {/* Compliance Rate Chart */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6 mb-8">
-              <div className="font-semibold text-zinc-900 mb-2">
-                Compliance Rate
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Compliance rate over time
-              </div>
-              <ResponsiveContainer width="100%" height={260}>
-                <LineChart
-                  data={[
-                    { date: "2023-10-01", compliance: 99.2 },
-                    { date: "2023-10-02", compliance: 99.2 },
-                    { date: "2023-10-03", compliance: 99.2 },
-                    { date: "2023-10-04", compliance: 99.2 },
-                    { date: "2023-10-05", compliance: 99.2 },
-                    { date: "2023-10-06", compliance: 99.2 },
-                    { date: "2023-10-07", compliance: 99.2 },
-                  ]}
-                  margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis domain={[0, 100]} tickFormatter={(v) => v + "%"} />
-                  <Tooltip formatter={(v) => v + "%"} />
-                  <Line
-                    type="monotone"
-                    dataKey="compliance"
-                    name="compliance"
-                    stroke="#2563eb"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Complaint Log Table */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
-              <div className="font-semibold text-zinc-900 mb-2">
-                Complaint Log
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Detailed record of customer complaints
-              </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-sm border-separate border-spacing-y-2">
-                  <thead>
-                    <tr className="bg-zinc-50 text-zinc-700">
-                      <th className="px-4 py-2 text-left">Complaint ID</th>
-                      <th className="px-4 py-2 text-left">Date</th>
-                      <th className="px-4 py-2 text-left">Account ID</th>
-                      <th className="px-4 py-2 text-left">Channel</th>
-                      <th className="px-4 py-2 text-left">Reason</th>
-                      <th className="px-4 py-2 text-left">Description</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        COMP-001
-                      </td>
-                      <td className="px-4 py-2">Oct 25, 2023</td>
-                      <td className="px-4 py-2">ACC-12345</td>
-                      <td className="px-4 py-2">Voice</td>
-                      <td className="px-4 py-2">Excessive Contact</td>
-                      <td className="px-4 py-2">
-                        Customer complained about receiving too many calls in a
-                        short period.
-                      </td>
-                    </tr>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        COMP-002
-                      </td>
-                      <td className="px-4 py-2">Oct 23, 2023</td>
-                      <td className="px-4 py-2">ACC-23456</td>
-                      <td className="px-4 py-2">SMS</td>
-                      <td className="px-4 py-2">Disputed Debt</td>
-                      <td className="px-4 py-2">
-                        Customer claims they have already paid the debt in
-                        question.
-                      </td>
-                    </tr>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        COMP-003
-                      </td>
-                      <td className="px-4 py-2">Oct 22, 2023</td>
-                      <td className="px-4 py-2">ACC-34567</td>
-                      <td className="px-4 py-2">Email</td>
-                      <td className="px-4 py-2">Payment Issues</td>
-                      <td className="px-4 py-2">
-                        Customer unable to make payment through the provided
-                        link.
-                      </td>
-                    </tr>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        COMP-004
-                      </td>
-                      <td className="px-4 py-2">Oct 20, 2023</td>
-                      <td className="px-4 py-2">ACC-45678</td>
-                      <td className="px-4 py-2">Voice</td>
-                      <td className="px-4 py-2">Rude Agent/Bot</td>
-                      <td className="px-4 py-2">
-                        Customer felt the bot was not understanding or was rude.
-                      </td>
-                    </tr>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        COMP-005
-                      </td>
-                      <td className="px-4 py-2">Oct 18, 2023</td>
-                      <td className="px-4 py-2">ACC-56789</td>
-                      <td className="px-4 py-2">Voice</td>
-                      <td className="px-4 py-2">Wrong Party Contact</td>
-                      <td className="px-4 py-2">
-                        Person contacted claims they are not the debtor.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </>
-        )}
-        {tab === "Voice" && (
-          <>
-            <div className="text-2xl font-bold text-zinc-900 mb-4">Voice</div>
-            {/* Voice KPIs Row */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-              <MetricCard
-                icon={<PhoneIcon className="w-5 h-5" />}
-                label="Total Calls"
-                value="41,800"
-                sublabel={"+12.5% from last month"}
-              />
-              <MetricCard
-                icon={<SignalIcon className="w-5 h-5" />}
-                label="Connectivity %"
-                value="68.5%"
-                sublabel={"+2.4% from last month"}
-              />
-              <MetricCard
-                icon={<ClockIcon className="w-5 h-5" />}
-                label="Avg Handle Time"
-                value="178s"
-                sublabel={"-5.3% from last month"}
-              />
-              <MetricCard
-                icon={<SpeakerWaveIcon className="w-5 h-5" />}
-                label="Containment Rate"
-                value="74.2%"
-                sublabel={"+4.5% from last month"}
-              />
-              <MetricCard
-                icon={<BanknotesIcon className="w-5 h-5" />}
-                label="$ Recovered"
-                value="$2.09M"
-                sublabel={"+15.1% from last month"}
-              />
-            </div>
-
-            {/* AHT and Containment Rate + Transfer Reasons */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {/* AHT and Containment Rate Chart */}
-              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
-                <div className="font-semibold text-zinc-900 mb-2">
-                  AHT and Containment Rate
-                </div>
-                <div className="text-xs text-zinc-500 mb-4">
-                  Average handle time and bot containment rate over time
-                </div>
-                <ResponsiveContainer width="100%" height={220}>
-                  <LineChart
-                    data={[
-                      { date: "Oct 1", aht: 200, containment: 70 },
-                      { date: "Oct 8", aht: 190, containment: 72 },
-                      { date: "Oct 15", aht: 185, containment: 73 },
-                      { date: "Oct 22", aht: 180, containment: 74 },
-                      { date: "Oct 29", aht: 178, containment: 74.2 },
-                    ]}
-                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis
-                      yAxisId="left"
-                      domain={[0, 220]}
-                      tickFormatter={(v) => v + "s"}
-                    />
-                    <YAxis
-                      yAxisId="right"
-                      orientation="right"
-                      domain={[0, 100]}
-                      tickFormatter={(v) => v + "%"}
-                    />
-                    <Tooltip
-                      formatter={(v, n) => (n === "aht" ? v + "s" : v + "%")}
-                    />
-                    <Legend />
-                    <Line
-                      yAxisId="left"
-                      type="monotone"
-                      dataKey="aht"
-                      name="AHT (seconds)"
-                      stroke="#6366f1"
-                      strokeWidth={2}
-                      dot={false}
-                    />
-                    <Line
-                      yAxisId="right"
-                      type="monotone"
-                      dataKey="containment"
-                      name="Containment Rate"
-                      stroke="#22c55e"
-                      strokeWidth={2}
-                      dot={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              {/* Transfer Reasons Bar Chart */}
-              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6 flex flex-col justify-between">
-                <div>
-                  <div className="font-semibold text-zinc-900 mb-2">
-                    Transfer Reasons
-                  </div>
-                  <div className="text-xs text-zinc-500 mb-4">
-                    Reasons for transfers from bot to human agent
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
-                    <span className="text-sm text-zinc-700 flex-1">
-                      Complex Question: 35%
-                    </span>
-                    <span className="text-xs text-zinc-400">35</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
-                    <span className="text-sm text-zinc-700 flex-1">
-                      Payment Arrangement: 28%
-                    </span>
-                    <span className="text-xs text-zinc-400">28</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span>
-                    <span className="text-sm text-zinc-700 flex-1">
-                      Dispute: 22%
-                    </span>
-                    <span className="text-xs text-zinc-400">22</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
-                    <span className="text-sm text-zinc-700 flex-1">
-                      Technical Issue: 15%
-                    </span>
-                    <span className="text-xs text-zinc-400">15</span>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <div className="flex h-3 w-full rounded-full overflow-hidden bg-zinc-200">
-                    <div
-                      className="bg-blue-500 h-full"
-                      style={{ width: "35%" }}
-                    ></div>
-                    <div
-                      className="bg-green-500 h-full"
-                      style={{ width: "28%" }}
-                    ></div>
-                    <div
-                      className="bg-yellow-400 h-full"
-                      style={{ width: "22%" }}
-                    ></div>
-                    <div
-                      className="bg-red-500 h-full"
-                      style={{ width: "15%" }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Voice Engagement Funnel */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6 mb-8">
-              <div className="font-semibold text-zinc-900 mb-2">
-                Voice Engagement Funnel
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Conversion rates through the voice engagement process
-              </div>
-              <div className="flex flex-col gap-2">
-                <div className="bg-blue-600 text-white font-semibold rounded-md px-4 py-2 w-full max-w-2xl">
-                  Total Calls: 41,800
-                </div>
-                <div className="bg-blue-500 text-white font-semibold rounded-md px-4 py-2 w-11/12 max-w-xl">
-                  Connected: 28,633 (68.5%)
-                </div>
-                <div className="bg-blue-400 text-white font-semibold rounded-md px-4 py-2 w-9/12 max-w-lg">
-                  Right Party Contact: 18,894 (45.2% of total)
-                </div>
-                <div className="bg-blue-300 text-white font-semibold rounded-md px-4 py-2 w-7/12 max-w-md">
-                  Promise to Pay: 8,569 (20.5% of total)
-                </div>
-                <div className="bg-blue-200 text-blue-900 font-semibold rounded-md px-4 py-2 w-6/12 max-w-sm">
-                  PTP Kept: 7,022 (16.8% of total)
-                </div>
-                <div className="bg-blue-100 text-blue-900 font-semibold rounded-md px-4 py-2 w-5/12 max-w-xs">
-                  Resolution/Recovery: 5,225 (12.5% of total)
-                </div>
-              </div>
-            </div>
-
-            {/* Voice Bot Performance Chart */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
-              <div className="font-semibold text-zinc-900 mb-2">
-                Voice Bot Performance
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Success, transfer, and abandon rates over time
-              </div>
-              <ResponsiveContainer width="100%" height={220}>
-                <LineChart
-                  data={[
-                    {
-                      date: "2023-10-01",
-                      success: 74.2,
-                      transfer: 18.5,
-                      abandon: 7.3,
-                    },
-                    {
-                      date: "2023-10-02",
-                      success: 74.5,
-                      transfer: 18.3,
-                      abandon: 7.2,
-                    },
-                    {
-                      date: "2023-10-03",
-                      success: 74.8,
-                      transfer: 18.1,
-                      abandon: 7.1,
-                    },
-                    {
-                      date: "2023-10-04",
-                      success: 75.0,
-                      transfer: 18.0,
-                      abandon: 7.0,
-                    },
-                    {
-                      date: "2023-10-05",
-                      success: 75.2,
-                      transfer: 17.8,
-                      abandon: 7.0,
-                    },
-                    {
-                      date: "2023-10-06",
-                      success: 75.5,
-                      transfer: 17.6,
-                      abandon: 6.9,
-                    },
-                    {
-                      date: "2023-10-07",
-                      success: 75.7,
-                      transfer: 17.5,
-                      abandon: 6.8,
-                    },
-                  ]}
-                  margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis domain={[0, 100]} tickFormatter={(v) => v + "%"} />
-                  <Tooltip formatter={(v) => v + "%"} />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="success"
-                    name="success"
-                    stroke="#22c55e"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="transfer"
-                    name="transfer"
-                    stroke="#2563eb"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="abandon"
-                    name="abandon"
-                    stroke="#ef4444"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </>
-        )}
-        {tab === "SMS" && (
-          <>
-            <div className="text-2xl font-bold text-zinc-900 mb-4">SMS</div>
-            {/* SMS KPIs Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
-              <MetricCard
-                icon={<ChatBubbleBottomCenterTextIcon className="w-5 h-5" />}
-                label="Total SMS Sent"
-                value="41,800"
-                sublabel={"+12.5% from last month"}
-              />
-              <MetricCard
-                icon={<CheckCircleIcon className="w-5 h-5" />}
-                label="Delivery Rate"
-                value="98.7%"
-                sublabel={"+0.2% from last month"}
-              />
-              <MetricCard
-                icon={<CursorArrowRaysIcon className="w-5 h-5" />}
-                label="Click-Through Rate"
-                value="14.1%"
-                sublabel={"+1.8% from last month"}
-              />
-              <MetricCard
-                icon={<ChatBubbleOvalLeftEllipsisIcon className="w-5 h-5" />}
-                label="Response Rate"
-                value="10.0%"
-                sublabel={"+1.2% from last month"}
-              />
-              <MetricCard
-                icon={<BanknotesIcon className="w-5 h-5" />}
-                label="$ Recovered"
-                value="$1.20M"
-                sublabel={"+18.5% from last month"}
-              />
-            </div>
-
-            {/* SMS Performance Chart */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6 mb-8">
-              <div className="font-semibold text-zinc-900 mb-2">
-                SMS Performance
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Delivery and response rates over time
-              </div>
-              <ResponsiveContainer width="100%" height={220}>
-                <LineChart
-                  data={[
-                    { date: "2023-10-01", delivery: 98.7, response: 10.0 },
-                    { date: "2023-10-02", delivery: 98.8, response: 10.1 },
-                    { date: "2023-10-03", delivery: 98.9, response: 10.2 },
-                    { date: "2023-10-04", delivery: 99.0, response: 10.3 },
-                    { date: "2023-10-05", delivery: 99.1, response: 10.4 },
-                    { date: "2023-10-06", delivery: 99.2, response: 10.5 },
-                    { date: "2023-10-07", delivery: 99.3, response: 10.6 },
-                  ]}
-                  margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis domain={[0, 100]} tickFormatter={(v) => v + "%"} />
-                  <Tooltip formatter={(v) => v + "%"} />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="delivery"
-                    name="delivery"
-                    stroke="#2563eb"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="response"
-                    name="response"
-                    stroke="#22c55e"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* SMS Delivery Rate and CTR Chart */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6 mb-8">
-              <div className="font-semibold text-zinc-900 mb-2">
-                SMS Delivery Rate and CTR
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Delivery and click-through rates over time
-              </div>
-              <ResponsiveContainer width="100%" height={220}>
-                <LineChart
-                  data={[
-                    { date: "Oct 1", delivery: 98.7, ctr: 14.1 },
-                    { date: "Oct 8", delivery: 98.8, ctr: 14.2 },
-                    { date: "Oct 15", delivery: 98.9, ctr: 14.3 },
-                    { date: "Oct 22", delivery: 99.0, ctr: 14.4 },
-                    { date: "Oct 29", delivery: 99.1, ctr: 14.5 },
-                  ]}
-                  margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis domain={[0, 100]} tickFormatter={(v) => v + "%"} />
-                  <Tooltip formatter={(v) => v + "%"} />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="delivery"
-                    name="Delivery Rate"
-                    stroke="#22c55e"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="ctr"
-                    name="CTR"
-                    stroke="#6366f1"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* SMS Opt-out Rate Chart */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
-              <div className="font-semibold text-zinc-900 mb-2">
-                SMS Opt-out Rate
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Percentage of recipients who opted out over time
-              </div>
-              <ResponsiveContainer width="100%" height={220}>
-                <LineChart
-                  data={[
-                    { date: "Oct 1", optout: 0.85 },
-                    { date: "Oct 8", optout: 0.88 },
-                    { date: "Oct 15", optout: 0.92 },
-                    { date: "Oct 22", optout: 0.89 },
-                    { date: "Oct 29", optout: 0.84 },
-                  ]}
-                  margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis
-                    domain={[0, 1]}
-                    tickFormatter={(v) => (v * 100).toFixed(2) + "%"}
-                  />
-                  <Tooltip formatter={(v) => (v * 100).toFixed(2) + "%"} />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="optout"
-                    name="Opt-out Rate"
-                    stroke="#ef4444"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </>
-        )}
-        {tab === "Email" && (
-          <>
-            <div className="text-2xl font-bold text-zinc-900 mb-4">Email</div>
-            {/* Email KPIs Row */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <MetricCard
-                icon={<EnvelopeIcon className="w-5 h-5" />}
-                label="Total Emails Sent"
-                value="43,500"
-                sublabel={"Last 30 days\n+5.2% from previous period"}
-              />
-              <MetricCard
-                icon={<CheckCircleIcon className="w-5 h-5" />}
-                label="Email Delivery Rate"
-                value="97.0%"
-                sublabel={"Last 30 days\n+0.5% from previous period"}
-              />
-              <MetricCard
-                icon={<EyeIcon className="w-5 h-5" />}
-                label="Email Open Rate"
-                value="42.3%"
-                sublabel={"Last 30 days\n+1.8% from previous period"}
-              />
-              <MetricCard
-                icon={<CursorArrowRaysIcon className="w-5 h-5" />}
-                label="Email Click-Through Rate"
-                value="9.7%"
-                sublabel={"Last 30 days\n+0.3% from previous period"}
-              />
-            </div>
-
-            {/* Email Performance Chart */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6 mb-8">
-              <div className="font-semibold text-zinc-900 mb-2">
-                Email Performance
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Delivery, open, and click rates over time
-              </div>
-              <ResponsiveContainer width="100%" height={220}>
-                <LineChart
-                  data={[
-                    {
-                      date: "2023-10-01",
-                      delivery: 97.0,
-                      open: 42.3,
-                      click: 9.7,
-                    },
-                    {
-                      date: "2023-10-02",
-                      delivery: 97.1,
-                      open: 42.4,
-                      click: 9.8,
-                    },
-                    {
-                      date: "2023-10-03",
-                      delivery: 97.2,
-                      open: 42.5,
-                      click: 9.9,
-                    },
-                    {
-                      date: "2023-10-04",
-                      delivery: 97.3,
-                      open: 42.6,
-                      click: 10.0,
-                    },
-                    {
-                      date: "2023-10-05",
-                      delivery: 97.4,
-                      open: 42.7,
-                      click: 10.1,
-                    },
-                    {
-                      date: "2023-10-06",
-                      delivery: 97.5,
-                      open: 42.8,
-                      click: 10.2,
-                    },
-                    {
-                      date: "2023-10-07",
-                      delivery: 97.6,
-                      open: 42.9,
-                      click: 10.3,
-                    },
-                  ]}
-                  margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis domain={[0, 100]} tickFormatter={(v) => v + "%"} />
-                  <Tooltip formatter={(v) => v + "%"} />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="delivery"
-                    name="delivery"
-                    stroke="#2563eb"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="open"
-                    name="open"
-                    stroke="#f59e42"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="click"
-                    name="click"
-                    stroke="#22c55e"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Email Engagement Funnel */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6 mb-8">
-              <div className="font-semibold text-zinc-900 mb-2">
-                Email Engagement Funnel
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Conversion through the email engagement process
-              </div>
-              <div className="flex flex-col gap-2">
-                <div className="bg-blue-600 text-white font-semibold rounded-md px-4 py-2 w-full max-w-2xl">
-                  Sent: 43,500 (100%)
-                </div>
-                <div className="bg-blue-500 text-white font-semibold rounded-md px-4 py-2 w-11/12 max-w-xl">
-                  Delivered: 42,195 (97%)
-                </div>
-                <div className="bg-blue-400 text-white font-semibold rounded-md px-4 py-2 w-9/12 max-w-lg">
-                  Opened: 17,680 (42.3%)
-                </div>
-                <div className="bg-blue-300 text-white font-semibold rounded-md px-4 py-2 w-7/12 max-w-md">
-                  Clicked: 4,220 (10%)
-                </div>
-                {/* Add more steps if needed */}
-              </div>
-            </div>
-
-            {/* Email Engagement Map */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
-              <div className="font-semibold text-zinc-900 mb-2">
-                Email Engagement Map
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Geographical distribution of email engagement
-              </div>
-              <div className="flex flex-row gap-8 items-start">
-                <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 text-sm min-w-[200px]">
-                  <div className="font-semibold text-zinc-700 mb-2">
-                    Engagement by Region
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <div className="flex justify-between">
-                      <span>North America</span>
-                      <span>48.2%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Europe</span>
-                      <span>32.5%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Asia Pacific</span>
-                      <span>13.2%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Latin America</span>
-                      <span>4.3%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Other</span>
-                      <span>2.2%</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex-1 flex items-center justify-center min-h-[180px] text-zinc-400 bg-zinc-100 rounded-lg border border-dashed border-zinc-200">
-                  World Map Visualization
-                  <br />
-                  <span className="text-xs">
-                    Geographic distribution of email engagement would appear
-                    here
-                  </span>
-                </div>
               </div>
             </div>
           </>

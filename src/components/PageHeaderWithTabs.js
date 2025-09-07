@@ -17,16 +17,26 @@ export default function PageHeaderWithTabs({
   filters = [],
   showSearch = true,
   searchPlaceholder = "Search",
+  createButton = null, // New prop to replace createButtonText, createButtonIcon, onCreateClick
+  // Legacy props for backward compatibility
   createButtonText = "Create",
   createButtonIcon: CreateButtonIcon = PlusIcon,
   onCreateClick,
   searchValue = "",
   onSearchChange,
+  additionalButton = null,
 }) {
   const navigate = useNavigate();
 
   const handleHomeClick = () => {
     navigate("/");
+  };
+
+  // Use new createButton prop if provided, otherwise fall back to legacy props
+  const buttonConfig = createButton || {
+    text: createButtonText,
+    icon: CreateButtonIcon,
+    onClick: onCreateClick
   };
 
   return (
@@ -37,7 +47,7 @@ export default function PageHeaderWithTabs({
           <HomeIcon className="w-4 h-4" />
           {breadcrumbs.map((crumb, index) => (
             <React.Fragment key={index}>
-              {index > 0 && <span>></span>}
+              {index > 0 && <span>&gt;</span>}
               {index === breadcrumbs.length - 1 ? (
                 <span className="text-gray-900">{crumb}</span>
               ) : (
@@ -116,13 +126,65 @@ export default function PageHeaderWithTabs({
                 <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
               </div>
             )}
-            <button
-              className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center space-x-2"
-              onClick={onCreateClick}
-            >
-              <CreateButtonIcon className="h-4 w-4" />
-              <span>{createButtonText}</span>
-            </button>
+            {additionalButton && (
+              <button
+                className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={additionalButton.onClick}
+                disabled={additionalButton.disabled}
+              >
+                {additionalButton.loading ? (
+                  <>
+                    <div className="animate-spin -ml-1 mr-2 h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                    <span>{additionalButton.loadingText}</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{additionalButton.icon}</span>
+                    <span>{additionalButton.text}</span>
+                  </>
+                )}
+              </button>
+            )}
+            
+            {/* Create Button with optional dropdown */}
+            {buttonConfig && (
+              <div className="relative">
+                <button
+                  className={`bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    buttonConfig.dropdown ? 'pr-8' : ''
+                  }`}
+                  onClick={buttonConfig.onClick}
+                  disabled={buttonConfig.disabled}
+                >
+                  {buttonConfig.loading ? (
+                    <>
+                      <div className="animate-spin -ml-1 mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                      <span>{buttonConfig.text}</span>
+                    </>
+                  ) : (
+                    <>
+                      {typeof buttonConfig.icon === 'string' ? (
+                        <span>{buttonConfig.icon}</span>
+                      ) : (
+                        <buttonConfig.icon className="h-4 w-4" />
+                      )}
+                      <span>{buttonConfig.text}</span>
+                    </>
+                  )}
+                  {buttonConfig.dropdown && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        buttonConfig.dropdown.onToggle();
+                      }}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-0.5 hover:bg-gray-700 rounded"
+                    >
+                      <ChevronDownIcon className="h-3 w-3" />
+                    </button>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

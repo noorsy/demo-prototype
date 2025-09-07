@@ -184,7 +184,7 @@ export default function Campaigns() {
         searchPlaceholder="Search campaigns..."
         createButtonText="Create Campaign"
         createButtonIcon={UserGroupIcon}
-        onCreateClick={() => navigate("/create-campaign")}
+        onCreateClick={() => navigate("/campaigns/create")}
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
       />

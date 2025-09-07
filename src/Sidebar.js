@@ -47,13 +47,13 @@ const navLinks = [
     label: "Recommendations",
     to: "/recommendations",
   },
+  { icon: <Workflow size={20} />, label: "Workflows", to: "/workflows" },
   {
     icon: <Database size={20} />,
     label: "Accounts Data",
     to: "/accounts-data",
   },
   { icon: <UserCheck size={20} />, label: "Agent Portal", to: "/agent-portal" },
-  { icon: <Workflow size={20} />, label: "Workflows", to: "/workflows" },
   {
     icon: <Mic size={20} />,
     label: "Experience Center",

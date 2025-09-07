@@ -22,6 +22,8 @@ import ConversationDetail from "./ConversationDetail";
 import AgentPortal from "./AgentPortal";
 import DemoPage from "./DemoPage";
 import DemoTranscript from "./DemoTranscript";
+import Workflows from "./Workflows";
+import CreateSegment from "./CreateSegment";
 
 const Placeholder = ({ title }) => (
   <div className="p-8 text-lg">{title} Page</div>
@@ -82,7 +84,15 @@ function App() {
                       />
                       <Route
                         path="/workflows"
-                        element={<Placeholder title="Workflows" />}
+                        element={<Workflows />}
+                      />
+                      <Route
+                        path="/workflows/segments/create"
+                        element={<CreateSegment />}
+                      />
+                      <Route
+                        path="/workflows/segments/:id/edit"
+                        element={<CreateSegment />}
                       />
                       <Route
                         path="/recommendations"
