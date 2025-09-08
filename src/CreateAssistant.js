@@ -14,6 +14,10 @@ import {
   ArrowLeftIcon,
   PlayIcon,
   MagnifyingGlassIcon,
+  FunnelIcon,
+  ChatBubbleLeftRightIcon,
+  UserCircleIcon,
+  CalendarDaysIcon,
 } from "@heroicons/react/24/outline";
 
 const voiceAssistants = [
@@ -55,26 +59,255 @@ const voiceAssistants = [
   },
 ];
 
+const tasksList = [
+  {
+    id: 1,
+    title: "Segmenting Accounts",
+    icon: FunnelIcon,
+    subtasks: [
+      "Dividing accounts into primary behavioral groups",
+      "Applying propensity scoring to each segment",
+      "Identifying high-value recovery opportunities",
+      "Creating smart segment boundaries 📊",
+    ],
+  },
+  {
+    id: 2,
+    title: "Optimizing Treatment Strategies",
+    icon: ChatBubbleLeftRightIcon,
+    subtasks: [
+      "Matching communication approaches to segments",
+      "Calculating optimal contact timing windows",
+      "Personalizing message content by segment",
+      "Fine-tuning approach sensitivity 🎯",
+    ],
+  },
+  {
+    id: 3,
+    title: "Defining Segment Characteristics",
+    icon: UserCircleIcon,
+    subtasks: [
+      "Analyzing segment behavioral patterns",
+      "Identifying segment communication preferences",
+      "Determining segment risk profiles",
+      "Mapping segment response tendencies 📊",
+    ],
+  },
+  {
+    id: 4,
+    title: "Building Journey Mapping",
+    icon: CalendarDaysIcon,
+    subtasks: [
+      "Creating communication sequence flows",
+      "Setting up channel-specific touchpoints",
+      "Establishing decision points and branches",
+      "Optimizing timing between touchpoints ⏱️",
+    ],
+  },
+];
+
+// AIMagicProgress Component
+function AIMagicProgress({ tasksList, onComplete }) {
+  const [current, setCurrent] = React.useState(0);
+  const [subtaskIdx, setSubtaskIdx] = React.useState(0);
+  // Calculate progress
+  const totalSubtasks = tasksList.reduce(
+    (sum, t) => sum + t.subtasks.length,
+    0
+  );
+  const completedSubtasks =
+    tasksList.slice(0, current).reduce((sum, t) => sum + t.subtasks.length, 0) +
+    subtaskIdx;
+  const progress = Math.min((completedSubtasks / totalSubtasks) * 100, 100);
+
+  React.useEffect(() => {
+    if (current < tasksList.length) {
+      if (subtaskIdx < tasksList[current].subtasks.length - 1) {
+        const timeout = setTimeout(() => setSubtaskIdx(subtaskIdx + 1), 900);
+        return () => clearTimeout(timeout);
+      } else {
+        const timeout = setTimeout(() => {
+          setCurrent(current + 1);
+          setSubtaskIdx(0);
+        }, 1200);
+        return () => clearTimeout(timeout);
+      }
+    } else {
+      setTimeout(onComplete, 1200);
+    }
+  }, [current, subtaskIdx, tasksList, onComplete]);
+
+  return (
+    <div className="h-full w-full flex items-center justify-center overflow-hidden">
+      <div className="w-full max-w-lg flex flex-col items-center">
+        <div className="mb-4 flex flex-col items-center">
+          <div className="mb-2 animate-pulse">
+            {/* Smaller glowing brain icon */}
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <defs>
+                <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#6366F1" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#EEF4FF" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+              <circle cx="20" cy="20" r="20" fill="url(#glow)" />
+              <circle cx="20" cy="20" r="15" fill="#EEF4FF" />
+              <path
+                d="M15 26c-2 0-3.3-1.7-3.3-3.7 0-1.2.4-2.1 1.3-2.8C13 18.5 13 17.8 13 17c0-3.1 2.5-5.6 5.6-5.6 1.2 0 2.1.4 2.8 1.3C22.5 13 23.2 13 24 13c3.1 0 5.6 2.5 5.6 5.6 0 .8-.4 1.5-1.3 2.2.9.7 1.3 1.6 1.3 2.8 0 2-1.3 3.7-3.3 3.7"
+                stroke="#6366F1"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <div className="text-xl font-extrabold text-zinc-900 text-center tracking-tight mb-1">
+            AI Magic in Progress
+          </div>
+          <div className="text-zinc-500 text-center max-w-base mb-2 text-base">
+            Our AI is analyzing your portfolio data to create intelligent segments for optimized collections.
+          </div>
+          {/* Progress Bar */}
+          <div className="w-full max-w-lg mx-auto mt-2 mb-2">
+            <div className="h-3 bg-zinc-200 rounded-full overflow-hidden">
+              <div
+                className="h-3 bg-blue-600 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <div className="text-xs text-zinc-500 mt-1 text-right font-inter">
+              {Math.round(progress)}% Complete
+            </div>
+          </div>
+        </div>
+        <div className="w-full flex flex-col gap-4">
+          {tasksList.map((task, idx) => {
+            const Icon = task.icon;
+            let state = "pending";
+            if (idx < current) state = "done";
+            else if (idx === current) state = "active";
+            return (
+              <div
+                key={task.id}
+                className={
+                  state === "done"
+                    ? "flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-5 py-3 shadow-sm"
+                    : state === "active"
+                    ? "flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 shadow-sm animate-pulse"
+                    : "flex items-center justify-between rounded-xl border border-zinc-100 bg-zinc-50 px-5 py-3 shadow-sm opacity-70"
+                }
+              >
+                <div className="flex items-center gap-4">
+                  <span
+                    className={
+                      state === "done"
+                        ? "bg-gray-100 text-gray-600 rounded-full p-1"
+                        : state === "active"
+                        ? "bg-blue-100 text-blue-600 rounded-full p-1"
+                        : "bg-zinc-100 text-zinc-400 rounded-full p-1"
+                    }
+                  >
+                    {state === "done" ? (
+                      <CheckIcon className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <Icon className="w-5 h-5 text-blue-500" />
+                    )}
+                  </span>
+                  <div>
+                    <div className="font-medium text-zinc-900 text-base">
+                      {task.title}
+                    </div>
+                    {state === "active" && (
+                      <div className="text-xs text-blue-600 mt-1 flex items-center gap-2">
+                        <span className="animate-pulse">
+                          {task.subtasks[subtaskIdx]}
+                        </span>
+                        <span className="inline-block w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                      </div>
+                    )}
+                    {state === "done" && (
+                      <div className="text-xs text-gray-600 mt-1">
+                        Completed
+                      </div>
+                    )}
+                    {state === "pending" && (
+                      <div className="text-xs text-zinc-400 mt-1">Pending</div>
+                    )}
+                  </div>
+                </div>
+                <div className="text-xs font-medium text-right">
+                  {state === "active"
+                    ? `${subtaskIdx + 1}/${task.subtasks.length}`
+                    : state === "done"
+                    ? "Completed"
+                    : "Pending"}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Sample segments that will be shown after AI processing
+const generatedSegments = [
+  {
+    id: "SEG1: High Priority - Broken Promises (PTP Failures)",
+    logic: "Number_of_Broken_PTPs_Last_6_Months >= 1 AND Days_Since_Last_Broken_PTP <= 7",
+    characteristics: "Explicit commitment made and not met recently. Potentially willing but facing new obstacles.",
+    focus: "Direct, reference broken promise, understand reason, secure new firm commitment, reiterate importance.",
+    accounts: 1247
+  },
+  {
+    id: "SEG2: High Potential / Active Engagement", 
+    logic: "Last_Customer_Response_Channel IS NOT NULL AND Days_Since_Last_Customer_Response <= 5",
+    characteristics: "Recently engaged with client, potentially showing willingness to resolve.",
+    focus: "Conversational, reference prior interaction, easy payment options, gratitude for engagement.",
+    accounts: 892
+  },
+  {
+    id: "SEG3: Forgetful / Early Stage Delinquency",
+    logic: "DPD >= 5 AND DPD <= 30 AND Number_of_Broken_PTPs_Last_12_Months == 0",
+    characteristics: "Likely good payers who missed a payment. Low history of delinquency.",
+    focus: "Gentle, helpful reminders. \"Looks like your payment is overdue. Pay easily here...\"",
+    accounts: 2156
+  },
+  {
+    id: "SEG4: Repeat Offenders / Consistent Late Payers",
+    logic: "(DPD > 30) AND (Number_of_Previous_Delinquency_Cycles_Last_12_Months >= 2-3)",
+    characteristics: "History of multiple delinquencies or broken promises over time.",
+    focus: "More direct about overdue status, consequences (compliant), focus on payment plan or firm PTP.",
+    accounts: 743
+  }
+];
+
 const steps = [
   {
     title: "Assistant Details",
-    desc: "Update your assistant information with name and phone",
+    desc: "Configure your assistant information and settings",
     icon: CpuChipIcon,
   },
   {
-    title: "Data Attributes",
-    desc: "Select which fields to use for AI-powered customer segmentation",
+    title: "Data Attributes & Workflow",
+    desc: "Configure data fields, workflow instructions, and knowledge base",
     icon: Cog6ToothIcon,
   },
   {
-    title: "Knowledge and Inputs",
-    desc: "Upload documents and configure knowledge sources and guardrails",
-    icon: CpuChipIcon,
+    title: "Input Collection",
+    desc: "Upload training data and configure portfolio modeling",
+    icon: DocumentIcon,
   },
   {
-    title: "Segmentation",
-    desc: "Build smart customer segments using rule-based logic",
+    title: "AI Processing",
+    desc: "AI analysis and segment generation",
     icon: PresentationChartLineIcon,
+  },
+  {
+    title: "Generated Segments",
+    desc: "Review AI-generated customer segments",
+    icon: FunnelIcon,
   },
 ];
 
@@ -102,6 +335,17 @@ export default function CreateAssistant() {
     name: "",
     description: "",
   });
+  
+  // Build Workflow states
+  const [workflowInstructions, setWorkflowInstructions] = useState("");
+  const [uploadedRecordings, setUploadedRecordings] = useState([]);
+  const [modelingChoice, setModelingChoice] = useState(""); // "manual" or "ai"
+  
+  // Portfolio Modeling states
+  const [uploadedCSV, setUploadedCSV] = useState(null);
+  const [showPortfolioAI, setShowPortfolioAI] = useState(false);
+  const [portfolioProcessingComplete, setPortfolioProcessingComplete] = useState(false);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -121,8 +365,14 @@ export default function CreateAssistant() {
   }, []);
 
   function handleNext() {
-    if (step < 4) {
+    if (step === 3 && modelingChoice) {
+      // Start portfolio modeling AI processing
+      setShowPortfolioAI(true);
+    } else if (step < 4) {
       setStep(step + 1);
+    } else if (step === 4) {
+      // Complete setup and redirect to home
+      navigate("/");
     }
   }
 
@@ -149,10 +399,11 @@ export default function CreateAssistant() {
   // Helper function to get progress bar width
   const getProgressWidth = () => {
     if (step === 0) return "0%";
-    if (step === 1) return "25%";
-    if (step === 2) return "50%";
-    if (step === 3) return "75%";
-    if (step === 4) return "100%";
+    if (step === 1) return "20%";
+    if (step === 2) return "40%";
+    if (step === 3) return "60%";
+    if (step === 4) return "80%";
+    if (step === 5) return "100%";
     return "0%";
   };
 
@@ -473,60 +724,7 @@ export default function CreateAssistant() {
               </div>
             </div>
 
-            {/* Choose Your Voice Assistant Section */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Choose Your Voice Assistant
-              </h3>
-              <p className="text-gray-600 text-sm mb-6">
-                Select the perfect voice personality for your AI assistant
-              </p>
 
-              <div className="grid grid-cols-2 gap-4">
-                {voiceAssistants.map((voice) => (
-                  <div
-                    key={voice.name}
-                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                      form.selectedVoice === voice.name
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
-                    onClick={() =>
-                      setForm((f) => ({ ...f, selectedVoice: voice.name }))
-                    }
-                  >
-                    <div className="flex items-start space-x-3">
-                      <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                        <UserIcon className="w-6 h-6 text-gray-600" />
-                      </div>
-
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-gray-900">
-                            {voice.name}
-                          </h4>
-                          <div className="flex items-center space-x-2">
-                            <button className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                              <PlayIcon className="w-4 h-4 text-white" />
-                            </button>
-                            {form.selectedVoice === voice.name ? (
-                              <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                                <CheckIcon className="w-3 h-3 text-white" />
-                              </div>
-                            ) : (
-                              <div className="w-5 h-5 border-2 border-gray-300 rounded-full"></div>
-                            )}
-                          </div>
-                        </div>
-                        <p className="text-sm text-gray-600 leading-relaxed">
-                          {voice.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
 
             {/* Action Buttons */}
             <div className="flex justify-end pt-6 border-t border-gray-200">
@@ -898,6 +1096,93 @@ export default function CreateAssistant() {
                 )}
               </div>
 
+              {/* Build Workflow Section */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Build Workflow
+                </h3>
+                <p className="text-gray-600 text-sm mb-6">
+                  Configure workflow instructions, knowledge base, and policies
+                </p>
+
+                {/* Instructions Section */}
+                <div className="mb-8">
+                  <h4 className="text-md font-semibold text-gray-900 mb-2">
+                    Workflow Instructions
+                  </h4>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Provide detailed instructions for your AI assistant's workflow and behavior
+                  </p>
+                  
+                  <div className="mb-6">
+                    <textarea
+                      value={workflowInstructions}
+                      onChange={(e) => setWorkflowInstructions(e.target.value)}
+                      placeholder="Enter detailed instructions for your AI assistant's workflow, including conversation flow, compliance requirements, escalation procedures, and any specific guidelines..."
+                      className="w-full h-40 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
+                    />
+                  </div>
+                </div>
+
+                {/* Knowledge Base & Policies */}
+                <div className="mb-8">
+                  <h4 className="text-md font-semibold text-gray-900 mb-2">
+                    Knowledge Base & Policies
+                  </h4>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Upload knowledge base documents, policies, and guardrails
+                  </p>
+                  
+                  <div className="mb-6">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                      <div className="flex flex-col items-center">
+                        <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p className="text-sm text-gray-600 mb-2">
+                          Drop documents here or click to browse
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Supports PDF, DOC, DOCX, TXT files up to 25MB each
+                        </p>
+                        <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                          Choose Files
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Guardrails Section */}
+                <div className="mb-8">
+                  <h4 className="text-md font-semibold text-gray-900 mb-2">
+                    Compliance Guardrails
+                  </h4>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Upload compliance documents and guardrails to ensure regulatory adherence
+                  </p>
+                  
+                  <div className="mb-6">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                      <div className="flex flex-col items-center">
+                        <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <p className="text-sm text-gray-600 mb-2">
+                          Drop compliance documents here or click to browse
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Supports PDF, DOC, DOCX, TXT files up to 25MB each
+                        </p>
+                        <button className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                          Choose Files
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Action Buttons */}
               <div className="flex justify-between pt-6 border-t border-gray-200">
                 <button
@@ -916,7 +1201,21 @@ export default function CreateAssistant() {
             </div>
           </div>
         ) : step === 3 ? (
-          <div>
+          <div className="relative">
+            {/* AI Processing Overlay */}
+            {showPortfolioAI && (
+              <div className="absolute inset-0 bg-white z-10 flex items-center justify-center">
+                <AIMagicProgress
+                  tasksList={tasksList}
+                  onComplete={() => {
+                    setShowPortfolioAI(false);
+                    setPortfolioProcessingComplete(true);
+                    setStep(4);
+                  }}
+                />
+              </div>
+            )}
+            
             {/* Step Header */}
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -930,388 +1229,434 @@ export default function CreateAssistant() {
               </div>
             </div>
 
-            {/* Knowledge and Inputs Section */}
+            {/* Input Collection Section */}
             <div className="mb-8">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Knowledge and Inputs
+                Input Collection
               </h3>
               <p className="text-gray-600 text-sm mb-6">
-                Upload documents and configure knowledge sources for your AI
-                assistant
+                Upload training data and configure portfolio modeling to setup and train your assistant
               </p>
 
-              {/* Knowledge Sources */}
+              {/* Account Details Upload */}
               <div className="mb-8">
                 <h4 className="text-md font-semibold text-gray-900 mb-2">
-                  Knowledge Sources
+                  Account Details Upload
                 </h4>
-                <p className="text-gray-600 text-sm mb-6">
-                  What knowledge sources should the AI Agent use to answer
-                  questions for your chosen topics and use-cases
+                <p className="text-gray-600 text-sm mb-4">
+                  Upload your customer account details for portfolio analysis
                 </p>
-
-                {/* Search Bar */}
-                <div className="mb-6">
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Search your web site"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                {/* Add Knowledge Sources */}
-                <div className="mb-6">
-                  <div className="flex items-center space-x-4">
-                    <button className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                        />
+                
+                <div className="mb-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-start">
+                      <svg className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                       </svg>
-                      <span>Add URL</span>
-                    </button>
-                    <button className="flex items-center space-x-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
-                      <DocumentIcon className="w-4 h-4" />
-                      <span>Add Document</span>
-                    </button>
+                      <div>
+                        <h5 className="text-sm font-semibold text-blue-900 mb-1">Sample CSV Format</h5>
+                        <p className="text-sm text-blue-800 mb-2">Download sample CSV template with required fields:</p>
+                        <button className="text-sm text-blue-600 hover:text-blue-800 underline">
+                          Download Sample CSV Template
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                {/* Sample Knowledge Sources */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <div className="flex items-center space-x-3">
-                      <GlobeAltIcon className="w-5 h-5 text-blue-500" />
-                      <span className="text-sm font-mono text-gray-900">
-                        https://www.boostmobile.ai/billing
-                      </span>
-                    </div>
-                    <button className="text-red-500 hover:text-red-700">
-                      <TrashIcon className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <div className="flex items-center space-x-3">
-                      <DocumentIcon className="w-5 h-5 text-gray-500" />
-                      <span className="text-sm font-mono text-gray-900">
-                        Payment procedures.pdf
-                      </span>
-                    </div>
-                    <button className="text-red-500 hover:text-red-700">
-                      <TrashIcon className="w-5 h-5" />
-                    </button>
+                
+                <div className="mb-6">
+                  <div 
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                      uploadedCSV 
+                        ? 'border-green-300 bg-green-50' 
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    {uploadedCSV ? (
+                      <div className="flex flex-col items-center">
+                        <svg className="w-12 h-12 text-green-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-sm font-medium text-green-900 mb-1">
+                          {uploadedCSV.name}
+                        </p>
+                        <p className="text-xs text-green-700 mb-4">
+                          {uploadedCSV.records} records • {uploadedCSV.size}
+                        </p>
+                        <button 
+                          onClick={() => setUploadedCSV(null)}
+                          className="text-sm text-red-600 hover:text-red-800"
+                        >
+                          Remove file
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p className="text-sm text-gray-600 mb-2">
+                          Drop your account CSV file here or click to browse
+                        </p>
+                        <p className="text-xs text-gray-500 mb-4">
+                          CSV format, Account ID required for data correlation
+                        </p>
+                        <button 
+                          onClick={() => {
+                            // Simulate file upload
+                            setUploadedCSV({
+                              name: "account_details.csv",
+                              records: "5,847",
+                              size: "3.2 MB"
+                            });
+                          }}
+                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        >
+                          Choose File
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* GuardRails Section */}
+              {/* Call Recordings Upload */}
               <div className="mb-8">
                 <h4 className="text-md font-semibold text-gray-900 mb-2">
-                  Guardrails
+                  Call Recordings for Training
+                </h4>
+                <p className="text-gray-600 text-sm mb-4">
+                  Upload sample call recordings to train the LLM for better conversations
+                </p>
+                
+                <div className="mb-6">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                    <div className="flex flex-col items-center">
+                      <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                      </svg>
+                      <p className="text-sm text-gray-600 mb-2">
+                        Drop audio files here or click to browse
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Supports MP3, WAV, M4A files up to 50MB each
+                      </p>
+                      <button className="mt-4 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
+                        Choose Files
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Uploaded Recordings List */}
+                {uploadedRecordings.length > 0 && (
+                  <div className="space-y-3">
+                    {uploadedRecordings.map((recording, index) => (
+                      <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="flex items-center space-x-3">
+                          <PlayIcon className="w-5 h-5 text-purple-500" />
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">{recording.name}</div>
+                            <div className="text-xs text-gray-500">{recording.duration} • {recording.size}</div>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => setUploadedRecordings(uploadedRecordings.filter((_, i) => i !== index))}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <TrashIcon className="w-5 h-5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Portfolio Modeling Choice */}
+              <div className="mb-8">
+                <h4 className="text-md font-semibold text-gray-900 mb-2">
+                  Portfolio Modeling Approach
                 </h4>
                 <p className="text-gray-600 text-sm mb-6">
-                  Configure safety measures and business rules for your AI
-                  assistant
+                  Choose how you want to create customer segments for your portfolio
                 </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div 
+                    className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
+                      modelingChoice === 'manual' 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setModelingChoice('manual')}
+                  >
+                    <div className="flex items-center mb-3">
+                      <UserIcon className="w-6 h-6 text-blue-600 mr-3" />
+                      <h5 className="text-lg font-semibold text-gray-900">Manual Setup</h5>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Manually configure segments and rules based on your business logic and experience
+                    </p>
+                  </div>
+                  
+                  <div 
+                    className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
+                      modelingChoice === 'ai' 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setModelingChoice('ai')}
+                  >
+                    <div className="flex items-center mb-3">
+                      <CpuChipIcon className="w-6 h-6 text-purple-600 mr-3" />
+                      <h5 className="text-lg font-semibold text-gray-900">AI-Powered</h5>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Let AI analyze your portfolio data and automatically create optimized segments
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-                {/* System GuardRails */}
-                <div className="mb-6">
-                  <h5 className="text-md font-medium text-gray-900 mb-3">
-                    System Guardrails
-                  </h5>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3">
-                          <span className="text-sm font-medium text-gray-900">
-                            Hallucination
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            Type: System guardrail
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                          2
-                        </span>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                          Content: I unfor...
-                        </span>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                            />
-                          </svg>
-                        </button>
-                        <button className="text-gray-300 cursor-not-allowed">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                        </button>
-                        <button className="text-gray-300 cursor-not-allowed">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
+              {/* AI-Powered Additional Data */}
+              {modelingChoice === 'ai' && (
+                <div className="mb-8 bg-purple-50 border border-purple-200 rounded-lg p-6">
+                  <h4 className="text-md font-semibold text-purple-900 mb-2">
+                    Additional Data for AI Analysis
+                  </h4>
+                  <p className="text-purple-800 text-sm mb-4">
+                    Upload the following data to enhance AI-powered portfolio modeling (ensure Account ID correlation)
+                  </p>
+                  
+                  <div className="space-y-4">
+                    {/* Baseline Account Data */}
+                    <div>
+                      <label className="block text-sm font-medium text-purple-900 mb-2">
+                        Baseline Account Data (Last 3 Months)
+                      </label>
+                      <p className="text-xs text-purple-700 mb-3">
+                        Average agent data: Attempts, RPC, PTP, Kept-PTP, liquidation/cure by DPD, AHT/containment
+                      </p>
+                      <div className="border-2 border-dashed border-purple-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors">
+                        <svg className="w-8 h-8 text-purple-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        <p className="text-sm text-purple-600">Upload baseline data CSV</p>
+                        <button className="mt-2 px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600">
+                          Choose File
                         </button>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3">
-                          <span className="text-sm font-medium text-gray-900">
-                            Moderation API
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            Type: System guardrail
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                          2
-                        </span>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                            />
-                          </svg>
-                        </button>
-                        <button className="text-gray-300 cursor-not-allowed">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                        </button>
-                        <button className="text-gray-300 cursor-not-allowed">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
+
+                    {/* CRM Notes & Communications */}
+                    <div>
+                      <label className="block text-sm font-medium text-purple-900 mb-2">
+                        CRM Notes & Prior Communications History
+                      </label>
+                      <p className="text-xs text-purple-700 mb-3">
+                        Account notes, prior outcomes (PTP broken/kept), dispute/cease-and-desist records
+                      </p>
+                      <div className="border-2 border-dashed border-purple-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors">
+                        <svg className="w-8 h-8 text-purple-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        <p className="text-sm text-purple-600">Upload CRM communications CSV</p>
+                        <button className="mt-2 px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600">
+                          Choose File
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
+              )}
+            </div>
 
-                {/* Custom GuardRails */}
-                <div className="mb-6">
-                  <h5 className="text-md font-medium text-gray-900 mb-3">
-                    Custom GuardRails
-                  </h5>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3">
-                          <span className="text-sm font-medium text-gray-900">
-                            Bad User
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            Type: Custom
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            Model: gpt-4o
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                          <svg
-                            className="w-3 h-3 mr-1"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          3
-                        </span>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                            />
-                          </svg>
-                        </button>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </button>
-                      </div>
+            {/* Action Buttons */}
+            <div className="flex justify-between pt-6 border-t border-gray-200">
+              <button
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                onClick={handleBack}
+              >
+                ← Back
+              </button>
+              <button
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                  modelingChoice && uploadedCSV
+                    ? 'bg-gray-900 text-white hover:bg-gray-800'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                onClick={handleNext}
+                disabled={!modelingChoice || !uploadedCSV}
+              >
+                {modelingChoice && uploadedCSV ? 'Start AI Processing →' : 'Complete Requirements First'}
+              </button>
+            </div>
+          </div>
+        ) : step === 4 ? (
+          <div className="relative">
+            {/* AI Processing Overlay */}
+            {showPortfolioAI && (
+              <div className="absolute inset-0 bg-white z-10 flex items-center justify-center">
+                <AIMagicProgress
+                  tasksList={tasksList}
+                  onComplete={() => {
+                    setShowPortfolioAI(false);
+                    setPortfolioProcessingComplete(true);
+                    setStep(5);
+                  }}
+                />
+              </div>
+            )}
+            
+            {/* Step Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Step {getCurrentStepNumber()} of 5
+              </h2>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full"
+                  style={{ width: getProgressWidth() }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Portfolio Modeling Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Portfolio Modeling
+              </h3>
+              <p className="text-gray-600 text-sm mb-6">
+                Upload your portfolio data and choose your modeling approach
+              </p>
+              
+              {/* Portfolio Modeling Choice */}
+              <div className="mb-8">
+                <h4 className="text-md font-semibold text-gray-900 mb-2">
+                  Modeling Approach
+                </h4>
+                <p className="text-gray-600 text-sm mb-4">
+                  Choose how you want to create customer segments for your portfolio
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div 
+                    className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
+                      modelingChoice === 'manual' 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setModelingChoice('manual')}
+                  >
+                    <div className="flex items-center mb-3">
+                      <UserIcon className="w-6 h-6 text-blue-600 mr-3" />
+                      <h5 className="text-lg font-semibold text-gray-900">Manual Setup</h5>
                     </div>
-                    <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3">
-                          <span className="text-sm font-medium text-gray-900">
-                            Competitors
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            Type: Custom
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            Model: gpt-4o
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                          <svg
-                            className="w-3 h-3 mr-1"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          1
-                        </span>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                            />
-                          </svg>
-                        </button>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </button>
-                      </div>
+                    <p className="text-sm text-gray-600">
+                      Manually configure segments and rules based on your business logic and experience
+                    </p>
+                  </div>
+                  
+                  <div 
+                    className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
+                      modelingChoice === 'ai' 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setModelingChoice('ai')}
+                  >
+                    <div className="flex items-center mb-3">
+                      <CpuChipIcon className="w-6 h-6 text-purple-600 mr-3" />
+                      <h5 className="text-lg font-semibold text-gray-900">AI-Powered</h5>
                     </div>
+                    <p className="text-sm text-gray-600">
+                      Let AI analyze your portfolio data and automatically create optimized segments
+                    </p>
                   </div>
                 </div>
+              </div>
 
-                {/* Add Custom GuardRail Button */}
-                <div className="flex justify-center">
-                  <button className="flex items-center space-x-2 px-6 py-3 border-2 border-dashed border-gray-300 text-gray-600 rounded-lg hover:border-gray-400 hover:text-gray-700 transition-colors">
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                      />
+              {/* CSV Upload Section */}
+              <div className="mb-8">
+                <h4 className="text-md font-semibold text-gray-900 mb-2">
+                  Portfolio Data Upload
+                </h4>
+                <p className="text-gray-600 text-sm mb-4">
+                  Upload your portfolio CSV file with customer data for analysis
+                </p>
+                
+                {/* Upload Instructions */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start">
+                    <svg className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                     </svg>
-                    <span>Add Custom GuardRail</span>
-                  </button>
+                    <div>
+                      <h5 className="text-sm font-semibold text-blue-900 mb-1">Upload Requirements</h5>
+                      <ul className="text-sm text-blue-800 space-y-1">
+                        <li>• Maximum 5,000 records</li>
+                        <li>• CSV format only</li>
+                        <li>• Include customer ID, name, phone, email, DPD, amount due</li>
+                        <li>• File size limit: 10MB</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* File Upload Area */}
+                <div className="mb-6">
+                  <div 
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                      uploadedCSV 
+                        ? 'border-green-300 bg-green-50' 
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    {uploadedCSV ? (
+                      <div className="flex flex-col items-center">
+                        <svg className="w-12 h-12 text-green-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-sm font-medium text-green-900 mb-1">
+                          {uploadedCSV.name}
+                        </p>
+                        <p className="text-xs text-green-700 mb-4">
+                          {uploadedCSV.records} records • {uploadedCSV.size}
+                        </p>
+                        <button 
+                          onClick={() => setUploadedCSV(null)}
+                          className="text-sm text-red-600 hover:text-red-800"
+                        >
+                          Remove file
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p className="text-sm text-gray-600 mb-2">
+                          Drop your CSV file here or click to browse
+                        </p>
+                        <p className="text-xs text-gray-500 mb-4">
+                          CSV files up to 10MB, maximum 5,000 records
+                        </p>
+                        <button 
+                          onClick={() => {
+                            // Simulate file upload
+                            setUploadedCSV({
+                              name: "portfolio_data.csv",
+                              records: "4,238",
+                              size: "2.1 MB"
+                            });
+                          }}
+                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        >
+                          Choose File
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1325,19 +1670,110 @@ export default function CreateAssistant() {
                 ← Back
               </button>
               <button
-                className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                  modelingChoice && uploadedCSV
+                    ? 'bg-gray-900 text-white hover:bg-gray-800'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
                 onClick={handleNext}
+                disabled={!modelingChoice || !uploadedCSV}
               >
-                Save & Continue →
+                {modelingChoice && uploadedCSV ? 'Start Processing →' : 'Complete Requirements First'}
               </button>
             </div>
           </div>
-        ) : step === 4 ? (
+        ) : step === 5 ? (
           <div>
             {/* Step Header */}
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Step {getCurrentStepNumber()} of 4
+                Step {getCurrentStepNumber()} of 5
+              </h2>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full"
+                  style={{ width: getProgressWidth() }}
+                ></div>
+              </div>
+            </div>
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                AI Generated Segments
+              </h3>
+              <p className="text-gray-600 text-sm mb-6">
+                Review the intelligent segments created by AI for your portfolio
+              </p>
+              
+              <div className="space-y-4">
+                {generatedSegments.map((segment, index) => (
+                  <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h4 className="text-lg font-semibold text-blue-800 mb-2">
+                          {segment.id}
+                        </h4>
+                        <div className="text-sm text-gray-600 mb-2">
+                          <span className="font-medium">Accounts:</span> {segment.accounts.toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Logic</span>
+                        <div className="text-sm text-gray-700 bg-blue-50 px-3 py-2 rounded mt-1 font-mono">
+                          {segment.logic}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Characteristics</span>
+                        <div className="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded mt-1">
+                          {segment.characteristics}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Messaging Focus</span>
+                        <div className="text-sm text-gray-700 bg-green-50 px-3 py-2 rounded mt-1">
+                          {segment.focus}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+
+
+            {/* Action Buttons */}
+            <div className="flex justify-between pt-6 border-t border-gray-200">
+              <button
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                onClick={handleBack}
+              >
+                ← Back
+              </button>
+              <button
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                  modelingChoice && uploadedCSV
+                    ? 'bg-gray-900 text-white hover:bg-gray-800'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                onClick={handleNext}
+                disabled={!modelingChoice || !uploadedCSV}
+              >
+                {modelingChoice && uploadedCSV ? 'Start Processing →' : 'Complete Requirements First'}
+              </button>
+            </div>
+          </div>
+        ) : step === 5 ? (
+          <div>
+            {/* Step Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Step {getCurrentStepNumber()} of 5
               </h2>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
@@ -1347,57 +1783,90 @@ export default function CreateAssistant() {
               </div>
             </div>
 
-            {/* Segmentation Section */}
+            {/* Generated Segments Section */}
             <div className="mb-8">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Build Smart Customer Segments
+                AI Generated Segments
               </h3>
               <p className="text-gray-600 text-sm mb-6">
-                Use rule-based logic to create intelligent customer segments for
-                targeted outreach
+                Review the intelligent segments created by AI for your portfolio
               </p>
-
-              <div className="space-y-6">
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <h4 className="font-semibold text-gray-900 mb-4">
-                    Create New Segment
-                  </h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Segment Name
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g., High-Value Customers"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                      />
+              
+              <div className="space-y-4">
+                {generatedSegments.map((segment, index) => (
+                  <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h4 className="text-lg font-semibold text-gray-900">
+                            {segment.id}
+                          </h4>
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Early Stage
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4">
+                          {segment.characteristics}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Segment Rules
-                      </label>
-                      <textarea
-                        placeholder="Define your segment rules here..."
-                        rows={4}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                      />
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-6 text-sm text-gray-500">
+                        <div className="flex items-center">
+                          <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                          <span className="font-medium">4 Rules Applied</span>
+                        </div>
+                        <div className="flex items-center">
+                          <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span>John Doe</span>
+                        </div>
+                        <div className="flex items-center">
+                          <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <span>{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-3">
+                        <button className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium">
+                          View Journey
+                          <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                        <button 
+                          onClick={() => navigate(`/workflows/segments/${segment.id.toLowerCase().replace(/[^a-z0-9]/g, '-')}/edit`)}
+                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                          <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          Edit Segment
+                        </button>
+                      </div>
                     </div>
-                    <button className="px-6 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors">
-                      Create Segment
-                    </button>
                   </div>
-                </div>
-
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <h4 className="font-semibold text-gray-900 mb-4">
-                    Existing Segments
-                  </h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    No segments created yet. Create your first segment above.
-                  </p>
-                </div>
+                ))}
               </div>
+            </div>
+
+            {/* Completion Message */}
+            <div className="mb-8 text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                <CheckIcon className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Setup Complete!
+              </h3>
+              <p className="text-gray-600">
+                Your AI assistant has been successfully configured with intelligent segments and workflow instructions.
+              </p>
             </div>
 
             {/* Action Buttons */}
@@ -1410,7 +1879,7 @@ export default function CreateAssistant() {
               </button>
               <button
                 className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
-                onClick={() => navigate("/")}
+                onClick={handleNext}
               >
                 Complete Setup →
               </button>

@@ -927,7 +927,7 @@ const PersonaManagement = () => {
 
             {/* DPD Recommendation */}
             <div className="mb-4">
-              <h4 className="text-sm font-medium text-zinc-700 mb-2">Best applicable DPD</h4>
+              <h4 className="text-sm font-medium text-zinc-700 mb-2">Recommended for</h4>
               <div className="space-y-2">
                 <div className="flex flex-wrap gap-1">
                   {persona.recommendedFor.map((stage, index) => (
