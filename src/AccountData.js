@@ -11,7 +11,7 @@ import {
   CalendarIcon,
   CheckIcon
 } from '@heroicons/react/24/outline';
-import PageHeader from './PageHeader';
+import PageHeaderWithTabs from './components/PageHeaderWithTabs';
 
 function AccountData() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -109,6 +109,8 @@ function AccountData() {
         description: 'Hi Sarah, thanks for your chat and for your commitment to pay. Glad you\'re feeling up to it! Payment link: [Payment Link] You\'ll receive a confirmation once the payment is processed.',
         tonality: 'Warmly Appreciative',
         focus: 'Payment_Link_Delivery',
+        campaign: 'Q2 Auto Loan Recovery',
+        segment: 'Cooperative Payment Arrangers',
         badge: 'SMS',
         status: 'ai_recommended',
         icon: '●'
@@ -122,6 +124,7 @@ function AccountData() {
   const handleAccountClick = (account) => {
     setSelectedAccount(account);
     setIsDrawerOpen(true);
+    setShowColumnSelector(false); // Close column selector when opening drawer
   };
 
   // Handle column toggle
@@ -245,54 +248,51 @@ function AccountData() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PageHeader title="Account Data" />
+    <div 
+      className="min-h-screen"
+      onClick={() => setShowColumnSelector(false)}
+    >
+      <PageHeaderWithTabs
+        title="Account Data"
+        description="Manage and view all account holder details and contact information"
+        breadcrumbs={["Home", "Account Data"]}
+        searchPlaceholder="Search by name, account ID, or email..."
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        filters={[
+          {
+            key: 'risk',
+            value: filterRisk === 'all' ? 'All Risk Levels' : `${filterRisk.charAt(0).toUpperCase()}${filterRisk.slice(1)} Risk`,
+            onClick: () => {
+              // Toggle through risk filter options
+              const options = ['all', 'low', 'medium', 'high'];
+              const currentIndex = options.indexOf(filterRisk);
+              const nextIndex = (currentIndex + 1) % options.length;
+              setFilterRisk(options[nextIndex]);
+            }
+          }
+        ]}
+        additionalButton={{
+          text: 'Columns',
+          icon: <AdjustmentsHorizontalIcon className="w-4 h-4" />,
+          onClick: (e) => {
+            e.stopPropagation();
+            setShowColumnSelector(!showColumnSelector);
+          }
+        }}
+        createButton={{
+          text: 'Add Account',
+          icon: PlusIcon,
+          onClick: () => {
+            // Handle add account
+            console.log('Add account clicked');
+          }
+        }}
+      />
       
-      {/* Breadcrumbs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-        <nav className="flex" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 md:space-x-3">
-            <li className="inline-flex items-center">
-              <a href="/" className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
-                Home
-              </a>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <svg className="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4"/>
-                </svg>
-                <span className="text-sm font-medium text-gray-500">Account Data</span>
-              </div>
-            </li>
-          </ol>
-        </nav>
-      </div>
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-8xl mx-auto sm:px-6 lg:px-8 py-4">
         {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="text-sm font-medium text-gray-600 mb-1">Total Accounts</div>
-            <div className="text-2xl font-bold text-gray-900">5,847</div>
-            <div className="text-xs text-green-600 mt-1">+12% from last month</div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="text-sm font-medium text-gray-600 mb-1">Active Debtors</div>
-            <div className="text-2xl font-bold text-gray-900">4,298</div>
-            <div className="text-xs text-blue-600 mt-1">73.5% of total</div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="text-sm font-medium text-gray-600 mb-1">Avg Balance</div>
-            <div className="text-2xl font-bold text-gray-900">$2,456</div>
-            <div className="text-xs text-red-600 mt-1">+8% from last month</div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="text-sm font-medium text-gray-600 mb-1">Contact Rate</div>
-            <div className="text-2xl font-bold text-gray-900">78.3%</div>
-            <div className="text-xs text-green-600 mt-1">+2.1% from last month</div>
-          </div>
-        </div>
+  
 
         {/* Main Table */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
@@ -301,10 +301,10 @@ function AccountData() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">
-                  First Party Debtor Information
+                  Accounts
                 </h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  Manage and view all account holder details and contact information
+                  Showing {filteredAccounts.length} of 5,847 accounts
                 </p>
               </div>
               <div className="flex items-center space-x-3">
@@ -312,81 +312,40 @@ function AccountData() {
                   <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
                   Export CSV
                 </button>
-                <button className="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                  <PlusIcon className="w-4 h-4 mr-2" />
-                  Add Account
-                </button>
               </div>
             </div>
           </div>
 
-          {/* Filters and Search */}
-          <div className="p-6 border-b border-gray-200 bg-gray-50">
-            <div className="flex flex-col sm:flex-row gap-4">
-              {/* Search */}
-              <div className="flex-1 relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search by name, account ID, or email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              
-              {/* Risk Filter */}
-              <div className="flex items-center space-x-2">
-                <FunnelIcon className="h-4 w-4 text-gray-400" />
-                <select
-                  value={filterRisk}
-                  onChange={(e) => setFilterRisk(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="all">All Risk Levels</option>
-                  <option value="low">Low Risk</option>
-                  <option value="medium">Medium Risk</option>
-                  <option value="high">High Risk</option>
-                </select>
-              </div>
-
-              {/* Column Selector */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowColumnSelector(!showColumnSelector)}
-                  className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <AdjustmentsHorizontalIcon className="w-4 h-4 mr-2" />
-                  Columns
-                </button>
-                
-                {showColumnSelector && (
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-                    <div className="p-4">
-                      <h3 className="text-sm font-medium text-gray-900 mb-3">Select Columns</h3>
-                      <div className="space-y-2">
-                        {columnOptions.map((column) => (
-                          <label key={column.key} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={visibleColumns[column.key]}
-                              onChange={() => toggleColumn(column.key)}
-                              disabled={column.required}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className={`ml-2 text-sm ${column.required ? 'text-gray-400' : 'text-gray-700'}`}>
-                              {column.label}
-                              {column.required && ' (Required)'}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
+          {/* Column Selector Dropdown */}
+          {showColumnSelector && (
+            <div className="relative">
+              <div 
+                className="absolute right-6 top-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-30"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="p-4">
+                  <h3 className="text-sm font-medium text-gray-900 mb-3">Select Columns</h3>
+                  <div className="space-y-2">
+                    {columnOptions.map((column) => (
+                      <label key={column.key} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={visibleColumns[column.key]}
+                          onChange={() => toggleColumn(column.key)}
+                          disabled={column.required}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className={`ml-2 text-sm ${column.required ? 'text-gray-400' : 'text-gray-700'}`}>
+                          {column.label}
+                          {column.required && ' (Required)'}
+                        </span>
+                      </label>
+                    ))}
                   </div>
-                )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Table */}
           <div className="overflow-hidden">
@@ -530,15 +489,15 @@ function AccountData() {
 
       {/* Account Details Drawer */}
       {isDrawerOpen && selectedAccount && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="fixed inset-0 z-50">
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50"
+            className="absolute inset-0 bg-black bg-opacity-50"
             onClick={() => setIsDrawerOpen(false)}
           />
           
           {/* Drawer - Made Much Bigger */}
-          <div className="ml-auto flex h-full w-[800px] flex-col bg-white shadow-xl">
+          <div className="absolute right-0 top-0 h-full w-[800px] flex flex-col bg-white shadow-xl z-10">
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
@@ -559,21 +518,22 @@ function AccountData() {
             {/* Conversation Highlights Summary */}
             <div className="px-6 py-4 bg-blue-50 border-b border-gray-200">
               <h3 className="text-sm font-medium text-gray-900 mb-3">Conversation Highlights</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div className="bg-white rounded-lg p-3 border">
+              <div className="flex gap-4 text-sm">
+                <div className="w-[30%] bg-white rounded-lg p-3 border">
                   <div className="text-gray-500 text-xs mb-1">Last Contact</div>
                   <div className="font-medium text-gray-900">March 19, 2025</div>
                   <div className="text-xs text-gray-600">Voice call - Payment arrangement</div>
                 </div>
-                <div className="bg-white rounded-lg p-3 border">
-                  <div className="text-gray-500 text-xs mb-1">Customer Sentiment</div>
-                  <div className="font-medium text-green-600">Positive</div>
-                  <div className="text-xs text-gray-600">Cooperative & committed to pay</div>
-                </div>
-                <div className="bg-white rounded-lg p-3 border">
-                  <div className="text-gray-500 text-xs mb-1">Next Action</div>
-                  <div className="font-medium text-blue-600">SMS Payment Link</div>
-                  <div className="text-xs text-gray-600">AI recommended - ready to send</div>
+                <div className="w-[70%] bg-white rounded-lg p-4 border">
+                  <div className="text-gray-500 text-xs mb-2">Conversation Summary</div>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Positive
+                    </span>
+                    <span className="text-xs text-gray-600">Cooperative & committed to pay</span>
+                  </div>
+                  <div className="text-sm text-gray-900 mb-2">Customer acknowledged debt and requested payment plan. Agreed to $500 monthly payments starting next week.</div>
+                  <div className="text-xs text-blue-600 font-medium">Next: SMS Payment Link (AI recommended - ready to send)</div>
                 </div>
               </div>
             </div>
@@ -605,9 +565,9 @@ function AccountData() {
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 overflow-hidden relative bg-white">
+            <div className="flex-1 overflow-hidden bg-gray-50">
               {activeTab === 'communication' && (
-                <div className="absolute inset-0 overflow-y-auto px-6 py-6 bg-white">
+                <div className="h-full overflow-y-auto px-6 py-6">
                   <div className="space-y-4">
                     {getCommunicationTimeline(selectedAccount.id).map((item, index) => (
                       <div key={item.id} className="relative">
@@ -696,6 +656,18 @@ function AccountData() {
                                   <div className="flex items-center">
                                     <span className="mr-2">🎯</span>
                                     <span>Focus: {item.focus}</span>
+                                  </div>
+                                )}
+                                {item.campaign && (
+                                  <div className="flex items-center">
+                                    <span className="mr-2">📋</span>
+                                    <span>Campaign: {item.campaign}</span>
+                                  </div>
+                                )}
+                                {item.segment && (
+                                  <div className="flex items-center">
+                                    <span className="mr-2">👥</span>
+                                    <span>Segment: {item.segment}</span>
                                   </div>
                                 )}
                               </div>
