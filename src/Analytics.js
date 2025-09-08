@@ -983,6 +983,7 @@ export default function Analytics() {
             </div>
           </>
         )}
+
         {tab === "Outbound Campaign" && (
           <>
             <div className="text-2xl font-bold text-zinc-900 mb-6">

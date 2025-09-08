@@ -24,6 +24,7 @@ import DemoPage from "./DemoPage";
 import DemoTranscript from "./DemoTranscript";
 import Workflows from "./Workflows";
 import CreateSegment from "./CreateSegment";
+import AccountData from "./AccountData";
 
 const Placeholder = ({ title }) => (
   <div className="p-8 text-lg">{title} Page</div>
@@ -76,7 +77,7 @@ function App() {
                       <Route path="/analytics" element={<Analytics />} />
                       <Route
                         path="/accounts-data"
-                        element={<Placeholder title="Accounts Data" />}
+                        element={<AccountData />}
                       />
                       <Route
                         path="/journeys"

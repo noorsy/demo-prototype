@@ -139,9 +139,9 @@ function AIMagicProgress({ tasksList, onComplete }) {
   }, [current, subtaskIdx, tasksList, onComplete]);
 
   return (
-    <div className="flex flex-col items-center justify-center py-12">
+    <div className="flex flex-col items-center justify-center py-6">
       <div className="w-full max-w-2xl">
-        <div className="mb-8 flex flex-col items-center">
+        <div className="mb-6 flex flex-col items-center">
           <div className="mb-4 animate-pulse">
             {/* Smaller glowing brain icon */}
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -169,7 +169,7 @@ function AIMagicProgress({ tasksList, onComplete }) {
             Our AI is analyzing your portfolio data to create intelligent segments for optimized collections.
           </div>
           {/* Progress Bar */}
-          <div className="w-full max-w-md mx-auto mb-8">
+          <div className="w-full max-w-md mx-auto mb-6">
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-3 bg-blue-600 rounded-full transition-all duration-500"
@@ -1720,7 +1720,7 @@ export default function CreateAssistant() {
                   onComplete={() => {
                     setShowPortfolioAI(false);
                     setPortfolioProcessingComplete(true);
-                    setStep(4);
+                    setStep(5);
                   }}
                 />
               </div>
@@ -1879,6 +1879,8 @@ export default function CreateAssistant() {
                     </div>
                   )}
                 </div>
+
+
               </div>
 
               {/* Call Recordings Upload - Optional */}
