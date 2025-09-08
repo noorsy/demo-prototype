@@ -18,6 +18,7 @@ import {
   ChatBubbleLeftRightIcon,
   UserCircleIcon,
   CalendarDaysIcon,
+  PencilIcon,
 } from "@heroicons/react/24/outline";
 
 const voiceAssistants = [
@@ -138,49 +139,50 @@ function AIMagicProgress({ tasksList, onComplete }) {
   }, [current, subtaskIdx, tasksList, onComplete]);
 
   return (
-    <div className="h-full w-full flex items-center justify-center overflow-hidden">
-      <div className="w-full max-w-lg flex flex-col items-center">
-        <div className="mb-4 flex flex-col items-center">
-          <div className="mb-2 animate-pulse">
+    <div className="flex flex-col items-center justify-center py-12">
+      <div className="w-full max-w-2xl">
+        <div className="mb-8 flex flex-col items-center">
+          <div className="mb-4 animate-pulse">
             {/* Smaller glowing brain icon */}
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
               <defs>
                 <radialGradient id="glow" cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stopColor="#6366F1" stopOpacity="0.3" />
                   <stop offset="100%" stopColor="#EEF4FF" stopOpacity="0" />
                 </radialGradient>
               </defs>
-              <circle cx="20" cy="20" r="20" fill="url(#glow)" />
-              <circle cx="20" cy="20" r="15" fill="#EEF4FF" />
+              <circle cx="24" cy="24" r="24" fill="url(#glow)" />
+              <circle cx="24" cy="24" r="18" fill="#EEF4FF" />
               <path
-                d="M15 26c-2 0-3.3-1.7-3.3-3.7 0-1.2.4-2.1 1.3-2.8C13 18.5 13 17.8 13 17c0-3.1 2.5-5.6 5.6-5.6 1.2 0 2.1.4 2.8 1.3C22.5 13 23.2 13 24 13c3.1 0 5.6 2.5 5.6 5.6 0 .8-.4 1.5-1.3 2.2.9.7 1.3 1.6 1.3 2.8 0 2-1.3 3.7-3.3 3.7"
+                d="M18 30c-2.4 0-4-2-4-4.4 0-1.4.5-2.5 1.6-3.4C15.6 21.4 15.6 20.6 15.6 19.6c0-3.7 3-6.7 6.7-6.7 1.4 0 2.5.5 3.4 1.6C26.4 14.5 27.2 14.5 28.2 14.5c3.7 0 6.7 3 6.7 6.7 0 1-.5 1.8-1.6 2.6 1.1.8 1.6 1.9 1.6 3.4 0 2.4-1.6 4.4-4 4.4"
                 stroke="#6366F1"
-                strokeWidth="1.5"
+                strokeWidth="1.8"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
             </svg>
           </div>
-          <div className="text-xl font-extrabold text-zinc-900 text-center tracking-tight mb-1">
+          <div className="text-2xl font-extrabold text-gray-900 text-center tracking-tight mb-2">
             AI Magic in Progress
           </div>
-          <div className="text-zinc-500 text-center max-w-base mb-2 text-base">
+          <div className="text-gray-600 text-center max-w-md mb-6 text-base">
             Our AI is analyzing your portfolio data to create intelligent segments for optimized collections.
           </div>
           {/* Progress Bar */}
-          <div className="w-full max-w-lg mx-auto mt-2 mb-2">
-            <div className="h-3 bg-zinc-200 rounded-full overflow-hidden">
+          <div className="w-full max-w-md mx-auto mb-8">
+            <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-3 bg-blue-600 rounded-full transition-all duration-500"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <div className="text-xs text-zinc-500 mt-1 text-right font-inter">
+            <div className="text-sm text-gray-500 mt-2 text-right">
               {Math.round(progress)}% Complete
             </div>
           </div>
         </div>
-        <div className="w-full flex flex-col gap-4">
+        
+        <div className="space-y-4">
           {tasksList.map((task, idx) => {
             const Icon = task.icon;
             let state = "pending";
@@ -191,34 +193,34 @@ function AIMagicProgress({ tasksList, onComplete }) {
                 key={task.id}
                 className={
                   state === "done"
-                    ? "flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-5 py-3 shadow-sm"
+                    ? "flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-6 py-4 shadow-sm"
                     : state === "active"
-                    ? "flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 shadow-sm animate-pulse"
-                    : "flex items-center justify-between rounded-xl border border-zinc-100 bg-zinc-50 px-5 py-3 shadow-sm opacity-70"
+                    ? "flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 px-6 py-4 shadow-sm animate-pulse"
+                    : "flex items-center justify-between rounded-xl border border-gray-200 bg-white px-6 py-4 shadow-sm opacity-60"
                 }
               >
                 <div className="flex items-center gap-4">
                   <span
                     className={
                       state === "done"
-                        ? "bg-gray-100 text-gray-600 rounded-full p-1"
+                        ? "bg-green-100 text-green-600 rounded-full p-2"
                         : state === "active"
-                        ? "bg-blue-100 text-blue-600 rounded-full p-1"
-                        : "bg-zinc-100 text-zinc-400 rounded-full p-1"
+                        ? "bg-blue-100 text-blue-600 rounded-full p-2"
+                        : "bg-gray-100 text-gray-400 rounded-full p-2"
                     }
                   >
                     {state === "done" ? (
-                      <CheckIcon className="w-5 h-5 text-green-500" />
+                      <CheckIcon className="w-5 h-5" />
                     ) : (
-                      <Icon className="w-5 h-5 text-blue-500" />
+                      <Icon className="w-5 h-5" />
                     )}
                   </span>
                   <div>
-                    <div className="font-medium text-zinc-900 text-base">
+                    <div className="font-semibold text-gray-900 text-base">
                       {task.title}
                     </div>
                     {state === "active" && (
-                      <div className="text-xs text-blue-600 mt-1 flex items-center gap-2">
+                      <div className="text-sm text-blue-600 mt-1 flex items-center gap-2">
                         <span className="animate-pulse">
                           {task.subtasks[subtaskIdx]}
                         </span>
@@ -226,20 +228,20 @@ function AIMagicProgress({ tasksList, onComplete }) {
                       </div>
                     )}
                     {state === "done" && (
-                      <div className="text-xs text-gray-600 mt-1">
+                      <div className="text-sm text-gray-500 mt-1">
                         Completed
                       </div>
                     )}
                     {state === "pending" && (
-                      <div className="text-xs text-zinc-400 mt-1">Pending</div>
+                      <div className="text-sm text-gray-400 mt-1">Pending</div>
                     )}
                   </div>
                 </div>
-                <div className="text-xs font-medium text-right">
+                <div className="text-sm font-medium text-gray-500">
                   {state === "active"
                     ? `${subtaskIdx + 1}/${task.subtasks.length}`
                     : state === "done"
-                    ? "Completed"
+                    ? "✓ Completed"
                     : "Pending"}
                 </div>
               </div>
@@ -254,32 +256,98 @@ function AIMagicProgress({ tasksList, onComplete }) {
 // Sample segments that will be shown after AI processing
 const generatedSegments = [
   {
-    id: "SEG1: High Priority - Broken Promises (PTP Failures)",
-    logic: "Number_of_Broken_PTPs_Last_6_Months >= 1 AND Days_Since_Last_Broken_PTP <= 7",
-    characteristics: "Explicit commitment made and not met recently. Potentially willing but facing new obstacles.",
-    focus: "Direct, reference broken promise, understand reason, secure new firm commitment, reiterate importance.",
-    accounts: 1247
+    id: "Segment 1: On-Track / Pre-Delinquent Reminder",
+    logic: "CreditScore > 700 AND Bucket IS NULL AND NbrTimes15-29 = 0 AND NbrTimes30-59 = 0 AND NbrTimes60-89 = 0 AND NbrTimes90-119 = 0",
+    characteristics: "High-performing customers with excellent payment histories who are not yet delinquent. Goal is to proactively prevent delinquency due to oversight, fostering goodwill and strong customer relationships.",
+    focus: "Automated reminders with gentle, proactive approach to maintain excellent relationship.",
+    accounts: 8247
   },
   {
-    id: "SEG2: High Potential / Active Engagement", 
-    logic: "Last_Customer_Response_Channel IS NOT NULL AND Days_Since_Last_Customer_Response <= 5",
-    characteristics: "Recently engaged with client, potentially showing willingness to resolve.",
-    focus: "Conversational, reference prior interaction, easy payment options, gratitude for engagement.",
-    accounts: 892
+    id: "Segment 2: Grace Period Overlook", 
+    logic: "(Bucket IS NULL AND DaysPastDue BETWEEN 1 AND 5) OR (Bucket = '01-10' AND DaysPastDue <= 5) AND CreditScore > 650 AND NbrTimes15-29 < 2 AND Broken_PTPs = 0",
+    characteristics: "Customers who have just missed their payment due date and are within the grace period. Generally have good credit and history of on-time payments, suggesting oversight rather than financial struggle.",
+    focus: "Gentle reminder with easy payment options, emphasizing relationship preservation.",
+    accounts: 3892
   },
   {
-    id: "SEG3: Forgetful / Early Stage Delinquency",
-    logic: "DPD >= 5 AND DPD <= 30 AND Number_of_Broken_PTPs_Last_12_Months == 0",
-    characteristics: "Likely good payers who missed a payment. Low history of delinquency.",
-    focus: "Gentle, helpful reminders. \"Looks like your payment is overdue. Pay easily here...\"",
+    id: "Segment 3: Early-Stage Slip-Up",
+    logic: "Bucket = '01-10' AND DaysPastDue > 5 AND CreditScore > 600 AND NbrTimes15-29 < 3 AND NbrTimes30-59 = 0",
+    characteristics: "Customers in early delinquency (Day 6-30 past due) who typically resolve accounts quickly. May have few prior minor delinquencies but are not chronic late payers with moderate to high credit scores.",
+    focus: "Professional but understanding approach with structured payment solutions and clear timelines.",
     accounts: 2156
   },
   {
-    id: "SEG4: Repeat Offenders / Consistent Late Payers",
-    logic: "(DPD > 30) AND (Number_of_Previous_Delinquency_Cycles_Last_12_Months >= 2-3)",
-    characteristics: "History of multiple delinquencies or broken promises over time.",
-    focus: "More direct about overdue status, consequences (compliant), focus on payment plan or firm PTP.",
-    accounts: 743
+    id: "Segment 4: Emergent Hardship",
+    logic: "Bucket IN ('01-10', '11-20') AND DQ_Reason IN ('LOSS OF JOB', 'REDUCED INCOME', 'MECHANICAL PROBLEMS', 'MEDICAL ISSUES', 'FAMILY DEATH')",
+    characteristics: "Customers facing new, genuine, and significant financial challenges (job loss, medical emergency, vehicle issues) preventing payment. May have had good payment history prior to the event.",
+    focus: "Empathetic approach with flexible payment arrangements and hardship programs.",
+    accounts: 1543
+  },
+  {
+    id: "Segment 5: Consistent Late Payer / PTP Breaker",
+    logic: "Bucket IN ('11-20', '21-25') AND (NbrTimes15-29 >= 3 OR (Broken_PTPs > 1 AND Broken_PTP_Severity > 0.1)) AND CreditScore BETWEEN 550 AND 650",
+    characteristics: "Frequently in early-to-mid delinquency stages. Often make promises to pay (PTPs) but have history of breaking them, indicating need for more structured payment solutions or tighter follow-up.",
+    focus: "Structured approach with firm but fair payment plans, shorter PTP terms, and increased follow-up frequency.",
+    accounts: 2743
+  },
+  {
+    id: "Segment 6: Avoidant / Non-Engaged",
+    logic: "Bucket IN ('26-30', '31-60') AND (DQ_Reason = 'REASON FOR DELQ UNKNOWN' OR DQ_Reason IS NULL) AND Broken_PTPs > 3 AND PaymentsMade < MOB - 2",
+    characteristics: "Customers in mid-stage delinquency (Day 26-60 past due) who show low engagement with communication attempts. May not provide DQ_Reason or consistently have 'REASON FOR DELQ UNKNOWN'.",
+    focus: "Multi-channel approach with escalated urgency, legal implications mentioned, and demand for immediate response.",
+    accounts: 1832
+  }
+];
+
+// Pre-built segment templates
+const preBuiltSegments = [
+  {
+    id: "Standard Early Bucket (1-30 DPD)",
+    logic: "Bucket IN ('01-10', '11-20', '21-30') AND CreditScore > 500",
+    characteristics: "Standard early delinquency segment covering customers 1-30 days past due with reasonable credit scores.",
+    focus: "Professional reminders with payment plan options and relationship preservation focus.",
+    accounts: 4247,
+    template: "Early Stage"
+  },
+  {
+    id: "Mid-Stage Collection (31-90 DPD)",
+    logic: "Bucket IN ('31-60', '61-90') AND PaymentsMade >= 2",
+    characteristics: "Mid-stage delinquent accounts that have made some payments, indicating ability but need structured approach.",
+    focus: "Firm but fair collection strategy with structured payment arrangements and clear expectations.",
+    accounts: 2143,
+    template: "Mid Stage"
+  },
+  {
+    id: "High-Risk / Late Stage (90+ DPD)",
+    logic: "Bucket IN ('91-120', '121+') AND Total_Outstanding > 500",
+    characteristics: "Seriously delinquent accounts requiring intensive collection efforts with potential legal consideration.",
+    focus: "Direct collection approach with legal implications, demand letters, and escalated communication.",
+    accounts: 832,
+    template: "Late Stage"
+  },
+  {
+    id: "Promise Breaker / PTP Management",
+    logic: "Broken_PTPs >= 2 AND Broken_PTP_Severity > 0.2",
+    characteristics: "Customers with history of broken payment promises requiring special handling and shorter PTP terms.",
+    focus: "Structured PTP management with shorter terms, increased follow-up, and alternative payment arrangements.",
+    accounts: 1428,
+    template: "Behavioral"
+  },
+  {
+    id: "Credit Score Based Segmentation",
+    logic: "CreditScore < 550 AND Bucket IS NOT NULL",
+    characteristics: "Low credit score customers in delinquency requiring specialized approach due to higher risk profile.",
+    focus: "Risk-adjusted collection strategy with emphasis on immediate resolution and alternative payment methods.",
+    accounts: 967,
+    template: "Risk-Based"
+  },
+  {
+    id: "New Customer / MOB Consideration",
+    logic: "MOB <= 6 AND Bucket IS NOT NULL",
+    characteristics: "New customers (6 months or less) who have become delinquent, requiring early intervention to prevent loss.",
+    focus: "Retention-focused approach with educational components and flexible payment solutions.",
+    accounts: 743,
+    template: "Retention"
   }
 ];
 
@@ -290,13 +358,13 @@ const steps = [
     icon: CpuChipIcon,
   },
   {
-    title: "Data Attributes & Workflow",
+    title: "Build Workflow",
     desc: "Configure data fields, workflow instructions, and knowledge base",
     icon: Cog6ToothIcon,
   },
   {
-    title: "Input Collection",
-    desc: "Upload training data and configure portfolio modeling",
+    title: "Portfolio Modeling",
+    desc: "Upload account data and configure AI-powered portfolio analysis",
     icon: DocumentIcon,
   },
   {
@@ -320,12 +388,15 @@ export default function CreateAssistant() {
     creditorPhone: "+1 555-123-4567",
     creditorEmail: "contact@nubank.com",
     creditorTimezone: "America/New_York",
+    businessHoursStart: "09:00",
+    businessHoursEnd: "17:00",
+    businessDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
     segment: "First Party",
     microSegment: "Auto Loan",
     selectedVoice: "Susan",
   });
   const [collapsedSections, setCollapsedSections] = useState({
-    mandatory: false,
+    mandatory: true,
     aiRecommended: true,
     custom: true,
   });
@@ -345,6 +416,51 @@ export default function CreateAssistant() {
   const [uploadedCSV, setUploadedCSV] = useState(null);
   const [showPortfolioAI, setShowPortfolioAI] = useState(false);
   const [portfolioProcessingComplete, setPortfolioProcessingComplete] = useState(false);
+  
+  // Tab state for upload sections
+  const [accountDataTab, setAccountDataTab] = useState("direct");
+  const [recordingsTab, setRecordingsTab] = useState("direct");
+  const [additionalDataTab, setAdditionalDataTab] = useState("direct");
+  
+  // Tab state for segments
+  const [segmentTab, setSegmentTab] = useState("custom");
+  
+  // DPD Configuration State
+  const [dpdStages, setDpdStages] = useState([
+    {
+      id: 1,
+      name: "Pre-Due",
+      description: "Accounts approaching due date",
+      color: "blue",
+      fromDays: -5,
+      toDays: 0
+    },
+    {
+      id: 2,
+      name: "Early DPD",
+      description: "Recently past due accounts",
+      color: "orange",
+      fromDays: 1,
+      toDays: 30
+    },
+    {
+      id: 3,
+      name: "Mid DPD",
+      description: "Moderately delinquent accounts",
+      color: "red",
+      fromDays: 31,
+      toDays: 90
+    }
+  ]);
+  const [showCreateDpdStage, setShowCreateDpdStage] = useState(false);
+  const [editingDpdStage, setEditingDpdStage] = useState(null);
+  const [newDpdStage, setNewDpdStage] = useState({
+    name: "",
+    description: "",
+    color: "blue",
+    fromDays: 0,
+    toDays: 0
+  });
   
   const navigate = useNavigate();
 
@@ -381,6 +497,74 @@ export default function CreateAssistant() {
       setStep(step - 1);
     }
   }
+
+  // DPD Helper Functions
+  const getDpdColorClasses = (color) => {
+    const colorMap = {
+      blue: "border-blue-200 bg-blue-50",
+      green: "border-green-200 bg-green-50",
+      orange: "border-orange-200 bg-orange-50", 
+      red: "border-red-200 bg-red-50",
+      purple: "border-purple-200 bg-purple-50",
+      gray: "border-gray-200 bg-gray-50",
+      black: "border-gray-800 bg-gray-100"
+    };
+    return colorMap[color] || colorMap.blue;
+  };
+
+  const getDpdColorDot = (color) => {
+    const colorMap = {
+      blue: "bg-blue-500",
+      green: "bg-green-500",
+      orange: "bg-orange-500",
+      red: "bg-red-500", 
+      purple: "bg-purple-500",
+      gray: "bg-gray-500",
+      black: "bg-gray-800"
+    };
+    return colorMap[color] || colorMap.blue;
+  };
+
+  const handleEditDpdStage = (stage) => {
+    setEditingDpdStage(stage);
+    setNewDpdStage(stage);
+    setShowCreateDpdStage(true);
+  };
+
+  const handleDeleteDpdStage = (stageId) => {
+    setDpdStages(prev => prev.filter(stage => stage.id !== stageId));
+  };
+
+  const handleCreateDpdStage = () => {
+    if (editingDpdStage) {
+      setDpdStages(prev => prev.map(stage => 
+        stage.id === editingDpdStage.id ? { ...newDpdStage, id: editingDpdStage.id } : stage
+      ));
+    } else {
+      setDpdStages(prev => [...prev, { ...newDpdStage, id: Date.now() }]);
+    }
+    setShowCreateDpdStage(false);
+    setEditingDpdStage(null);
+    setNewDpdStage({
+      name: "",
+      description: "",
+      color: "blue",
+      fromDays: 0,
+      toDays: 0
+    });
+  };
+
+  const handleCancelCreateDpd = () => {
+    setShowCreateDpdStage(false);
+    setEditingDpdStage(null);
+    setNewDpdStage({
+      name: "",
+      description: "",
+      color: "blue",
+      fromDays: 0,
+      toDays: 0
+    });
+  };
 
   function handleStartSetup() {
     setStep(1);
@@ -724,7 +908,156 @@ export default function CreateAssistant() {
               </div>
             </div>
 
+            {/* Creditor Information Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Creditor Information
+              </h3>
+              <p className="text-gray-600 text-sm mb-6">
+                Provide your organization details for compliance and contact purposes
+              </p>
 
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Creditor Name
+                    </label>
+                    <input
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                      value={form.creditorName}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, creditorName: e.target.value }))
+                      }
+                      placeholder="Enter organization name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Phone Number
+                    </label>
+                    <input
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                      value={form.creditorPhone}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, creditorPhone: e.target.value }))
+                      }
+                      placeholder="+1 (555) 123-4567"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                      value={form.creditorEmail}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, creditorEmail: e.target.value }))
+                      }
+                      placeholder="contact@organization.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Timezone
+                    </label>
+                    <select
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                      value={form.creditorTimezone}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, creditorTimezone: e.target.value }))
+                      }
+                    >
+                      <option value="America/New_York">Eastern Time (ET)</option>
+                      <option value="America/Chicago">Central Time (CT)</option>
+                      <option value="America/Denver">Mountain Time (MT)</option>
+                      <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                      <option value="America/Anchorage">Alaska Time (AKT)</option>
+                      <option value="Pacific/Honolulu">Hawaii Time (HST)</option>
+                      <option value="UTC">Coordinated Universal Time (UTC)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Business Hours */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Business Hours
+                  </label>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Start Time
+                      </label>
+                      <input
+                        type="time"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                        value={form.businessHoursStart}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, businessHoursStart: e.target.value }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        End Time
+                      </label>
+                      <input
+                        type="time"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                        value={form.businessHoursEnd}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, businessHoursEnd: e.target.value }))
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-2">
+                      Business Days
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
+                        <button
+                          key={day}
+                          type="button"
+                          onClick={() => {
+                            const isSelected = form.businessDays.includes(day);
+                            if (isSelected) {
+                              setForm((f) => ({
+                                ...f,
+                                businessDays: f.businessDays.filter(d => d !== day)
+                              }));
+                            } else {
+                              setForm((f) => ({
+                                ...f,
+                                businessDays: [...f.businessDays, day]
+                              }));
+                            }
+                          }}
+                          className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                            form.businessDays.includes(day)
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {day.substring(0, 3)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Action Buttons */}
             <div className="flex justify-end pt-6 border-t border-gray-200">
@@ -751,7 +1084,108 @@ export default function CreateAssistant() {
               </div>
             </div>
 
-            {/* \Data Attributes Section */}
+            {/* Build Workflow Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Build Workflow
+              </h3>
+              <p className="text-gray-600 text-sm mb-6">
+                Configure workflow instructions, knowledge base, and policies
+              </p>
+
+              {/* Instructions Section */}
+              <div className="mb-8">
+                <h4 className="text-md font-semibold text-gray-900 mb-2">
+                  Workflow Instructions
+                </h4>
+                <p className="text-gray-600 text-sm mb-4">
+                  Provide detailed instructions for your AI assistant's workflow and behavior
+                </p>
+                
+                <div className="mb-6">
+                  <textarea
+                    value={workflowInstructions}
+                    onChange={(e) => setWorkflowInstructions(e.target.value)}
+                    placeholder="Enter detailed instructions for your AI assistant's workflow, including conversation flow, compliance requirements, escalation procedures, and any specific guidelines..."
+                    className="w-full h-40 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
+                  />
+                </div>
+              </div>
+
+              {/* Knowledge Base & Policies */}
+              <div className="mb-8">
+                <h4 className="text-md font-semibold text-gray-900 mb-2">
+                  Knowledge Base & Policies
+                </h4>
+                <p className="text-gray-600 text-sm mb-4">
+                  Upload knowledge base documents, policies, and guardrails
+                </p>
+                
+                <div className="mb-6">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <div className="text-left">
+                          <p className="text-sm text-gray-600 mb-1">
+                            Drop documents here or click to browse
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Supports PDF, DOC, DOCX, TXT files up to 25MB each
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <img src="/images/logo.png" alt="Reference" className="w-8 h-8 opacity-30" />
+                        <button className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm">
+                          Choose Files
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Guardrails Section */}
+              <div className="mb-8">
+                <h4 className="text-md font-semibold text-gray-900 mb-2">
+                  Compliance Guardrails
+                </h4>
+                <p className="text-gray-600 text-sm mb-4">
+                  Upload compliance documents and guardrails to ensure regulatory adherence
+                </p>
+                
+                <div className="mb-6">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <div className="text-left">
+                          <p className="text-sm text-gray-600 mb-1">
+                            Drop compliance documents here or click to browse
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Supports PDF, DOC, DOCX, TXT files up to 25MB each
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <img src="/images/logo.png" alt="Reference" className="w-8 h-8 opacity-30" />
+                        <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm">
+                          Choose Files
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Data Attributes Section */}
             <div className="mb-8">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 Data Attributes
@@ -1096,91 +1530,167 @@ export default function CreateAssistant() {
                 )}
               </div>
 
-              {/* Build Workflow Section */}
+              {/* DPD Configuration Section */}
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Build Workflow
+                  DPD Configuration
                 </h3>
                 <p className="text-gray-600 text-sm mb-6">
-                  Configure workflow instructions, knowledge base, and policies
+                  Configure Days Past Due (DPD) stages for your collection workflow.
                 </p>
 
-                {/* Instructions Section */}
-                <div className="mb-8">
-                  <h4 className="text-md font-semibold text-gray-900 mb-2">
-                    Workflow Instructions
-                  </h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Provide detailed instructions for your AI assistant's workflow and behavior
-                  </p>
-                  
-                  <div className="mb-6">
-                    <textarea
-                      value={workflowInstructions}
-                      onChange={(e) => setWorkflowInstructions(e.target.value)}
-                      placeholder="Enter detailed instructions for your AI assistant's workflow, including conversation flow, compliance requirements, escalation procedures, and any specific guidelines..."
-                      className="w-full h-40 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
-                    />
+                {/* DPD Stages Summary */}
+                <div className="flex items-center justify-between mb-6">
+                  <span className="text-sm text-gray-600">
+                    <strong>{dpdStages.length}</strong> DPD Stages Configured
+                  </span>
+                  <button 
+                    onClick={() => setShowCreateDpdStage(true)}
+                    className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+                  >
+                    + Add Stage
+                  </button>
+                </div>
+
+                {/* DPD Stages Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {dpdStages.map((stage) => (
+                    <div key={stage.id} className={`rounded-lg border-2 border-dashed p-4 ${getDpdColorClasses(stage.color)}`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center">
+                          <div className={`w-3 h-3 rounded-full mr-2 ${getDpdColorDot(stage.color)}`}></div>
+                          <h4 className="text-sm font-semibold text-gray-900">{stage.name}</h4>
+                        </div>
+                        <div className="flex space-x-1">
+                          <button 
+                            onClick={() => handleEditDpdStage(stage)}
+                            className="text-gray-600 hover:text-gray-900 p-1 hover:bg-white rounded"
+                          >
+                            <PencilIcon className="h-3 w-3" />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteDpdStage(stage.id)}
+                            className="text-red-600 hover:text-red-900 p-1 hover:bg-white rounded"
+                          >
+                            <TrashIcon className="h-3 w-3" />
+                          </button>
                   </div>
                 </div>
 
-                {/* Knowledge Base & Policies */}
-                <div className="mb-8">
-                  <h4 className="text-md font-semibold text-gray-900 mb-2">
-                    Knowledge Base & Policies
-                  </h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Upload knowledge base documents, policies, and guardrails
-                  </p>
-                  
-                  <div className="mb-6">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                      <div className="flex flex-col items-center">
-                        <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <p className="text-sm text-gray-600 mb-2">
-                          Drop documents here or click to browse
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Supports PDF, DOC, DOCX, TXT files up to 25MB each
-                        </p>
-                        <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                          Choose Files
+                      <p className="text-xs text-gray-700 mb-3">{stage.description}</p>
+                      
+                      <div className="flex items-center space-x-3 text-xs">
+                        <div className="flex items-center">
+                          <span className="text-gray-600">From</span>
+                          <span className="mx-1 font-medium">{stage.fromDays}</span>
+                          <span className="text-gray-500">days</span>
+                      </div>
+                        <div className="flex items-center">
+                          <span className="text-gray-600">To</span>
+                          <span className="mx-1 font-medium">{stage.toDays}</span>
+                          <span className="text-gray-500">days</span>
+                    </div>
+                  </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Create New DPD Stage Modal */}
+                {showCreateDpdStage && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black bg-opacity-25" onClick={handleCancelCreateDpd}></div>
+                    <div className="relative bg-white rounded-xl border-2 border-dashed border-gray-300 p-6 w-96 mx-4">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        {editingDpdStage ? "Edit DPD Stage" : "Create New DPD Stage"}
+                      </h3>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Stage Name
+                          </label>
+                          <input
+                            type="text"
+                            value={newDpdStage.name}
+                            onChange={(e) => setNewDpdStage({...newDpdStage, name: e.target.value})}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="e.g., Early DPD"
+                          />
+                      </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Description
+                          </label>
+                          <textarea
+                            value={newDpdStage.description}
+                            onChange={(e) => setNewDpdStage({...newDpdStage, description: e.target.value})}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            rows={2}
+                            placeholder="Brief description of this stage"
+                          />
+                    </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              From Days
+                            </label>
+                            <input
+                              type="number"
+                              value={newDpdStage.fromDays}
+                              onChange={(e) => setNewDpdStage({...newDpdStage, fromDays: parseInt(e.target.value)})}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                  </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              To Days
+                            </label>
+                            <input
+                              type="number"
+                              value={newDpdStage.toDays}
+                              onChange={(e) => setNewDpdStage({...newDpdStage, toDays: parseInt(e.target.value)})}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                </div>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Color
+                          </label>
+                          <div className="flex space-x-2">
+                            {['blue', 'green', 'orange', 'red', 'purple', 'gray'].map((color) => (
+                              <button
+                                key={color}
+                                onClick={() => setNewDpdStage({...newDpdStage, color})}
+                                className={`w-6 h-6 rounded-full ${getDpdColorDot(color)} ${
+                                  newDpdStage.color === color ? 'ring-2 ring-gray-800' : ''
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end space-x-3 mt-6">
+                        <button
+                          onClick={handleCancelCreateDpd}
+                          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleCreateDpdStage}
+                          className="px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                        >
+                          {editingDpdStage ? "Update Stage" : "Create Stage"}
                         </button>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Guardrails Section */}
-                <div className="mb-8">
-                  <h4 className="text-md font-semibold text-gray-900 mb-2">
-                    Compliance Guardrails
-                  </h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Upload compliance documents and guardrails to ensure regulatory adherence
-                  </p>
-                  
-                  <div className="mb-6">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                      <div className="flex flex-col items-center">
-                        <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
-                        <p className="text-sm text-gray-600 mb-2">
-                          Drop compliance documents here or click to browse
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Supports PDF, DOC, DOCX, TXT files up to 25MB each
-                        </p>
-                        <button className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
-                          Choose Files
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
 
               {/* Action Buttons */}
@@ -1229,13 +1739,13 @@ export default function CreateAssistant() {
               </div>
             </div>
 
-            {/* Input Collection Section */}
+            {/* Portfolio Modeling Section */}
             <div className="mb-8">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Input Collection
+                Portfolio Modeling
               </h3>
               <p className="text-gray-600 text-sm mb-6">
-                Upload training data and configure portfolio modeling to setup and train your assistant
+                Upload account data and optional call recordings for AI-powered portfolio analysis and personalized collection strategies
               </p>
 
               {/* Account Details Upload */}
@@ -1244,63 +1754,93 @@ export default function CreateAssistant() {
                   Account Details Upload
                 </h4>
                 <p className="text-gray-600 text-sm mb-4">
-                  Upload your customer account details for portfolio analysis
+                  AI will analyze your customer account data to create intelligent portfolio segments and personalized collection strategies
                 </p>
                 
+                {/* CSV Format - Collapsible for both tabs */}
                 <div className="mb-4">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                    <div className="flex items-start">
-                      <svg className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                      </svg>
-                      <div>
-                        <h5 className="text-sm font-semibold text-blue-900 mb-1">Sample CSV Format</h5>
-                        <p className="text-sm text-blue-800 mb-2">Download sample CSV template with required fields:</p>
-                        <button className="text-sm text-blue-600 hover:text-blue-800 underline">
+                  <details className="bg-blue-50 border border-blue-200 rounded-lg">
+                    <summary className="px-4 py-3 cursor-pointer text-sm font-medium text-blue-900 hover:bg-blue-100">
+                      📋 CSV Format Requirements
+                    </summary>
+                    <div className="px-4 pb-3">
+                      <div className="bg-white border border-blue-200 rounded p-2 font-mono text-xs">
+                        <div className="text-blue-600 mb-1">account_id,customer_name,phone,email,balance_due,dpd</div>
+                        <div className="text-gray-700">ACC_12345,John Smith,+15551234567,john@email.com,2500.00,15</div>
+                      </div>
+                      <p className="text-xs text-blue-700 mt-2">
+                        <strong>Required:</strong> account_id, customer_name, phone, email, balance_due, dpd • 
+                        <strong>Optional:</strong> last_payment_date, payment_history, risk_score, product_type
+                      </p>
+                      <button className="text-xs text-blue-600 hover:text-blue-800 underline mt-1">
                           Download Sample CSV Template
                         </button>
                       </div>
-                    </div>
-                  </div>
+                  </details>
                 </div>
                 
+                {/* Upload Method Tabs */}
                 <div className="mb-6">
-                  <div 
-                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                  <div className="flex space-x-1 mb-4">
+                    <button
+                      onClick={() => setAccountDataTab("direct")}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        accountDataTab === "direct"
+                          ? "bg-blue-500 text-white"
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      }`}
+                    >
+                      Direct Upload
+                    </button>
+                    <button
+                      onClick={() => setAccountDataTab("sftp")}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        accountDataTab === "sftp"
+                          ? "bg-blue-500 text-white"
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      }`}
+                    >
+                      SFTP Upload
+                    </button>
+                  </div>
+
+                  {accountDataTab === "direct" && (
+                    <div 
+                      className={`border-2 border-dashed rounded-lg p-4 transition-colors ${
                       uploadedCSV 
                         ? 'border-green-300 bg-green-50' 
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
                     {uploadedCSV ? (
-                      <div className="flex flex-col items-center">
-                        <svg className="w-12 h-12 text-green-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <p className="text-sm font-medium text-green-900 mb-1">
-                          {uploadedCSV.name}
-                        </p>
-                        <p className="text-xs text-green-700 mb-4">
-                          {uploadedCSV.records} records • {uploadedCSV.size}
-                        </p>
+                            <div className="text-left">
+                              <p className="text-sm font-medium text-green-900">{uploadedCSV.name}</p>
+                              <p className="text-xs text-green-700">{uploadedCSV.records} records • {uploadedCSV.size}</p>
+                            </div>
+                          </div>
                         <button 
                           onClick={() => setUploadedCSV(null)}
                           className="text-sm text-red-600 hover:text-red-800"
                         >
-                          Remove file
+                            Remove
                         </button>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center">
-                        <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
-                        <p className="text-sm text-gray-600 mb-2">
-                          Drop your account CSV file here or click to browse
-                        </p>
-                        <p className="text-xs text-gray-500 mb-4">
-                          CSV format, Account ID required for data correlation
-                        </p>
+                            <div className="text-left">
+                              <p className="text-sm text-gray-600">Drop account CSV or click to browse</p>
+                              <p className="text-xs text-gray-500">CSV format, Account ID required</p>
+                            </div>
+                          </div>
                         <button 
                           onClick={() => {
                             // Simulate file upload
@@ -1310,43 +1850,135 @@ export default function CreateAssistant() {
                               size: "3.2 MB"
                             });
                           }}
-                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
                         >
                           Choose File
                         </button>
                       </div>
                     )}
                   </div>
+                  )}
+
+                  {accountDataTab === "sftp" && (
+                    <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 bg-blue-50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12l4-4m-4 4l4 4" />
+                          </svg>
+                          <div className="text-left">
+                            <p className="text-sm font-semibold text-blue-900">Upload via SFTP</p>
+                            <p className="text-xs text-blue-700">sftp.collections.ai → /accounts/</p>
+                          </div>
+                        </div>
+                        <div className="text-xs text-blue-800 text-right">
+                          <p><strong>User:</strong> account_data</p>
+                          <p><strong>Pass:</strong> Via email</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Call Recordings Upload */}
+              {/* Call Recordings Upload - Optional */}
               <div className="mb-8">
-                <h4 className="text-md font-semibold text-gray-900 mb-2">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-md font-semibold text-gray-900">
                   Call Recordings for Training
                 </h4>
+                  <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                    Optional
+                  </span>
+                </div>
                 <p className="text-gray-600 text-sm mb-4">
-                  Upload sample call recordings to train the LLM for better conversations
+                  Upload sample call recordings to train the AI for better conversation patterns and responses
                 </p>
-                
+
+                {/* CSV Format - Collapsible for both tabs */}
+                <div className="mb-4">
+                  <details className="bg-blue-50 border border-blue-200 rounded-lg">
+                    <summary className="px-4 py-3 cursor-pointer text-sm font-medium text-blue-900 hover:bg-blue-100">
+                      📋 CSV Format Requirements
+                    </summary>
+                    <div className="px-4 pb-3">
+                      <div className="bg-white border border-blue-200 rounded p-2 font-mono text-xs">
+                        <div className="text-blue-600 mb-1">call_id,account_id,duration,outcome,transcript</div>
+                        <div className="text-gray-700">CALL_001,ACC_12345,185,payment_arranged,"Customer agreed..."</div>
+                      </div>
+                      <p className="text-xs text-blue-700 mt-2">
+                        <strong>Required:</strong> call_id, account_id, duration • <strong>Optional:</strong> outcome, transcript
+                      </p>
+                    </div>
+                  </details>
+                </div>
+
+                {/* Upload Method Tabs */}
                 <div className="mb-6">
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                    <div className="flex flex-col items-center">
-                      <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex space-x-1 mb-4">
+                    <button
+                      onClick={() => setRecordingsTab("direct")}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        recordingsTab === "direct"
+                          ? "bg-purple-500 text-white"
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      }`}
+                    >
+                      Direct Upload
+                    </button>
+                    <button
+                      onClick={() => setRecordingsTab("sftp")}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        recordingsTab === "sftp"
+                          ? "bg-purple-500 text-white"
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      }`}
+                    >
+                      SFTP Upload
+                    </button>
+                  </div>
+
+                  {recordingsTab === "direct" && (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                       </svg>
-                      <p className="text-sm text-gray-600 mb-2">
-                        Drop audio files here or click to browse
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Supports MP3, WAV, M4A files up to 50MB each
-                      </p>
-                      <button className="mt-4 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
+                          <div className="text-left">
+                            <p className="text-sm text-gray-600">Drop audio files or click to browse</p>
+                            <p className="text-xs text-gray-500">MP3, WAV, M4A up to 50MB each</p>
+                          </div>
+                        </div>
+                        <button className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm">
                         Choose Files
                       </button>
                     </div>
                   </div>
+                  )}
+
+                  {recordingsTab === "sftp" && (
+                    <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 bg-blue-50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12l4-4m-4 4l4 4" />
+                          </svg>
+                          <div className="text-left">
+                            <p className="text-sm font-semibold text-blue-900">Upload via SFTP</p>
+                            <p className="text-xs text-blue-700">sftp.collections.ai → /recordings/</p>
+                          </div>
+                        </div>
+                        <div className="text-xs text-blue-800 text-right">
+                          <p><strong>User:</strong> portfolio_upload</p>
+                          <p><strong>Pass:</strong> Via email</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
+                
+
 
                 {/* Uploaded Recordings List */}
                 {uploadedRecordings.length > 0 && (
@@ -1428,6 +2060,57 @@ export default function CreateAssistant() {
                     Upload the following data to enhance AI-powered portfolio modeling (ensure Account ID correlation)
                   </p>
                   
+                  {/* CSV Format - Collapsible for both tabs */}
+                  <div className="mb-4">
+                    <details className="bg-purple-100 border border-purple-300 rounded-lg">
+                      <summary className="px-4 py-3 cursor-pointer text-sm font-medium text-purple-900 hover:bg-purple-200">
+                        📋 CSV Format Requirements
+                      </summary>
+                      <div className="px-4 pb-3 space-y-3">
+                        <div>
+                          <h6 className="text-xs font-semibold text-purple-900 mb-1">Baseline Account Data:</h6>
+                          <div className="bg-white border border-purple-200 rounded p-2 font-mono text-xs">
+                            <div className="text-purple-600 mb-1">account_id,attempts,rpc,ptp,kept_ptp,liquidation,ahr</div>
+                            <div className="text-gray-700">ACC_12345,8,3,1,1,2500.00,245</div>
+                          </div>
+                        </div>
+                        <div>
+                          <h6 className="text-xs font-semibold text-purple-900 mb-1">CRM Communications:</h6>
+                          <div className="bg-white border border-purple-200 rounded p-2 font-mono text-xs">
+                            <div className="text-purple-600 mb-1">account_id,note_date,note_type,outcome,agent_notes</div>
+                            <div className="text-gray-700">ACC_12345,2024-01-15,call,ptp_made,"Customer agreed..."</div>
+                          </div>
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+
+                  {/* Upload Method Tabs */}
+                  <div className="mb-6">
+                    <div className="flex space-x-1 mb-4">
+                      <button
+                        onClick={() => setAdditionalDataTab("direct")}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                          additionalDataTab === "direct"
+                            ? "bg-purple-500 text-white"
+                            : "text-purple-700 hover:text-purple-900 hover:bg-purple-100"
+                        }`}
+                      >
+                        Direct Upload
+                      </button>
+                      <button
+                        onClick={() => setAdditionalDataTab("sftp")}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                          additionalDataTab === "sftp"
+                            ? "bg-purple-500 text-white"
+                            : "text-purple-700 hover:text-purple-900 hover:bg-purple-100"
+                        }`}
+                      >
+                        SFTP Upload
+                      </button>
+                    </div>
+
+                    {additionalDataTab === "direct" && (
                   <div className="space-y-4">
                     {/* Baseline Account Data */}
                     <div>
@@ -1437,14 +2120,21 @@ export default function CreateAssistant() {
                       <p className="text-xs text-purple-700 mb-3">
                         Average agent data: Attempts, RPC, PTP, Kept-PTP, liquidation/cure by DPD, AHT/containment
                       </p>
-                      <div className="border-2 border-dashed border-purple-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors">
-                        <svg className="w-8 h-8 text-purple-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="border-2 border-dashed border-purple-300 rounded-lg p-4 hover:border-purple-400 transition-colors">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
+                                <div className="text-left">
                         <p className="text-sm text-purple-600">Upload baseline data CSV</p>
-                        <button className="mt-2 px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600">
+                                  <p className="text-xs text-purple-500">Performance metrics by account</p>
+                                </div>
+                              </div>
+                              <button className="px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600">
                           Choose File
                         </button>
+                            </div>
                       </div>
                     </div>
 
@@ -1456,16 +2146,45 @@ export default function CreateAssistant() {
                       <p className="text-xs text-purple-700 mb-3">
                         Account notes, prior outcomes (PTP broken/kept), dispute/cease-and-desist records
                       </p>
-                      <div className="border-2 border-dashed border-purple-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors">
-                        <svg className="w-8 h-8 text-purple-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="border-2 border-dashed border-purple-300 rounded-lg p-4 hover:border-purple-400 transition-colors">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
+                                <div className="text-left">
                         <p className="text-sm text-purple-600">Upload CRM communications CSV</p>
-                        <button className="mt-2 px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600">
+                                  <p className="text-xs text-purple-500">Historical notes and outcomes</p>
+                                </div>
+                              </div>
+                              <button className="px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600">
                           Choose File
                         </button>
                       </div>
                     </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {additionalDataTab === "sftp" && (
+                      <div className="border-2 border-dashed border-purple-300 rounded-lg p-4 bg-purple-100">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <svg className="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12l4-4m-4 4l4 4" />
+                            </svg>
+                            <div className="text-left">
+                              <p className="text-sm font-semibold text-purple-900">Upload via SFTP</p>
+                              <p className="text-xs text-purple-700">sftp.collections.ai → /additional-data/</p>
+                            </div>
+                          </div>
+                          <div className="text-xs text-purple-800 text-right">
+                            <p><strong>User:</strong> ai_analysis</p>
+                            <p><strong>Pass:</strong> Via email</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -1786,38 +2505,69 @@ export default function CreateAssistant() {
             {/* Generated Segments Section */}
             <div className="mb-8">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                AI Generated Segments
+                Portfolio Segments
               </h3>
               <p className="text-gray-600 text-sm mb-6">
-                Review the intelligent segments created by AI for your portfolio
+                Review and choose from AI-generated custom segments or pre-built templates
               </p>
+
+              {/* Segment Tabs */}
+              <div className="mb-6">
+                <div className="flex space-x-1 mb-6">
+                  <button
+                    onClick={() => setSegmentTab("custom")}
+                    className={`px-6 py-3 text-sm font-medium rounded-lg transition-colors ${
+                      segmentTab === "custom"
+                        ? "bg-blue-500 text-white"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    }`}
+                  >
+                    Custom Segments
+                  </button>
+                  <button
+                    onClick={() => setSegmentTab("prebuilt")}
+                    className={`px-6 py-3 text-sm font-medium rounded-lg transition-colors ${
+                      segmentTab === "prebuilt"
+                        ? "bg-blue-500 text-white"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    }`}
+                  >
+                    Pre-build Segments
+                  </button>
+                </div>
+              </div>
               
+              {/* Custom Segments Tab */}
+              {segmentTab === "custom" && (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold text-gray-900">AI Generated Custom Segments</h4>
+                    <span className="text-sm text-gray-500">{generatedSegments.length} segments created</span>
+                  </div>
               <div className="space-y-4">
                 {generatedSegments.map((segment, index) => (
-                  <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-start justify-between mb-4">
+                      <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                        {/* Header Section */}
+                        <div className="p-6 border-b border-gray-100">
+                          <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h4 className="text-lg font-semibold text-gray-900">
-                            {segment.id}
-                          </h4>
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                  {segment.id.replace('Segment ', '').split(':')[0]}
+                                </h3>
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             Early Stage
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 mb-4">
+                              <p className="text-sm text-gray-600 mb-3">
                           {segment.characteristics}
                         </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-6 text-sm text-gray-500">
                         <div className="flex items-center">
                           <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                           </svg>
-                          <span className="font-medium">4 Rules Applied</span>
+                                  <span className="font-medium">{Math.floor(Math.random() * 5) + 2} Rules Applied</span>
                         </div>
                         <div className="flex items-center">
                           <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1832,7 +2582,7 @@ export default function CreateAssistant() {
                           <span>{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                         </div>
                       </div>
-                      
+                            </div>
                       <div className="flex items-center space-x-3">
                         <button className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium">
                           View Journey
@@ -1840,10 +2590,7 @@ export default function CreateAssistant() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                           </svg>
                         </button>
-                        <button 
-                          onClick={() => navigate(`/workflows/segments/${segment.id.toLowerCase().replace(/[^a-z0-9]/g, '-')}/edit`)}
-                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        >
+                              <button className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                           <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
@@ -1851,9 +2598,148 @@ export default function CreateAssistant() {
                         </button>
                       </div>
                     </div>
+                        </div>
+                        
+                        {/* Expandable Logic Details */}
+                        <details className="group">
+                          <summary className="p-4 cursor-pointer text-sm font-medium text-gray-700 hover:bg-gray-50 list-none">
+                            <div className="flex items-center justify-between">
+                              <span>View Segment Logic & Details</span>
+                              <svg className="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                          </summary>
+                          <div className="px-6 pb-6 space-y-4">
+                            <div>
+                              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Logic Expression</span>
+                              <div className="text-sm text-gray-700 bg-blue-50 px-3 py-2 rounded mt-1 font-mono">
+                                {segment.logic}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Messaging Focus</span>
+                              <div className="text-sm text-gray-700 bg-green-50 px-3 py-2 rounded mt-1">
+                                {segment.focus}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Account Count</span>
+                              <div className="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded mt-1">
+                                <span className="font-semibold text-blue-600">{segment.accounts.toLocaleString()}</span> accounts match this segment
+                              </div>
+                            </div>
+                          </div>
+                        </details>
                   </div>
                 ))}
               </div>
+                </div>
+              )}
+
+              {/* Pre-built Segments Tab */}
+              {segmentTab === "prebuilt" && (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold text-gray-900">Pre-built Segment Templates</h4>
+                    <span className="text-sm text-gray-500">{preBuiltSegments.length} templates available</span>
+                  </div>
+                  <div className="space-y-4">
+                    {preBuiltSegments.map((segment, index) => (
+                      <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                        {/* Header Section */}
+                        <div className="p-6 border-b border-gray-100">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                  {segment.id}
+                                </h3>
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                  {segment.template}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600 mb-3">
+                                {segment.characteristics}
+                              </p>
+                              <div className="flex items-center space-x-6 text-sm text-gray-500">
+                                <div className="flex items-center">
+                                  <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                  </svg>
+                                  <span className="font-medium">Template Rules</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                  </svg>
+                                  <span>System Template</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
+                                  <span>Ready to Use</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                              <button className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                Preview Template
+                                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                              </button>
+                              <button className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Use Template
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Expandable Logic Details */}
+                        <details className="group">
+                          <summary className="p-4 cursor-pointer text-sm font-medium text-gray-700 hover:bg-gray-50 list-none">
+                            <div className="flex items-center justify-between">
+                              <span>View Template Logic & Details</span>
+                              <svg className="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                          </summary>
+                          <div className="px-6 pb-6 space-y-4">
+                            <div>
+                              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Logic Expression</span>
+                              <div className="text-sm text-gray-700 bg-blue-50 px-3 py-2 rounded mt-1 font-mono">
+                                {segment.logic}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Collection Strategy</span>
+                              <div className="text-sm text-gray-700 bg-yellow-50 px-3 py-2 rounded mt-1">
+                                {segment.focus}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Estimated Account Count</span>
+                              <div className="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded mt-1">
+                                <span className="font-semibold text-green-600">{segment.accounts.toLocaleString()}</span> estimated accounts for this template
+                              </div>
+                            </div>
+                          </div>
+                        </details>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Completion Message */}

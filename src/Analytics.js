@@ -52,8 +52,8 @@ const productOptions = ["All Products", "Auto Loan", "Credit Card", "Mortgage"];
 const dpdOptions = ["All DPD", "0-30", "31-60", "61-90", "91+"];
 const segmentOptions = ["All Segments", "High Value", "Mid Risk", "Late Stage"];
 const tabOptions = [
-  "Performance Overview",
-  "DPD Performance",
+  "Collection Overview",
+  "DPD Performance", 
   "Outbound Campaign",
   "Inbound Analysis",
   "User Experience",
@@ -135,6 +135,7 @@ export default function Analytics() {
   });
   const [tab, setTab] = useState(tabOptions[0]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
 
   const filters = [
     {
@@ -210,183 +211,277 @@ export default function Analytics() {
         ))}
       </div>
 
+      {/* Filters Header Section */}
+      {tab === "Collection Overview" && (
+        <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <h4 className="text-sm font-semibold text-gray-900">Advance Filters</h4>
+              <span className="text-xs text-gray-500">Default selected period to last 7 days</span>
+            </div>
+            <button 
+              onClick={() => setShowMoreFilters(!showMoreFilters)}
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              {showMoreFilters ? "Hide filters" : "Show filters"}
+            </button>
+          </div>
+
+          {/* All Filters - Collapsible */}
+          {showMoreFilters && (
+            <div className="mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Months</label>
+                  <FilterDropdown options={["Last 7 days", "Last 30 days", "Last 90 days", "Custom"]} value="Last 7 days" onChange={() => {}} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">DPD buckets</label>
+                  <FilterDropdown options={["All DPD", "0-30", "31-60", "61-90", "91+"]} value="All DPD" onChange={() => {}} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Customer Income segment</label>
+                  <FilterDropdown options={["All Segments", "High Income", "Mid Income", "Low Income"]} value="All Segments" onChange={() => {}} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Communication channel</label>
+                  <FilterDropdown options={["All Channels", "Phone", "SMS", "Email", "WhatsApp"]} value="All Channels" onChange={() => {}} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Total Loan amount buckets</label>
+                  <FilterDropdown options={["All Amounts", "$0-5K", "$5K-15K", "$15K-30K", "$30K+"]} value="All Amounts" onChange={() => {}} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Customer credit score bucket</label>
+                  <FilterDropdown options={["All Scores", "Excellent", "Good", "Fair", "Poor"]} value="All Scores" onChange={() => {}} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Number of Prior missed payments</label>
+                  <FilterDropdown options={["All", "0", "1-2", "3-5", "6+"]} value="All" onChange={() => {}} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Geography</label>
+                  <FilterDropdown options={["All Regions", "North", "South", "East", "West"]} value="All Regions" onChange={() => {}} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Pending Due Buckets</label>
+                  <FilterDropdown options={["All Buckets", "$0-100", "$100-500", "$500-1K", "$1K+"]} value="All Buckets" onChange={() => {}} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Customer lifetime (months)</label>
+                  <FilterDropdown options={["All", "0-6", "6-12", "12-24", "24+"]} value="All" onChange={() => {}} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Loan lengths</label>
+                  <FilterDropdown options={["All Terms", "12 months", "24 months", "36 months", "48+ months"]} value="All Terms" onChange={() => {}} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Car Value</label>
+                  <FilterDropdown options={["All Values", "$0-15K", "$15K-30K", "$30K-50K", "$50K+"]} value="All Values" onChange={() => {}} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Customer Income</label>
+                  <FilterDropdown options={["All Income", "$0-40K", "$40K-70K", "$70K-100K", "$100K+"]} value="All Income" onChange={() => {}} />
+                </div>
+              </div>
+              
+              <div className="flex justify-end space-x-2">
+                <button className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm hover:bg-gray-800">Apply Filters</button>
+                <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50">Reset</button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Tab Content */}
       <div className="max-w-8xl mx-auto p-8">
-        {tab === "Performance Overview" && (
+        {tab === "Collection Overview" && (
           <>
             <div className="text-2xl font-bold text-zinc-900 mb-4">
-              Performance Overview
+              Collection Overview
             </div>
             
-            {/* Top KPI Cards Row */}
+            {/* KPI Cards Section */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
-                    <CurrencyDollarIcon className="w-5 h-5" />
-                  </span>
-                  <span className="text-xs text-zinc-500 font-medium">Total Collections</span>
-                </div>
-                <div className="text-2xl font-bold text-zinc-900">$1,247,392</div>
-                <div className="text-xs text-green-600">↗ +12.5%</div>
-                <div className="text-xs text-zinc-400">$1.25M payments received</div>
-              </div>
-              
-              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
-                    <CheckCircleIcon className="w-5 h-5" />
-                  </span>
-                  <span className="text-xs text-zinc-500 font-medium">Cure Rate</span>
-                </div>
-                <div className="text-2xl font-bold text-zinc-900">11.4%</div>
-                <div className="text-xs text-green-600">↗ +2.1%</div>
-                <div className="text-xs text-zinc-400">11,400 accounts cured</div>
-              </div>
-              
-              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
-                    <ArrowTrendingUpIcon className="w-5 h-5" />
-                  </span>
-                  <span className="text-xs text-zinc-500 font-medium">Collection Rate</span>
-                </div>
-                <div className="text-2xl font-bold text-zinc-900">13.3%</div>
-                <div className="text-xs text-green-600">↗ +8.4%</div>
-                <div className="text-xs text-zinc-400">$1.25M of $9.35M balance</div>
-              </div>
-              
-              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
-                    <ChartBarIcon className="w-5 h-5" />
-                  </span>
-                  <span className="text-xs text-zinc-500 font-medium">Portfolio Penetration</span>
-                </div>
-                <div className="text-2xl font-bold text-zinc-900">92.0%</div>
-                <div className="text-xs text-green-600">↗ +3.2%</div>
-                <div className="text-xs text-zinc-400">92,000 accounts contacted</div>
-              </div>
+              <MetricCard
+                icon={<CurrencyDollarIcon className="w-5 h-5" />}
+                label="Total Collections"
+                value="$2,847,392"
+                sublabel="↗ +12.5% vs last period"
+              />
+              <MetricCard
+                icon={<CheckCircleIcon className="w-5 h-5" />}
+                label="Cure Rate"
+                value="14.8%"
+                sublabel="↗ +2.3% vs last period"
+              />
+              <MetricCard
+                icon={<PhoneIcon className="w-5 h-5" />}
+                label="Contact Rate"
+                value="68.2%"
+                sublabel="↗ +5.1% vs last period"
+              />
+              <MetricCard
+                icon={<UserGroupIcon className="w-5 h-5" />}
+                label="Accounts Contacted"
+                value="45,267"
+                sublabel="↗ +8.7% vs last period"
+              />
             </div>
 
             {/* Second Row KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
-                    <BanknotesIcon className="w-5 h-5" />
-                  </span>
-                  <span className="text-xs text-zinc-500 font-medium">Portfolio Balance</span>
-                </div>
-                <div className="text-2xl font-bold text-zinc-900">$9,347,582</div>
-                <div className="text-xs text-green-600">↗ +5.2%</div>
-                <div className="text-xs text-zinc-400">Total outstanding debt</div>
-              </div>
-              
-              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
-                    <CurrencyDollarIcon className="w-5 h-5" />
-                  </span>
-                  <span className="text-xs text-zinc-500 font-medium">Balance Cured</span>
-                </div>
-                <div className="text-2xl font-bold text-zinc-900">$1,892,456</div>
-                <div className="text-xs text-green-600">↗ +8.4%</div>
-                <div className="text-xs text-zinc-400">Balance resolved to current</div>
-              </div>
-              
-              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
-                    <PhoneIcon className="w-5 h-5" />
-                  </span>
-                  <span className="text-xs text-zinc-500 font-medium">Contact Rate</span>
-                </div>
-                <div className="text-2xl font-bold text-zinc-900">48.0%</div>
-                <div className="text-xs text-green-600">↗ +2.1%</div>
-                <div className="text-xs text-zinc-400">48,000 contacts</div>
-              </div>
-              
-              <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 shadow-sm p-5 min-w-[180px] bg-white">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-200 text-zinc-700">
-                    <HandThumbUpIcon className="w-5 h-5" />
-                  </span>
-                  <span className="text-xs text-zinc-500 font-medium">PTP Rate</span>
-                </div>
-                <div className="text-2xl font-bold text-zinc-900">17.6%</div>
-                <div className="text-xs text-green-600">↗ +1.8%</div>
-                <div className="text-xs text-zinc-400">17,567 promises secured</div>
-              </div>
+              <MetricCard
+                icon={<ArrowTrendingUpIcon className="w-5 h-5" />}
+                label="Collection Rate"
+                value="18.3%"
+                sublabel="↗ +4.2% vs last period"
+              />
+              <MetricCard
+                icon={<HandThumbUpIcon className="w-5 h-5" />}
+                label="PTP Rate"
+                value="24.6%"
+                sublabel="↗ +1.8% vs last period"
+              />
+              <MetricCard
+                icon={<ClockIcon className="w-5 h-5" />}
+                label="Avg Handle Time"
+                value="3:42"
+                sublabel="↓ -8s vs last period"
+              />
+              <MetricCard
+                icon={<ChartBarIcon className="w-5 h-5" />}
+                label="Portfolio Penetration"
+                value="89.4%"
+                sublabel="↗ +2.1% vs last period"
+              />
             </div>
 
             {/* Charts Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {/* Weekly Collections Trend */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {/* Daily Collections Trend */}
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
                 <div className="font-semibold text-zinc-900 mb-2">
-                  Weekly Collections Trend
+                  Daily Collections Trend
                 </div>
                 <div className="text-xs text-zinc-500 mb-4">
                   Amount collected (bar) · Cost per Dollar collected (line)
                 </div>
-                                 <ResponsiveContainer width="100%" height={220}>
-                   <ComposedChart
-                     data={[
-                       { week: "Week 1", amount: 180000, cost: 0.12 },
-                       { week: "Week 2", amount: 220000, cost: 0.11 },
-                       { week: "Week 3", amount: 195000, cost: 0.13 },
-                       { week: "Week 4", amount: 250000, cost: 0.10 },
-                       { week: "Week 5", amount: 285000, cost: 0.09 },
-                     ]}
-                     margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                   >
-                     <CartesianGrid strokeDasharray="3 3" />
-                     <XAxis dataKey="week" />
-                     <YAxis yAxisId="left" tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
-                     <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => `$${v.toFixed(2)}`} />
-                     <Tooltip 
-                       formatter={(v, name) => 
-                         name === "amount" ? `$${v.toLocaleString()}` : `$${v.toFixed(2)}`
-                       } 
-                     />
-                     <Bar yAxisId="left" dataKey="amount" fill="#2563eb" name="Amount Collected" />
-                     <Line yAxisId="right" type="monotone" dataKey="cost" stroke="#ef4444" strokeWidth={2} name="Cost per $" />
-                   </ComposedChart>
-                 </ResponsiveContainer>
+                <ResponsiveContainer width="100%" height={220}>
+                  <ComposedChart
+                    data={[
+                      { day: "Mon", amount: 185000, cost: 0.12 },
+                      { day: "Tue", amount: 220000, cost: 0.11 },
+                      { day: "Wed", amount: 195000, cost: 0.13 },
+                      { day: "Thu", amount: 250000, cost: 0.10 },
+                      { day: "Fri", amount: 285000, cost: 0.09 },
+                      { day: "Sat", amount: 165000, cost: 0.14 },
+                      { day: "Sun", amount: 145000, cost: 0.15 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="day" />
+                    <YAxis yAxisId="left" tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                    <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => `$${v.toFixed(2)}`} />
+                    <Tooltip 
+                      formatter={(v, name) => 
+                        name === "amount" ? `$${v.toLocaleString()}` : `$${v.toFixed(2)}`
+                      } 
+                    />
+                    <Bar yAxisId="left" dataKey="amount" fill="#2563eb" name="Amount Collected" />
+                    <Line yAxisId="right" type="monotone" dataKey="cost" stroke="#ef4444" strokeWidth={2} name="Cost per $" />
+                  </ComposedChart>
+                </ResponsiveContainer>
               </div>
 
-              {/* Monthly DSO Waterfall Chart */}
+              {/* Monthly Collections Trend ($) */}
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
                 <div className="font-semibold text-zinc-900 mb-2">
-                  Monthly DSO
+                  Monthly Collections Trend ($)
                 </div>
                 <div className="text-xs text-zinc-500 mb-4">
-                  Waterfall chart
+                  Amount ($) - Bars · Cure Rate - Line
                 </div>
-                <div className="flex items-center justify-center h-[220px] text-zinc-400 bg-zinc-50 rounded-lg border border-dashed border-zinc-200">
-                  <div className="text-center">
-                    <div className="text-sm font-medium">DSO Waterfall Chart</div>
-                    <div className="text-xs mt-1">Monthly DSO → New AR → Collections → Projected DSO</div>
-                  </div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <ComposedChart
+                    data={[
+                      { month: "Jan", amount: 2800000, cureRate: 12.5 },
+                      { month: "Feb", amount: 3200000, cureRate: 13.2 },
+                      { month: "Mar", amount: 2950000, cureRate: 11.8 },
+                      { month: "Apr", amount: 3400000, cureRate: 14.1 },
+                      { month: "May", amount: 3650000, cureRate: 15.2 },
+                      { month: "Jun", amount: 3100000, cureRate: 13.8 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis yAxisId="left" tickFormatter={(v) => `$${(v / 1000000).toFixed(1)}M`} />
+                    <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => `${v}%`} />
+                    <Tooltip 
+                      formatter={(v, name) => 
+                        name === "amount" ? `$${(v / 1000000).toFixed(2)}M` : `${v}%`
+                      } 
+                    />
+                    <Bar yAxisId="left" dataKey="amount" fill="#22c55e" name="Collections" />
+                    <Line yAxisId="right" type="monotone" dataKey="cureRate" stroke="#f59e0b" strokeWidth={2} name="Cure Rate" />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Transfer rate (last 7days) */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Transfer rate (last 7days)
                 </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Agent Transfers (%) · Avg. Time to agent transfer
+                </div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <ComposedChart
+                    data={[
+                      { day: "Mon", transferRate: 8.5, avgTime: 142 },
+                      { day: "Tue", transferRate: 12.2, avgTime: 156 },
+                      { day: "Wed", transferRate: 15.8, avgTime: 168 },
+                      { day: "Thu", transferRate: 18.4, avgTime: 145 },
+                      { day: "Fri", transferRate: 22.1, avgTime: 139 },
+                      { day: "Sat", transferRate: 16.7, avgTime: 162 },
+                      { day: "Sun", transferRate: 11.3, avgTime: 171 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="day" />
+                    <YAxis yAxisId="left" tickFormatter={(v) => `${v}%`} />
+                    <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => `${v}s`} />
+                    <Tooltip 
+                      formatter={(v, name) => 
+                        name === "transferRate" ? `${v}%` : `${v}s`
+                      } 
+                    />
+                    <Bar yAxisId="left" dataKey="transferRate" fill="#8b5cf6" name="Transfer Rate" />
+                    <Line yAxisId="right" type="monotone" dataKey="avgTime" stroke="#ec4899" strokeWidth={2} name="Avg Time" />
+                  </ComposedChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
-            {/* Bottom Charts Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Second Charts Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               {/* Conversion Funnel */}
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
                 <div className="font-semibold text-zinc-900 mb-2">
                   Conversion Funnel
                 </div>
                 <div className="text-xs text-zinc-500 mb-4">
-                  Waterfall chart/Funnel
+                  Calls Connected → RPC → Due communicated → Promise to Pay → Cured
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
                     <span>Calls Connected</span>
-                    <span className="font-medium">100,000</span>
+                    <span className="font-medium">45,267</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div className="bg-blue-600 h-2 rounded-full" style={{ width: "100%" }}></div>
@@ -394,75 +489,103 @@ export default function Analytics() {
                   
                   <div className="flex items-center justify-between text-sm">
                     <span>RPC</span>
-                    <span className="font-medium">42,000</span>
+                    <span className="font-medium">30,882</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: "42%" }}></div>
+                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: "68%" }}></div>
                   </div>
                   
                   <div className="flex items-center justify-between text-sm">
                     <span>Due communicated</span>
-                    <span className="font-medium">35,000</span>
+                    <span className="font-medium">22,634</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-400 h-2 rounded-full" style={{ width: "35%" }}></div>
+                    <div className="bg-blue-400 h-2 rounded-full" style={{ width: "50%" }}></div>
                   </div>
                   
                   <div className="flex items-center justify-between text-sm">
                     <span>Promise to Pay</span>
-                    <span className="font-medium">18,000</span>
+                    <span className="font-medium">11,136</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-300 h-2 rounded-full" style={{ width: "18%" }}></div>
+                    <div className="bg-blue-300 h-2 rounded-full" style={{ width: "25%" }}></div>
                   </div>
                   
                   <div className="flex items-center justify-between text-sm">
                     <span>Cured</span>
-                    <span className="font-medium">12,000</span>
+                    <span className="font-medium">6,689</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-200 h-2 rounded-full" style={{ width: "12%" }}></div>
+                    <div className="bg-blue-200 h-2 rounded-full" style={{ width: "15%" }}></div>
                   </div>
                 </div>
               </div>
 
-              {/* Agent transfer by time of day */}
+              {/* Conversion trend */}
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
                 <div className="font-semibold text-zinc-900 mb-2">
-                  Agent transfer by time of day (last 7days)
+                  Conversion trend
                 </div>
                 <div className="text-xs text-zinc-500 mb-4">
-                  Agent Transfers (%) · Last 7 days
+                  Paid - Promise to pay - RPC
                 </div>
-                <ResponsiveContainer width="100%" height={180}>
+                <ResponsiveContainer width="100%" height={220}>
                   <LineChart
                     data={[
-                      { time: "6AM", transfers: 2.1 },
-                      { time: "9AM", transfers: 8.5 },
-                      { time: "12PM", transfers: 15.2 },
-                      { time: "3PM", transfers: 22.8 },
-                      { time: "6PM", transfers: 18.4 },
-                      { time: "9PM", transfers: 12.1 },
+                      { day: "Mon", paid: 12.5, ptp: 18.2, rpc: 65.4 },
+                      { day: "Tue", paid: 14.8, ptp: 22.1, rpc: 68.7 },
+                      { day: "Wed", paid: 13.2, ptp: 19.5, rpc: 66.2 },
+                      { day: "Thu", paid: 16.1, ptp: 24.3, rpc: 71.2 },
+                      { day: "Fri", paid: 15.4, ptp: 23.8, rpc: 69.8 },
+                      { day: "Sat", paid: 11.7, ptp: 17.2, rpc: 62.3 },
+                      { day: "Sun", paid: 10.8, ptp: 15.9, rpc: 58.7 },
                     ]}
                     margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="time" />
-                    <YAxis tickFormatter={(v) => v + "%"} />
-                    <Tooltip formatter={(v) => v + "%"} />
-                    <Line
-                      type="monotone"
-                      dataKey="transfers"
-                      stroke="#2563eb"
-                      strokeWidth={2}
-                      dot={{ r: 4, fill: "#2563eb" }}
-                    />
+                    <XAxis dataKey="day" />
+                    <YAxis tickFormatter={(v) => `${v}%`} />
+                    <Tooltip formatter={(v) => `${v}%`} />
+                    <Legend />
+                    <Line type="monotone" dataKey="paid" stroke="#22c55e" strokeWidth={2} name="Paid" />
+                    <Line type="monotone" dataKey="ptp" stroke="#f59e0b" strokeWidth={2} name="Promise to pay" />
+                    <Line type="monotone" dataKey="rpc" stroke="#2563eb" strokeWidth={2} name="RPC" />
                   </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Collections per $ Spent */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Collections per $ Spent
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  $ collected per $ spent
+                </div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart
+                    data={[
+                      { day: "Mon", ratio: 4.2 },
+                      { day: "Tue", ratio: 5.1 },
+                      { day: "Wed", ratio: 3.8 },
+                      { day: "Thu", ratio: 5.7 },
+                      { day: "Fri", ratio: 6.2 },
+                      { day: "Sat", ratio: 3.5 },
+                      { day: "Sun", ratio: 2.9 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="day" />
+                    <YAxis tickFormatter={(v) => `$${v}`} />
+                    <Tooltip formatter={(v) => `$${v}`} />
+                    <Bar dataKey="ratio" fill="#10b981" name="Collections per $ Spent" />
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            {/* Bottom Charts Row */}
+            {/* Third Charts Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Cured trend */}
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
@@ -470,65 +593,62 @@ export default function Analytics() {
                   Cured trend
                 </div>
                 <div className="text-xs text-zinc-500 mb-4">
-                  Portfolio connected ($) Bar · Share of connected Portfolio cured (%) - Line · Last 7 days
+                  Portfolio connected ($) Bar · Share of connected Portfolio cured (%) - (Line) · Selected period (Daily)
                 </div>
-                                 <ResponsiveContainer width="100%" height={180}>
-                   <ComposedChart
-                     data={[
-                       { day: "Day 1", portfolio: 250000, curedRate: 12.5 },
-                       { day: "Day 2", portfolio: 280000, curedRate: 13.2 },
-                       { day: "Day 3", portfolio: 265000, curedRate: 11.8 },
-                       { day: "Day 4", portfolio: 290000, curedRate: 14.1 },
-                       { day: "Day 5", portfolio: 315000, curedRate: 15.2 },
-                       { day: "Day 6", portfolio: 295000, curedRate: 13.8 },
-                       { day: "Day 7", portfolio: 325000, curedRate: 16.1 },
-                     ]}
-                     margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                   >
-                     <CartesianGrid strokeDasharray="3 3" />
-                     <XAxis dataKey="day" />
-                     <YAxis yAxisId="left" tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
-                     <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => v + "%"} />
-                     <Tooltip 
-                       formatter={(v, name) => 
-                         name === "portfolio" ? `$${v.toLocaleString()}` : `${v}%`
-                       } 
-                     />
-                     <Bar yAxisId="left" dataKey="portfolio" fill="#6366f1" name="Portfolio Connected" />
-                     <Line yAxisId="right" type="monotone" dataKey="curedRate" stroke="#22c55e" strokeWidth={2} name="Cured Rate" />
-                   </ComposedChart>
-                 </ResponsiveContainer>
-              </div>
-
-              {/* Conversion by time of day */}
-              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
-                <div className="font-semibold text-zinc-900 mb-2">
-                  Conversion by time of day
-                </div>
-                <div className="text-xs text-zinc-500 mb-4">
-                  Line · Last 7 days
-                </div>
-                <ResponsiveContainer width="100%" height={180}>
-                  <LineChart
+                <ResponsiveContainer width="100%" height={220}>
+                  <ComposedChart
                     data={[
-                      { time: "6AM", paid: 8.2, ptp: 12.1, rpc: 18.5 },
-                      { time: "9AM", paid: 12.5, ptp: 18.2, rpc: 28.4 },
-                      { time: "12PM", paid: 15.8, ptp: 22.5, rpc: 35.2 },
-                      { time: "3PM", paid: 18.2, ptp: 25.8, rpc: 42.1 },
-                      { time: "6PM", paid: 14.5, ptp: 20.2, rpc: 32.8 },
-                      { time: "9PM", paid: 10.1, ptp: 15.5, rpc: 24.2 },
+                      { day: "Mon", portfolio: 4200000, curedRate: 12.5 },
+                      { day: "Tue", portfolio: 4800000, curedRate: 13.2 },
+                      { day: "Wed", portfolio: 4350000, curedRate: 11.8 },
+                      { day: "Thu", portfolio: 5100000, curedRate: 14.1 },
+                      { day: "Fri", portfolio: 5400000, curedRate: 15.2 },
+                      { day: "Sat", portfolio: 3900000, curedRate: 13.8 },
+                      { day: "Sun", portfolio: 3600000, curedRate: 16.1 },
                     ]}
                     margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="time" />
-                    <YAxis tickFormatter={(v) => v + "%"} />
-                    <Tooltip formatter={(v) => v + "%"} />
-                    <Legend />
-                    <Line type="monotone" dataKey="paid" stroke="#22c55e" strokeWidth={2} name="Paid" />
-                    <Line type="monotone" dataKey="ptp" stroke="#f59e42" strokeWidth={2} name="Promise to pay" />
-                    <Line type="monotone" dataKey="rpc" stroke="#2563eb" strokeWidth={2} name="RPC" />
-                  </LineChart>
+                    <XAxis dataKey="day" />
+                    <YAxis yAxisId="left" tickFormatter={(v) => `$${(v / 1000000).toFixed(1)}M`} />
+                    <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => `${v}%`} />
+                    <Tooltip 
+                      formatter={(v, name) => 
+                        name === "portfolio" ? `$${(v / 1000000).toFixed(2)}M` : `${v}%`
+                      } 
+                    />
+                    <Bar yAxisId="left" dataKey="portfolio" fill="#6366f1" name="Portfolio Connected" />
+                    <Line yAxisId="right" type="monotone" dataKey="curedRate" stroke="#22c55e" strokeWidth={2} name="Cured Rate" />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* AHT by Outcome */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  AHT by Outcome
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Average Handle Time by call outcome
+                </div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart
+                    data={[
+                      { outcome: "Pre-RPC", time: 45 },
+                      { outcome: "RPC", time: 142 },
+                      { outcome: "Due Comm", time: 186 },
+                      { outcome: "PTP", time: 234 },
+                      { outcome: "Cured", time: 278 },
+                      { outcome: "Others", time: 89 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="outcome" />
+                    <YAxis tickFormatter={(v) => `${v}s`} />
+                    <Tooltip formatter={(v) => `${v} seconds`} />
+                    <Bar dataKey="time" fill="#f59e0b" name="Avg Handle Time" />
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
@@ -564,7 +684,7 @@ export default function Analytics() {
                   Top 3 Factors impacting Collection Success by DPD bucket
                 </div>
                 <div className="text-xs text-zinc-500 mb-4">
-                  Key success factors analysis
+                  Table · DPD bucket - Period selected
                 </div>
                 <div className="space-y-4">
                   <div className="grid grid-cols-4 gap-2 text-xs font-medium text-zinc-700 border-b pb-2">
@@ -595,23 +715,24 @@ export default function Analytics() {
               </div>
             </div>
 
-            {/* Middle Charts Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Row 2 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               {/* Collections by DPD Bucket - Stacked column */}
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
                 <div className="font-semibold text-zinc-900 mb-2">
                   Collections by DPD Bucket
                 </div>
                 <div className="text-xs text-zinc-500 mb-4">
-                  Stacked column chart · Period selected
+                  Stacked column chart · DPD portfolio · DPD collected · Period selected
                 </div>
-                <ResponsiveContainer width="100%" height={220}>
+                <ResponsiveContainer width="100%" height={200}>
                   <BarChart
                     data={[
                       { period: "Week 1", "0-30": 180000, "31-60": 120000, "61-90": 80000, "90+": 45000 },
                       { period: "Week 2", "0-30": 195000, "31-60": 135000, "61-90": 75000, "90+": 42000 },
                       { period: "Week 3", "0-30": 210000, "31-60": 128000, "61-90": 85000, "90+": 48000 },
                       { period: "Week 4", "0-30": 225000, "31-60": 142000, "61-90": 78000, "90+": 38000 },
+                      { period: "Week 5", "0-30": 240000, "31-60": 155000, "61-90": 92000, "90+": 52000 },
                     ]}
                     margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
                   >
@@ -634,15 +755,16 @@ export default function Analytics() {
                   Cure-rate by DPD Bucket
                 </div>
                 <div className="text-xs text-zinc-500 mb-4">
-                  Weekly cure rates by DPD bucket
+                  Line chart · Period selected
                 </div>
-                <ResponsiveContainer width="100%" height={220}>
+                <ResponsiveContainer width="100%" height={200}>
                   <LineChart
                     data={[
                       { week: "Week 1", "0-30": 18.5, "31-60": 12.8, "61-90": 8.2, "90+": 4.5 },
                       { week: "Week 2", "0-30": 19.2, "31-60": 13.1, "61-90": 8.8, "90+": 4.2 },
                       { week: "Week 3", "0-30": 18.8, "31-60": 12.5, "61-90": 8.5, "90+": 4.8 },
                       { week: "Week 4", "0-30": 20.1, "31-60": 14.2, "61-90": 9.1, "90+": 3.8 },
+                      { week: "Week 5", "0-30": 21.3, "31-60": 15.4, "61-90": 10.2, "90+": 5.1 },
                     ]}
                     margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
                   >
@@ -660,23 +782,24 @@ export default function Analytics() {
               </div>
             </div>
 
-            {/* Lower Charts Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {/* Collections by DPD Bucket - Timeline */}
+            {/* Row 3 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Collections by DPD Bucket - Grouped column */}
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
                 <div className="font-semibold text-zinc-900 mb-2">
                   Collections by DPD Bucket
                 </div>
                 <div className="text-xs text-zinc-500 mb-4">
-                  Weekly collections trend by DPD bucket
+                  Grouped column chart · Weeks (13 by default)
                 </div>
-                <ResponsiveContainer width="100%" height={220}>
-                  <LineChart
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart
                     data={[
-                      { week: "Week 1", "0-30": 180000, "31-60": 120000, "61-90": 80000, "90+": 45000 },
-                      { week: "Week 2", "0-30": 195000, "31-60": 135000, "61-90": 75000, "90+": 42000 },
-                      { week: "Week 3", "0-30": 210000, "31-60": 128000, "61-90": 85000, "90+": 48000 },
-                      { week: "Week 4", "0-30": 225000, "31-60": 142000, "61-90": 78000, "90+": 38000 },
+                      { week: "W1", "0-30": 185000, "31-60": 125000, "61-90": 82000, "90+": 47000 },
+                      { week: "W2", "0-30": 192000, "31-60": 132000, "61-90": 78000, "90+": 44000 },
+                      { week: "W3", "0-30": 203000, "31-60": 128000, "61-90": 85000, "90+": 49000 },
+                      { week: "W4", "0-30": 218000, "31-60": 145000, "61-90": 79000, "90+": 41000 },
+                      { week: "W5", "0-30": 235000, "31-60": 152000, "61-90": 88000, "90+": 53000 },
                     ]}
                     margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
                   >
@@ -685,11 +808,11 @@ export default function Analytics() {
                     <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                     <Tooltip formatter={(v) => `$${v.toLocaleString()}`} />
                     <Legend />
-                    <Line type="monotone" dataKey="0-30" stroke="#22c55e" strokeWidth={2} name="0-30 DPD" />
-                    <Line type="monotone" dataKey="31-60" stroke="#f59e42" strokeWidth={2} name="31-60 DPD" />
-                    <Line type="monotone" dataKey="61-90" stroke="#ef4444" strokeWidth={2} name="61-90 DPD" />
-                    <Line type="monotone" dataKey="90+" stroke="#991b1b" strokeWidth={2} name="90+ DPD" />
-                  </LineChart>
+                    <Bar dataKey="0-30" fill="#22c55e" name="0-30 DPD" />
+                    <Bar dataKey="31-60" fill="#f59e42" name="31-60 DPD" />
+                    <Bar dataKey="61-90" fill="#ef4444" name="61-90 DPD" />
+                    <Bar dataKey="90+" fill="#991b1b" name="90+ DPD" />
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
 
@@ -699,9 +822,9 @@ export default function Analytics() {
                   Collections by Channel by DPD buckets
                 </div>
                 <div className="text-xs text-zinc-500 mb-4">
-                  Stacked column chart by communication channel
+                  Grouped column chart · DPD Bucket - period selected
                 </div>
-                <ResponsiveContainer width="100%" height={220}>
+                <ResponsiveContainer width="100%" height={200}>
                   <BarChart
                     data={[
                       { channel: "Voice", "0-30": 85000, "31-60": 65000, "61-90": 45000, "90+": 25000 },
@@ -716,44 +839,112 @@ export default function Analytics() {
                     <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                     <Tooltip formatter={(v) => `$${v.toLocaleString()}`} />
                     <Legend />
-                    <Bar dataKey="0-30" stackId="a" fill="#22c55e" name="0-30 DPD" />
-                    <Bar dataKey="31-60" stackId="a" fill="#f59e42" name="31-60 DPD" />
-                    <Bar dataKey="61-90" stackId="a" fill="#ef4444" name="61-90 DPD" />
-                    <Bar dataKey="90+" stackId="a" fill="#991b1b" name="90+ DPD" />
+                    <Bar dataKey="0-30" fill="#22c55e" name="0-30 DPD" />
+                    <Bar dataKey="31-60" fill="#f59e42" name="31-60 DPD" />
+                    <Bar dataKey="61-90" fill="#ef4444" name="61-90 DPD" />
+                    <Bar dataKey="90+" fill="#991b1b" name="90+ DPD" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            {/* Bottom Charts Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Cost per $ collected by channel */}
+            {/* Row 4 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Collections by Channel */}
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
                 <div className="font-semibold text-zinc-900 mb-2">
-                  Cost per $ collected by channel
+                  Collections by Channel
                 </div>
                 <div className="text-xs text-zinc-500 mb-4">
-                  Line chart showing efficiency by communication channel
+                  Stacked column chart · Weeks (13 by default)
                 </div>
-                <ResponsiveContainer width="100%" height={220}>
-                  <LineChart
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart
                     data={[
-                      { week: "Week 1", Voice: 0.12, SMS: 0.08, Email: 0.05, WhatsApp: 0.09 },
-                      { week: "Week 2", Voice: 0.11, SMS: 0.07, Email: 0.04, WhatsApp: 0.08 },
-                      { week: "Week 3", Voice: 0.13, SMS: 0.09, Email: 0.06, WhatsApp: 0.10 },
-                      { week: "Week 4", Voice: 0.10, SMS: 0.06, Email: 0.03, WhatsApp: 0.07 },
+                      { week: "W1", Voice: 220000, SMS: 108000, Email: 74000, WhatsApp: 53000 },
+                      { week: "W2", Voice: 235000, SMS: 115000, Email: 82000, WhatsApp: 58000 },
+                      { week: "W3", Voice: 248000, SMS: 122000, Email: 89000, WhatsApp: 61000 },
+                      { week: "W4", Voice: 265000, SMS: 135000, Email: 95000, WhatsApp: 68000 },
+                      { week: "W5", Voice: 285000, SMS: 142000, Email: 102000, WhatsApp: 73000 },
                     ]}
                     margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="week" />
-                    <YAxis tickFormatter={(v) => `$${v.toFixed(2)}`} />
+                    <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                    <Tooltip formatter={(v) => `$${v.toLocaleString()}`} />
+                    <Legend />
+                    <Bar dataKey="Voice" stackId="a" fill="#2563eb" name="Voice" />
+                    <Bar dataKey="SMS" stackId="a" fill="#22c55e" name="SMS" />
+                    <Bar dataKey="Email" stackId="a" fill="#f59e42" name="Email" />
+                    <Bar dataKey="WhatsApp" stackId="a" fill="#8b5cf6" name="WhatsApp" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Collections per $ spent by DPD Buckets */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Collections per $ spent by DPD Buckets
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Line chart · Weeks (13 by default)
+                </div>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart
+                    data={[
+                      { week: "W1", "0-30": 4.2, "31-60": 3.8, "61-90": 2.9, "90+": 1.8 },
+                      { week: "W2", "0-30": 4.5, "31-60": 4.1, "61-90": 3.2, "90+": 2.1 },
+                      { week: "W3", "0-30": 4.3, "31-60": 3.9, "61-90": 3.0, "90+": 1.9 },
+                      { week: "W4", "0-30": 4.8, "31-60": 4.4, "61-90": 3.5, "90+": 2.3 },
+                      { week: "W5", "0-30": 5.1, "31-60": 4.7, "61-90": 3.8, "90+": 2.5 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="week" />
+                    <YAxis tickFormatter={(v) => `$${v.toFixed(1)}`} />
                     <Tooltip formatter={(v) => `$${v.toFixed(2)}`} />
                     <Legend />
-                    <Line type="monotone" dataKey="Voice" stroke="#2563eb" strokeWidth={2} name="Voice" />
+                    <Line type="monotone" dataKey="0-30" stroke="#22c55e" strokeWidth={2} name="0-30 DPD" />
+                    <Line type="monotone" dataKey="31-60" stroke="#f59e42" strokeWidth={2} name="31-60 DPD" />
+                    <Line type="monotone" dataKey="61-90" stroke="#ef4444" strokeWidth={2} name="61-90 DPD" />
+                    <Line type="monotone" dataKey="90+" stroke="#991b1b" strokeWidth={2} name="90+ DPD" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Row 5 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Collections per $ spent by channel */}
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+                <div className="font-semibold text-zinc-900 mb-2">
+                  Collections per $ spent by channel
+                </div>
+                <div className="text-xs text-zinc-500 mb-4">
+                  Line chart · Channels (SMS, Email, Outbound call, inbound call) · Weeks (13 by default)
+                </div>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart
+                    data={[
+                      { week: "W1", SMS: 13.5, Email: 20.0, "Outbound": 8.3, "Inbound": 11.2 },
+                      { week: "W2", SMS: 13.8, Email: 21.5, "Outbound": 8.7, "Inbound": 11.8 },
+                      { week: "W3", SMS: 14.2, Email: 19.8, "Outbound": 8.9, "Inbound": 12.1 },
+                      { week: "W4", SMS: 14.5, Email: 22.3, "Outbound": 9.2, "Inbound": 12.5 },
+                      { week: "W5", SMS: 15.1, Email: 23.1, "Outbound": 9.8, "Inbound": 13.2 },
+                    ]}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="week" />
+                    <YAxis tickFormatter={(v) => `$${v.toFixed(1)}`} />
+                    <Tooltip formatter={(v) => `$${v.toFixed(2)}`} />
+                    <Legend />
                     <Line type="monotone" dataKey="SMS" stroke="#22c55e" strokeWidth={2} name="SMS" />
                     <Line type="monotone" dataKey="Email" stroke="#f59e42" strokeWidth={2} name="Email" />
-                    <Line type="monotone" dataKey="WhatsApp" stroke="#8b5cf6" strokeWidth={2} name="WhatsApp" />
+                    <Line type="monotone" dataKey="Outbound" stroke="#2563eb" strokeWidth={2} name="Outbound call" />
+                    <Line type="monotone" dataKey="Inbound" stroke="#8b5cf6" strokeWidth={2} name="Inbound call" />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -764,15 +955,16 @@ export default function Analytics() {
                   Spend by Channel
                 </div>
                 <div className="text-xs text-zinc-500 mb-4">
-                  Line chart showing weekly spend by communication channel
+                  Line chart · Channels (SMS, Email, Outbound call, inbound call) · Weeks (13 by default)
                 </div>
-                <ResponsiveContainer width="100%" height={220}>
+                <ResponsiveContainer width="100%" height={200}>
                   <LineChart
                     data={[
-                      { week: "Week 1", Voice: 26400, SMS: 9600, Email: 1750, WhatsApp: 2025 },
-                      { week: "Week 2", Voice: 21450, SMS: 9450, Email: 1080, WhatsApp: 1680 },
-                      { week: "Week 3", Voice: 27300, SMS: 11520, Email: 2040, WhatsApp: 2400 },
-                      { week: "Week 4", Voice: 22500, SMS: 8520, Email: 810, WhatsApp: 1330 },
+                      { week: "W1", SMS: 8000, Email: 3700, "Outbound": 26500, "Inbound": 9400 },
+                      { week: "W2", SMS: 8300, Email: 3800, "Outbound": 27000, "Inbound": 9800 },
+                      { week: "W3", SMS: 8600, Email: 4500, "Outbound": 27800, "Inbound": 10100 },
+                      { week: "W4", SMS: 9300, Email: 4300, "Outbound": 28800, "Inbound": 10900 },
+                      { week: "W5", SMS: 9400, Email: 4400, "Outbound": 29100, "Inbound": 11200 },
                     ]}
                     margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
                   >
@@ -781,10 +973,10 @@ export default function Analytics() {
                     <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                     <Tooltip formatter={(v) => `$${v.toLocaleString()}`} />
                     <Legend />
-                    <Line type="monotone" dataKey="Voice" stroke="#2563eb" strokeWidth={2} name="Voice" />
                     <Line type="monotone" dataKey="SMS" stroke="#22c55e" strokeWidth={2} name="SMS" />
                     <Line type="monotone" dataKey="Email" stroke="#f59e42" strokeWidth={2} name="Email" />
-                    <Line type="monotone" dataKey="WhatsApp" stroke="#8b5cf6" strokeWidth={2} name="WhatsApp" />
+                    <Line type="monotone" dataKey="Outbound" stroke="#2563eb" strokeWidth={2} name="Outbound call" />
+                    <Line type="monotone" dataKey="Inbound" stroke="#8b5cf6" strokeWidth={2} name="Inbound call" />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -1518,206 +1710,6 @@ export default function Analytics() {
                           <button className="text-blue-600 hover:text-blue-800 text-xs">📄 View Call</button>
                         </div>
                       </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </>
-        )}
-        {tab === "Utilization" && (
-          <>
-            <div className="text-2xl font-bold text-zinc-900 mb-4">
-              Utilization
-            {/* Utilization KPIs Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-sm border-separate border-spacing-y-2">
-                  <thead>
-                    <tr className="bg-zinc-50 text-zinc-700">
-                      <th className="px-4 py-2 text-left">Channel</th>
-                      <th className="px-4 py-2 text-left">Accounts Reached</th>
-                      <th className="px-4 py-2 text-left">Connectivity %</th>
-                      <th className="px-4 py-2 text-left">RPCs</th>
-                      <th className="px-4 py-2 text-left">RPC Rate %</th>
-                      <th className="px-4 py-2 text-left">PTPs</th>
-                      <th className="px-4 py-2 text-left">PTP Rate %</th>
-                      <th className="px-4 py-2 text-left">PTP Kept %</th>
-                      <th className="px-4 py-2 text-left">$ Recovered</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        Voice
-                      </td>
-                      <td className="px-4 py-2">25,000</td>
-                      <td className="px-4 py-2">68.5%</td>
-                      <td className="px-4 py-2">17,125</td>
-                      <td className="px-4 py-2">68.5%</td>
-                      <td className="px-4 py-2">3,425</td>
-                      <td className="px-4 py-2">20%</td>
-                      <td className="px-4 py-2">82.5%</td>
-                      <td className="px-4 py-2">$1,370,000</td>
-                    </tr>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        SMS
-                      </td>
-                      <td className="px-4 py-2">18,750</td>
-                      <td className="px-4 py-2">92.5%</td>
-                      <td className="px-4 py-2">4,688</td>
-                      <td className="px-4 py-2">25%</td>
-                      <td className="px-4 py-2">844</td>
-                      <td className="px-4 py-2">18%</td>
-                      <td className="px-4 py-2">80.2%</td>
-                      <td className="px-4 py-2">$337,600</td>
-                    </tr>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        Email
-                      </td>
-                      <td className="px-4 py-2">12,500</td>
-                      <td className="px-4 py-2">72.5%</td>
-                      <td className="px-4 py-2">2,813</td>
-                      <td className="px-4 py-2">22.5%</td>
-                      <td className="px-4 py-2">479</td>
-                      <td className="px-4 py-2">17%</td>
-                      <td className="px-4 py-2">78.5%</td>
-                      <td className="px-4 py-2">$191,200</td>
-                    </tr>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        WhatsApp
-                      </td>
-                      <td className="px-4 py-2">6,250</td>
-                      <td className="px-4 py-2">90%</td>
-                      <td className="px-4 py-2">1,688</td>
-                      <td className="px-4 py-2">27%</td>
-                      <td className="px-4 py-2">320</td>
-                      <td className="px-4 py-2">19%</td>
-                      <td className="px-4 py-2">81%</td>
-                      <td className="px-4 py-2">$128,000</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Outbound Campaign Summary Table */}
-            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
-              <div className="font-semibold text-zinc-900 mb-2">
-                Outbound Campaign Summary
-              </div>
-              <div className="text-xs text-zinc-500 mb-4">
-                Overview of all outbound campaigns
-              </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-sm border-separate border-spacing-y-2">
-                  <thead>
-                    <tr className="bg-zinc-50 text-zinc-700">
-                      <th className="px-4 py-2 text-left">Campaign</th>
-                      <th className="px-4 py-2 text-left">Status</th>
-                      <th className="px-4 py-2 text-left">Accounts</th>
-                      <th className="px-4 py-2 text-left">Outstanding $</th>
-                      <th className="px-4 py-2 text-left">Connectivity %</th>
-                      <th className="px-4 py-2 text-left">RPC %</th>
-                      <th className="px-4 py-2 text-left">PTP %</th>
-                      <th className="px-4 py-2 text-left">Recovered $</th>
-                      <th className="px-4 py-2 text-left">Recovery %</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        Campaign 1<br />
-                        <span className="text-xs text-zinc-400">CAM-001</span>
-                      </td>
-                      <td className="px-4 py-2">
-                        <span className="inline-block bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-                          Active
-                        </span>
-                      </td>
-                      <td className="px-4 py-2">12,500</td>
-                      <td className="px-4 py-2">$6,250,000</td>
-                      <td className="px-4 py-2">72.5%</td>
-                      <td className="px-4 py-2">45.2%</td>
-                      <td className="px-4 py-2">21.5%</td>
-                      <td className="px-4 py-2">$843,750</td>
-                      <td className="px-4 py-2">13.5%</td>
-                    </tr>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        Campaign 2<br />
-                        <span className="text-xs text-zinc-400">CAM-002</span>
-                      </td>
-                      <td className="px-4 py-2">
-                        <span className="inline-block bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-                          Active
-                        </span>
-                      </td>
-                      <td className="px-4 py-2">8,750</td>
-                      <td className="px-4 py-2">$4,375,000</td>
-                      <td className="px-4 py-2">68.2%</td>
-                      <td className="px-4 py-2">42.8%</td>
-                      <td className="px-4 py-2">18.7%</td>
-                      <td className="px-4 py-2">$525,000</td>
-                      <td className="px-4 py-2">12%</td>
-                    </tr>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        Campaign 3<br />
-                        <span className="text-xs text-zinc-400">CAM-003</span>
-                      </td>
-                      <td className="px-4 py-2">
-                        <span className="inline-block bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-                          Completed
-                        </span>
-                      </td>
-                      <td className="px-4 py-2">6,250</td>
-                      <td className="px-4 py-2">$3,125,000</td>
-                      <td className="px-4 py-2">75.8%</td>
-                      <td className="px-4 py-2">48.5%</td>
-                      <td className="px-4 py-2">23.2%</td>
-                      <td className="px-4 py-2">$468,750</td>
-                      <td className="px-4 py-2">15%</td>
-                    </tr>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        Campaign 4<br />
-                        <span className="text-xs text-zinc-400">CAM-004</span>
-                      </td>
-                      <td className="px-4 py-2">
-                        <span className="inline-block bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-                          Paused
-                        </span>
-                      </td>
-                      <td className="px-4 py-2">4,500</td>
-                      <td className="px-4 py-2">$2,250,000</td>
-                      <td className="px-4 py-2">65.5%</td>
-                      <td className="px-4 py-2">40.2%</td>
-                      <td className="px-4 py-2">16.8%</td>
-                      <td className="px-4 py-2">$247,500</td>
-                      <td className="px-4 py-2">11%</td>
-                    </tr>
-                    <tr className="bg-white">
-                      <td className="px-4 py-2 font-medium text-zinc-900">
-                        Campaign 5<br />
-                        <span className="text-xs text-zinc-400">CAM-005</span>
-                      </td>
-                      <td className="px-4 py-2">
-                        <span className="inline-block bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-                          Active
-                        </span>
-                      </td>
-                      <td className="px-4 py-2">15,000</td>
-                      <td className="px-4 py-2">$7,500,000</td>
-                      <td className="px-4 py-2">78.2%</td>
-                      <td className="px-4 py-2">25.6%</td>
-                      <td className="px-4 py-2">25.8%</td>
-                      <td className="px-4 py-2">$675,000</td>
-                      <td className="px-4 py-2">9%</td>
                     </tr>
                   </tbody>
                 </table>
