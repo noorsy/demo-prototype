@@ -27,7 +27,7 @@ import {
 // Mock data for different assistants - in a real app this would come from an API
 const assistantData = {
   "support-bot-001": {
-    name: "SupportBot",
+    name: "CarMax",
     type: "VOICE",
     version: "Version 3",
     status: "Live",
@@ -66,7 +66,7 @@ const assistantData = {
 
 // Mock data for selectors
 const botOptions = [
-  { id: "support-bot-001", name: "SupportBot", type: "VOICE" },
+  { id: "support-bot-001", name: "CarMax", type: "VOICE" },
   { id: "sales-ai-002", name: "SalesAI", type: "VOICE" },
   { id: "survey-genie-003", name: "SurveyGenie", type: "VOICE" },
   { id: "reminder-bot-004", name: "ReminderBot", type: "VOICE" },

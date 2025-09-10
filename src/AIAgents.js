@@ -14,46 +14,18 @@ import PageHeaderWithTabs from "./components/PageHeaderWithTabs";
 
 const agents = [
   {
-    id: "support-bot-001",
-    name: "SupportBot",
-    desc: "Handles customer support queries 24/7.",
-    channels: ["Chat", "Email", "SMS"],
-    metrics: { conversations: 1247, satisfaction: 94, responseTime: "2.3s" },
+    id: "carmax-auto-001",
+    name: "CarMax - Auto",
+    desc: "Handles automotive collection calls and payment assistance for English-speaking customers.",
+    channels: ["Voice", "SMS", "Email"],
+    metrics: { conversations: 3247, satisfaction: 92, responseTime: "1.8s" },
   },
   {
-    id: "sales-ai-002",
-    name: "SalesAI",
-    desc: "Assists with sales inquiries and lead generation.",
-    channels: ["Chat", "WhatsApp"],
-    metrics: { conversations: 892, satisfaction: 87, responseTime: "1.8s" },
-  },
-  {
-    id: "survey-genie-003",
-    name: "SurveyGenie",
-    desc: "Conducts automated customer surveys.",
-    channels: ["Email", "Web"],
-    metrics: { conversations: 567, satisfaction: 91, responseTime: "0.5s" },
-  },
-  {
-    id: "reminder-bot-004",
-    name: "ReminderBot",
-    desc: "Sends payment and appointment reminders.",
-    channels: ["SMS", "Email"],
-    metrics: { conversations: 2341, satisfaction: 96, responseTime: "1.2s" },
-  },
-  {
-    id: "onboarding-ai-005",
-    name: "OnboardingAI",
-    desc: "Guides new users through onboarding steps.",
-    channels: ["Chat", "Web"],
-    metrics: { conversations: 445, satisfaction: 89, responseTime: "3.1s" },
-  },
-  {
-    id: "feedback-bot-006",
-    name: "FeedbackBot",
-    desc: "Collects user feedback after interactions.",
-    channels: ["Email", "Chat"],
-    metrics: { conversations: 678, satisfaction: 92, responseTime: "1.9s" },
+    id: "carmax-spanish-002",
+    name: "CarMax Spanish",
+    desc: "Provides collection services and payment support in Spanish for Hispanic customers.",
+    channels: ["Voice", "SMS", "WhatsApp"],
+    metrics: { conversations: 1856, satisfaction: 89, responseTime: "2.1s" },
   },
 ];
 

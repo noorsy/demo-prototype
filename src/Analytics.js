@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import PageHeaderWithTabs from "./components/PageHeaderWithTabs";
 import {
@@ -31,6 +31,9 @@ import {
   MicrophoneIcon,
   DocumentTextIcon,
   EnvelopeOpenIcon,
+  MagnifyingGlassIcon,
+  LightBulbIcon,
+  SparklesIcon,
 } from "@heroicons/react/24/solid";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import {
@@ -125,6 +128,29 @@ function MetricCard({
   );
 }
 
+// Sample AI queries for suggestions
+const sampleQueries = [
+  "How many accounts were fully resolved (cured + paid off) this month?",
+  "Which channels (AI voice, SMS, WhatsApp, agents) are generating the highest PTP fulfillment?",
+  "How many accounts have broken 2+ PTPs and are still active?",
+  "How is this month's portfolio cohort performing compared to previous cohorts?",
+  "How many accounts were escalated to humans, and did that improve recovery?",
+  "What is our current Cure Rate, and how has it changed over the last 30 days?",
+  "What's our forecasted vs actual collections this month?",
+  "Which DPD bucket has the highest conversion rate?",
+  "How has our contact rate improved compared to last quarter?",
+  "What's the average handle time for successful PTP calls?",
+  "Which communication channel generates the most collections?",
+  "Show me the compliance score for voice interactions this week",
+];
+
+const exampleQuestions = [
+  "What is our current Cure Rate, and how has it changed over the last 30 days?",
+  "What's our forecasted vs actual collections this month?",
+  "Which DPD bucket has the highest conversion rate?",
+  "How has our contact rate improved compared to last quarter?",
+];
+
 export default function Analytics() {
   const [product, setProduct] = useState(productOptions[0]);
   const [assistant, setAssistant] = useState("SupportBot");  const [dpd, setDpd] = useState(dpdOptions[0]);
@@ -136,6 +162,85 @@ export default function Analytics() {
   const [tab, setTab] = useState(tabOptions[0]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+  
+  // AI Search states
+  const [aiQuery, setAiQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isTypingAnimation, setIsTypingAnimation] = useState(false);
+  const [currentPlaceholder, setCurrentPlaceholder] = useState("");
+  const [currentExampleIndex, setCurrentExampleIndex] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState(null);
+  const [recentSearches, setRecentSearches] = useState([
+    "What is our current Cure Rate, and how has it changed over the last 30 days?",
+    "What is the Roll Forward Rate by delinquency stage, and where are we losing accounts?",
+    "What's our forecasted vs actual collections this month?",
+    "Which customer segments are performing best and worst in terms of recovery?"
+  ]);
+
+  // Typing animation effect
+  useEffect(() => {
+    const question = exampleQuestions[currentExampleIndex];
+    let currentIndex = 0;
+    setCurrentPlaceholder("");
+    
+    const timer = setInterval(() => {
+      if (currentIndex <= question.length) {
+        setCurrentPlaceholder(question.slice(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(timer);
+        setTimeout(() => {
+          setCurrentExampleIndex((prev) => (prev + 1) % exampleQuestions.length);
+        }, 2000);
+      }
+    }, 50);
+
+    return () => clearInterval(timer);
+  }, [currentExampleIndex]);
+
+  // AI Search handlers
+  const handleAiSearch = () => {
+    if (!aiQuery.trim()) return;
+    
+    setIsSearching(true);
+    setShowSuggestions(false);
+    
+    // Add to recent searches if not already there
+    if (!recentSearches.includes(aiQuery)) {
+      setRecentSearches(prev => [aiQuery, ...prev.slice(0, 3)]);
+    }
+    
+    // Simulate AI search
+    setTimeout(() => {
+      setSearchResults({
+        query: aiQuery,
+        answer: "Based on your data from the last 30 days, your current Cure Rate is 14.8%, which represents a +2.3% increase compared to the previous period. This improvement indicates enhanced collection effectiveness.",
+        metrics: [
+          { label: "Current Cure Rate", value: "14.8%", trend: "+2.3%" },
+          { label: "Previous Period", value: "12.5%", trend: "" },
+          { label: "Accounts Cured", value: "6,689", trend: "+185" },
+        ],
+        chartData: [
+          { day: "Day 1", rate: 12.1 },
+          { day: "Day 7", rate: 12.8 },
+          { day: "Day 14", rate: 13.5 },
+          { day: "Day 21", rate: 14.2 },
+          { day: "Day 30", rate: 14.8 },
+        ]
+      });
+      setIsSearching(false);
+    }, 1500);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setAiQuery(suggestion);
+    setShowSuggestions(false);
+  };
+
+  const filteredSuggestions = sampleQueries.filter(query =>
+    query.toLowerCase().includes(aiQuery.toLowerCase())
+  );
 
   const filters = [
     {
@@ -190,6 +295,176 @@ export default function Analytics() {
         createButtonIcon={ArrowDownTrayIcon}
         onCreateClick={() => {}}
       />
+
+      {/* AI Queryable Search Section */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200 px-6 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-6">
+            <div className="flex items-center justify-center mb-3">
+              <SparklesIcon className="w-6 h-6 text-blue-600 mr-2" />
+              <h2 className="text-2xl font-bold text-gray-900">Ask Analytics AI</h2>
+              <SparklesIcon className="w-6 h-6 text-blue-600 ml-2" />
+            </div>
+            <p className="text-gray-600 text-lg">
+              Get instant insights from your collection data using natural language queries
+            </p>
+          </div>
+
+          {/* Example Questions */}
+          <div className="mb-6">
+            <div className="flex items-center mb-4">
+              <LightBulbIcon className="w-5 h-5 text-yellow-500 mr-2" />
+              <span className="text-sm font-medium text-gray-700">Try asking:</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {exampleQuestions.map((question, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setAiQuery(question);
+                    setShowSuggestions(false);
+                  }}
+                  className="text-left p-3 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors text-sm text-gray-700"
+                >
+                  "{question}"
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search Input */}
+          <div className="relative max-w-4xl mx-auto">
+            <div className="relative">
+              <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
+              <input
+                type="text"
+                value={aiQuery}
+                onChange={(e) => {
+                  setAiQuery(e.target.value);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => {
+                  // Delay hiding to allow clicking on suggestions
+                  setTimeout(() => setShowSuggestions(false), 200);
+                }}
+                onKeyPress={(e) => e.key === 'Enter' && handleAiSearch()}
+                placeholder={currentPlaceholder || "Type your question here..."}
+                className="w-full pl-12 pr-32 py-4 text-lg border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all"
+              />
+              <button
+                onClick={handleAiSearch}
+                disabled={!aiQuery.trim() || isSearching}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {isSearching ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                    Searching...
+                  </div>
+                ) : (
+                  "Search"
+                )}
+              </button>
+            </div>
+
+            {/* Suggestions Dropdown */}
+            {showSuggestions && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
+                {/* Recent Searches */}
+                {recentSearches.length > 0 && (
+                  <div className="border-b border-gray-100">
+                    <div className="flex items-center px-4 py-3 border-b border-gray-100">
+                      <div className="w-4 h-4 mr-3 text-gray-400">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">Recent Searches</span>
+                    </div>
+                    {recentSearches.map((search, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleSuggestionClick(search)}
+                        className="w-full text-left px-4 py-3 text-sm text-gray-900 hover:bg-gray-50"
+                      >
+                        {search}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Suggested Queries */}
+                <div>
+                  <div className="flex items-center px-4 py-3 border-b border-gray-100">
+                    <div className="w-4 h-4 mr-3 text-gray-400">
+                      <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">Suggested Queries</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-1 p-2">
+                    {sampleQueries.slice(0, 6).map((suggestion, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="text-left p-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg flex items-start"
+                      >
+                        <div className="w-4 h-4 mr-3 mt-0.5 text-gray-400 flex-shrink-0">
+                          <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <span>{suggestion}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Search Results */}
+          {searchResults && (
+            <div className="mt-6 max-w-4xl mx-auto">
+              <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                <div className="flex items-start mb-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                    <SparklesIcon className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 mb-2">AI Analysis</h3>
+                    <p className="text-gray-700 leading-relaxed">{searchResults.answer}</p>
+                  </div>
+                </div>
+
+                {/* Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                  {searchResults.metrics.map((metric, index) => (
+                    <div key={index} className="bg-gray-50 rounded-lg p-4 text-center">
+                      <div className="text-sm text-gray-600 mb-1">{metric.label}</div>
+                      <div className="text-2xl font-bold text-gray-900">{metric.value}</div>
+                      {metric.trend && (
+                        <div className="text-sm text-green-600 mt-1">{metric.trend}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Close Button */}
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => setSearchResults(null)}
+                    className="text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Tab Navigation */}
       <div className="sticky top-[72px] z-10 bg-white px-6  flex gap-0 py-0">

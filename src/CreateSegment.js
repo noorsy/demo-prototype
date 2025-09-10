@@ -25,13 +25,16 @@ import ReactFlow, {
   Position
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { getPersonas } from './Workflows';
+import { getPersonas, sampleSegments } from './Workflows';
+
+// Segments data is now imported from Workflows.js
 
 // Available attributes for conditions
 const attributes = [
-  "user_name", "email", "phone", "account_balance", "payment_history", 
-  "dpd_bucket", "account_age", "last_payment_date", "total_payments",
-  "account_status", "risk_score", "customer_type", "region"
+  "credit_score", "bucket", "nbr_times_15_29", "nbr_times_30_59", "nbr_times_60_89", "nbr_times_90_119",
+  "days_past_due", "broken_ptps", "dq_reason", "payment_history", "account_balance", "user_name", 
+  "email", "phone", "account_age", "last_payment_date", "total_payments", "account_status", 
+  "risk_score", "customer_type", "region"
 ];
 
 // Available conditions
@@ -40,7 +43,10 @@ const conditions = [
   { value: "not_equals", label: "not equals" },
   { value: "contains", label: "contains" },
   { value: "greater_than", label: "greater than" },
+  { value: "greater_than_equal", label: "greater than or equal" },
   { value: "less_than", label: "less than" },
+  { value: "less_than_equal", label: "less than or equal" },
+  { value: "between", label: "between" },
   { value: "in", label: "is in" },
   { value: "not_in", label: "is not in" }
 ];
@@ -56,6 +62,41 @@ const conversationFocusOptions = [
   "Payment Collection",
   "Account Status Update",
   "Reminder & Follow-up"
+];
+
+// Email templates
+const emailTemplates = [
+  { value: 'default', label: 'Default Payment Reminder' },
+  { value: 'grace_period', label: 'Grace Period Notice' },
+  { value: 'early_stage', label: 'Early Stage Reminder' },
+  { value: 'payment_plan', label: 'Payment Plan Offer' },
+  { value: 'final_notice', label: 'Final Notice' },
+  { value: 'missed_call', label: 'Missed Call Follow-up' },
+  { value: 'custom', label: 'Custom Template' }
+];
+
+// SMS templates
+const smsTemplates = [
+  { value: 'default', label: 'Standard Payment Reminder' },
+  { value: 'grace_period', label: 'Grace Period Alert' },
+  { value: 'urgent', label: 'Urgent Payment Notice' },
+  { value: 'payment_plan', label: 'Payment Plan Details' },
+  { value: 'confirmation', label: 'Payment Confirmation' },
+  { value: 'final_notice', label: 'Final Notice SMS' },
+  { value: 'custom', label: 'Custom Message' }
+];
+
+// Condition types
+const conditionTypes = [
+  { value: 'call_answered', label: 'Call Answered' },
+  { value: 'email_opened', label: 'Email Opened' },
+  { value: 'email_clicked', label: 'Email Link Clicked' },
+  { value: 'sms_read', label: 'SMS Read' },
+  { value: 'payment_received', label: 'Payment Received' },
+  { value: 'payment_promised', label: 'Payment Promised' },
+  { value: 'customer_contacted', label: 'Customer Contacted' },
+  { value: 'customer_responded', label: 'Customer Responded' },
+  { value: 'time_of_day', label: 'Time of Day' }
 ];
 
 // Initial nodes for the journey canvas
@@ -179,9 +220,27 @@ const DraggableNode = ({ type, label, icon, color }) => {
 const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNodeProperties }) => {
   const [localProperties, setLocalProperties] = useState({
     name: '',
+    // Voice properties
     persona: personaOptions[0],
     conversationFocus: conversationFocusOptions[0],
-    customPrompt: ''
+    customPrompt: '',
+    maxAttempts: 3,
+    waitTime: 24,
+    // Email properties
+    subject: '',
+    template: '',
+    bodyOverride: '',
+    useCustomBody: false,
+    // SMS properties
+    message: '',
+    smsTemplate: '',
+    maxLength: 160,
+    // Delay properties
+    duration: 24,
+    durationUnit: 'hours',
+    // Condition properties
+    conditionType: '',
+    conditionValue: ''
   });
 
   // Update local properties when selectedNode changes
@@ -190,9 +249,27 @@ const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNo
       const existingProps = nodeProperties[selectedNode.id] || {};
       setLocalProperties({
         name: existingProps.name || `${selectedNode.type.charAt(0).toUpperCase() + selectedNode.type.slice(1)} Block`,
+        // Voice properties
         persona: existingProps.persona || personaOptions[0],
         conversationFocus: existingProps.conversationFocus || conversationFocusOptions[0],
-        customPrompt: existingProps.customPrompt || ''
+        customPrompt: existingProps.customPrompt || '',
+        maxAttempts: existingProps.maxAttempts || 3,
+        waitTime: existingProps.waitTime || 24,
+        // Email properties
+        subject: existingProps.subject || '',
+        template: existingProps.template || 'default',
+        bodyOverride: existingProps.bodyOverride || '',
+        useCustomBody: existingProps.useCustomBody || false,
+        // SMS properties
+        message: existingProps.message || '',
+        smsTemplate: existingProps.smsTemplate || 'default',
+        maxLength: existingProps.maxLength || 160,
+        // Delay properties
+        duration: existingProps.duration || 24,
+        durationUnit: existingProps.durationUnit || 'hours',
+        // Condition properties
+        conditionType: existingProps.conditionType || '',
+        conditionValue: existingProps.conditionValue || ''
       });
     }
   }, [selectedNode, nodeProperties]);
@@ -246,96 +323,299 @@ const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNo
                 />
               </div>
 
-              {/* Persona Selection */}
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Persona
-                </label>
-                <div className="space-y-3">
-                  {personaOptions.map((persona) => (
-                    <div key={persona.id} className={`border rounded-lg p-3 cursor-pointer transition-colors ${
-                      localProperties.persona.id === persona.id 
-                        ? 'border-zinc-900 bg-zinc-50' 
-                        : 'border-zinc-200 hover:border-zinc-300'
-                    }`}>
-                      <div className="flex items-start space-x-3">
-                        <input
-                          type="radio"
-                          id={`persona-${persona.id}`}
-                          name="persona"
-                          checked={localProperties.persona.id === persona.id}
-                          onChange={() => setLocalProperties(prev => ({ ...prev, persona }))}
-                          className="mt-1"
-                        />
-                        <label htmlFor={`persona-${persona.id}`} className="flex-1 cursor-pointer">
-                          <div className="font-medium text-zinc-900">{persona.name}</div>
-                          <div className="text-sm text-zinc-500 mb-2">{persona.description}</div>
-                          
-                          {/* DPD Recommendation */}
-                          <div className="mb-2">
-                            <div className="flex flex-wrap gap-1 mb-1">
-                              {persona.recommendedFor.map((stage, index) => (
-                                <span key={index} className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                  stage.includes("Pre-Due") || stage.includes("Early") ? 'bg-green-100 text-green-800' :
-                                  stage.includes("Mid") || stage.includes("Late Stage") ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-red-100 text-red-800'
-                                }`}>
-                                  {stage}
-                                </span>
-                              ))}
-                            </div>
-                            <div className="text-xs text-zinc-600 bg-zinc-100 p-2 rounded">
-                              {persona.dpdRecommendation}
-                            </div>
+              {/* Voice Node Properties */}
+              {selectedNode.type === 'voice' && (
+                <>
+                  {/* Persona Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      Persona
+                    </label>
+                    <div className="space-y-3">
+                      {personaOptions.map((persona) => (
+                        <div key={persona.id} className={`border rounded-lg p-3 cursor-pointer transition-colors ${
+                          localProperties.persona.id === persona.id 
+                            ? 'border-zinc-900 bg-zinc-50' 
+                            : 'border-zinc-200 hover:border-zinc-300'
+                        }`}>
+                          <div className="flex items-start space-x-3">
+                            <input
+                              type="radio"
+                              id={`persona-${persona.id}`}
+                              name="persona"
+                              checked={localProperties.persona.id === persona.id}
+                              onChange={() => setLocalProperties(prev => ({ ...prev, persona }))}
+                              className="mt-1"
+                            />
+                            <label htmlFor={`persona-${persona.id}`} className="flex-1 cursor-pointer">
+                              <div className="font-medium text-zinc-900">{persona.name}</div>
+                              <div className="text-sm text-zinc-500 mb-2">{persona.description}</div>
+                              
+                              {/* Tonality */}
+                              <div className="text-xs text-zinc-400">
+                                Formality: {persona.tonality.formality} • 
+                                Directness: {persona.tonality.directness} • 
+                                Urgency: {persona.tonality.urgency}
+                              </div>
+                              
+                              {/* TTS Info */}
+                              <div className="text-xs text-zinc-500 mt-1">
+                                Voice: {persona.ttsSettings.voiceName} ({persona.ttsSettings.providerName})
+                              </div>
+                            </label>
                           </div>
-                          
-                          {/* Tonality */}
-                          <div className="text-xs text-zinc-400">
-                            Formality: {persona.tonality.formality} • 
-                            Directness: {persona.tonality.directness} • 
-                            Urgency: {persona.tonality.urgency}
-                          </div>
-                          
-                          {/* TTS Info */}
-                          <div className="text-xs text-zinc-500 mt-1">
-                            Voice: {persona.ttsSettings.voiceName} ({persona.ttsSettings.providerName})
-                          </div>
-                        </label>
-                      </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
 
-              {/* Conversation Focus */}
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Conversation Focus
-                </label>
-                <select
-                  value={localProperties.conversationFocus}
-                  onChange={(e) => setLocalProperties(prev => ({ ...prev, conversationFocus: e.target.value }))}
-                  className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
-                >
-                  {conversationFocusOptions.map(option => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-              </div>
+                  {/* Call Settings */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700 mb-2">
+                        Max Attempts
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={localProperties.maxAttempts}
+                        onChange={(e) => setLocalProperties(prev => ({ ...prev, maxAttempts: parseInt(e.target.value) }))}
+                        className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700 mb-2">
+                        Wait Time (hours)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="168"
+                        value={localProperties.waitTime}
+                        onChange={(e) => setLocalProperties(prev => ({ ...prev, waitTime: parseInt(e.target.value) }))}
+                        className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                      />
+                    </div>
+                  </div>
 
-              {/* Custom First Prompt */}
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Custom First Prompt
-                </label>
-                <textarea
-                  value={localProperties.customPrompt}
-                  onChange={(e) => setLocalProperties(prev => ({ ...prev, customPrompt: e.target.value }))}
-                  rows={4}
-                  className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:border-transparent"
-                  placeholder="Enter a custom prompt that will be used to start the conversation..."
-                />
-              </div>
+                  {/* Conversation Focus */}
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      Conversation Focus
+                    </label>
+                    <select
+                      value={localProperties.conversationFocus}
+                      onChange={(e) => setLocalProperties(prev => ({ ...prev, conversationFocus: e.target.value }))}
+                      className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                    >
+                      {conversationFocusOptions.map(option => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Custom First Prompt */}
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      Custom First Prompt
+                    </label>
+                    <textarea
+                      value={localProperties.customPrompt}
+                      onChange={(e) => setLocalProperties(prev => ({ ...prev, customPrompt: e.target.value }))}
+                      rows={4}
+                      className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:border-transparent"
+                      placeholder="Enter a custom prompt that will be used to start the conversation..."
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Email Node Properties */}
+              {selectedNode.type === 'email' && (
+                <>
+                  {/* Email Template */}
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      Email Template
+                    </label>
+                    <select
+                      value={localProperties.template}
+                      onChange={(e) => setLocalProperties(prev => ({ ...prev, template: e.target.value }))}
+                      className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                    >
+                      {emailTemplates.map(template => (
+                        <option key={template.value} value={template.value}>{template.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Subject Line */}
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      Subject Line
+                    </label>
+                    <input
+                      type="text"
+                      value={localProperties.subject}
+                      onChange={(e) => setLocalProperties(prev => ({ ...prev, subject: e.target.value }))}
+                      className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                      placeholder="Enter email subject line..."
+                    />
+                  </div>
+
+                  {/* Custom Body Override */}
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <input
+                        type="checkbox"
+                        id="useCustomBody"
+                        checked={localProperties.useCustomBody}
+                        onChange={(e) => setLocalProperties(prev => ({ ...prev, useCustomBody: e.target.checked }))}
+                        className="rounded border-zinc-300 focus:ring-zinc-500"
+                      />
+                      <label htmlFor="useCustomBody" className="text-sm font-medium text-zinc-700">
+                        Override Email Body
+                      </label>
+                    </div>
+                    {localProperties.useCustomBody && (
+                      <textarea
+                        value={localProperties.bodyOverride}
+                        onChange={(e) => setLocalProperties(prev => ({ ...prev, bodyOverride: e.target.value }))}
+                        rows={6}
+                        className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                        placeholder="Enter custom email body content..."
+                      />
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* SMS Node Properties */}
+              {selectedNode.type === 'sms' && (
+                <>
+                  {/* SMS Template */}
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      SMS Template
+                    </label>
+                    <select
+                      value={localProperties.smsTemplate}
+                      onChange={(e) => setLocalProperties(prev => ({ ...prev, smsTemplate: e.target.value }))}
+                      className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                    >
+                      {smsTemplates.map(template => (
+                        <option key={template.value} value={template.value}>{template.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Custom Message */}
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      Custom Message
+                      <span className="text-xs text-zinc-500 ml-2">
+                        ({localProperties.message.length}/{localProperties.maxLength} characters)
+                      </span>
+                    </label>
+                    <textarea
+                      value={localProperties.message}
+                      onChange={(e) => {
+                        if (e.target.value.length <= localProperties.maxLength) {
+                          setLocalProperties(prev => ({ ...prev, message: e.target.value }));
+                        }
+                      }}
+                      rows={4}
+                      className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                      placeholder="Enter custom SMS message..."
+                    />
+                  </div>
+
+                  {/* Character Limit */}
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      Character Limit
+                    </label>
+                    <select
+                      value={localProperties.maxLength}
+                      onChange={(e) => setLocalProperties(prev => ({ ...prev, maxLength: parseInt(e.target.value) }))}
+                      className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                    >
+                      <option value={160}>160 (Standard SMS)</option>
+                      <option value={320}>320 (Extended SMS)</option>
+                      <option value={480}>480 (Multi-part SMS)</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              {/* Delay Node Properties */}
+              {selectedNode.type === 'delay' && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700 mb-2">
+                        Duration
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={localProperties.duration}
+                        onChange={(e) => setLocalProperties(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
+                        className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700 mb-2">
+                        Unit
+                      </label>
+                      <select
+                        value={localProperties.durationUnit}
+                        onChange={(e) => setLocalProperties(prev => ({ ...prev, durationUnit: e.target.value }))}
+                        className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                      >
+                        <option value="minutes">Minutes</option>
+                        <option value="hours">Hours</option>
+                        <option value="days">Days</option>
+                      </select>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Condition Node Properties */}
+              {selectedNode.type === 'condition' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      Condition Type
+                    </label>
+                    <select
+                      value={localProperties.conditionType}
+                      onChange={(e) => setLocalProperties(prev => ({ ...prev, conditionType: e.target.value }))}
+                      className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                    >
+                      <option value="">Select condition type...</option>
+                      {conditionTypes.map(condition => (
+                        <option key={condition.value} value={condition.value}>{condition.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      Condition Value
+                    </label>
+                    <input
+                      type="text"
+                      value={localProperties.conditionValue}
+                      onChange={(e) => setLocalProperties(prev => ({ ...prev, conditionValue: e.target.value }))}
+                      className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                      placeholder="Enter condition value..."
+                    />
+                  </div>
+                </>
+              )}
 
               {/* Save Button */}
               <div className="flex justify-end space-x-3 pt-4 border-t border-zinc-200">
@@ -402,17 +682,62 @@ export default function CreateSegment() {
     setShowPropertiesDrawer(true);
   }, []);
 
-  // Initialize nodes with onNodeClick handler
+  // Load existing segment data when editing
   React.useEffect(() => {
-    const nodesWithHandler = initialNodes.map(node => ({
-      ...node,
-      data: {
-        ...node.data,
-        onNodeClick: onNodeClick
+    if (isEditing && id) {
+      const existingSegment = sampleSegments.find(segment => segment.id === parseInt(id));
+      if (existingSegment) {
+        // Pre-fill basic information
+        setSegmentName(existingSegment.name);
+        setSegmentDescription(existingSegment.description);
+        
+        // Pre-fill conditions - convert to the format expected by the form
+        if (existingSegment.conditions && existingSegment.conditions.length > 0) {
+          const formattedConditions = existingSegment.conditions.map((condition, index) => ({
+            id: index + 1,
+            attribute: condition.attribute,
+            condition: condition.condition,
+            value: condition.value
+          }));
+          
+          setConditionGroups([
+            {
+              id: 1,
+              operator: "AND",
+              conditions: formattedConditions
+            }
+          ]);
+        }
+        
+        // Load journey data if it exists
+        if (existingSegment.journey) {
+          const nodesWithHandler = existingSegment.journey.nodes.map(node => ({
+            ...node,
+            data: {
+              ...node.data,
+              onNodeClick: onNodeClick
+            }
+          }));
+          setNodes(nodesWithHandler);
+          setEdges(existingSegment.journey.edges || []);
+        }
       }
-    }));
-    setNodes(nodesWithHandler);
-  }, [onNodeClick, setNodes]);
+    }
+  }, [isEditing, id, onNodeClick, setNodes, setEdges]);
+
+  // Initialize nodes with onNodeClick handler (only for new segments)
+  React.useEffect(() => {
+    if (!isEditing) {
+      const nodesWithHandler = initialNodes.map(node => ({
+        ...node,
+        data: {
+          ...node.data,
+          onNodeClick: onNodeClick
+        }
+      }));
+      setNodes(nodesWithHandler);
+    }
+  }, [onNodeClick, setNodes, isEditing]);
 
   const onDragOver = useCallback((event) => {
     event.preventDefault();
@@ -751,7 +1076,7 @@ export default function CreateSegment() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => navigate("/segments")}
+                onClick={() => navigate("/workflows")}
                 className="text-zinc-600 hover:text-zinc-900"
               >
                 <ArrowLeftIcon className="w-5 h-5" />

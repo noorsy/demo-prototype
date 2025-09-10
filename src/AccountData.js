@@ -109,7 +109,7 @@ function AccountData() {
         description: 'Hi Sarah, thanks for your chat and for your commitment to pay. Glad you\'re feeling up to it! Payment link: [Payment Link] You\'ll receive a confirmation once the payment is processed.',
         tonality: 'Warmly Appreciative',
         focus: 'Payment_Link_Delivery',
-        campaign: 'Q2 Auto Loan Recovery',
+        campaign: 'CarMax Campaign',
         segment: 'Cooperative Payment Arrangers',
         badge: 'SMS',
         status: 'ai_recommended',

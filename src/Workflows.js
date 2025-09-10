@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 // Assistant options
 const assistantOptions = [
+  { id: "carmax", name: "CarMax" },
   { id: "support-bot", name: "SupportBot" },
   { id: "sales-ai", name: "SalesAI" },
   { id: "feedback-bot", name: "FeedbackBot" },
@@ -13,82 +14,836 @@ const assistantOptions = [
 ];
 
 // Sample segments data
-const sampleSegments = [
+export const sampleSegments = [
   {
     id: 1,
-    name: "High Risk Customers",
-    description: "Customers with payment history issues",
-    assistant: "SupportBot",
+    name: "Recently On-track",
+    description: "High-performing customers with excellent payment histories who are not yet delinquent",
+    assistant: "CarMax",
     conditions: [
-      { attribute: "payment_history", condition: "equals", value: "poor" },
-      { attribute: "dpd_bucket", condition: "greater_than", value: "60" }
+      { attribute: "credit_score", condition: "greater_than", value: "700" },
+      { attribute: "nbr_times_15_29", condition: "equals", value: "0" }
     ],
-    customerCount: 1250,
+    customerCount: 8247,
     lastUpdated: "2024-01-15",
     status: "active",
     isAIGenerated: false,
-    aiRecommendation: {
-      type: "condition_update",
-      title: "Optimize segment conditions",
-      description: "AI suggests adding income_level filter to improve targeting accuracy by 28%",
-      suggestedConditions: [
-        { attribute: "payment_history", condition: "equals", value: "poor" },
-        { attribute: "dpd_bucket", condition: "greater_than", value: "60" },
-        { attribute: "income_level", condition: "less_than", value: "40000" }
+    aiRecommendation: null,
+    journey: {
+      nodes: [
+        {
+          id: 'start',
+          type: 'input',
+          position: { x: 50, y: 50 },
+          data: { label: 'Start Journey' },
+          style: { background: '#22c55e', color: 'white', border: '1px solid #16a34a' }
+        },
+        {
+          id: 'voice-1',
+          type: 'voice',
+          position: { x: 250, y: 150 },
+          data: { 
+            label: 'Initial Reminder Call', 
+            persona: 'Friendly Reminder',
+            waitTime: 24,
+            maxAttempts: 3
+          }
+        },
+        {
+          id: 'condition-1',
+          type: 'condition',
+          position: { x: 450, y: 150 },
+          data: { 
+            label: 'Call Answered?',
+            condition: 'call_answered'
+          }
+        },
+        {
+          id: 'voice-2',
+          type: 'voice',
+          position: { x: 650, y: 80 },
+          data: { 
+            label: 'Payment Discussion', 
+            persona: 'Solution Focused',
+            waitTime: 0,
+            maxAttempts: 1
+          }
+        },
+        {
+          id: 'condition-2',
+          type: 'condition',
+          position: { x: 850, y: 80 },
+          data: { 
+            label: 'Payment Promised?',
+            condition: 'payment_promised'
+          }
+        },
+        {
+          id: 'delay-1',
+          type: 'delay',
+          position: { x: 1050, y: 20 },
+          data: { 
+            label: 'Wait for Promise Date',
+            duration: 72
+          }
+        },
+        {
+          id: 'sms-1',
+          type: 'sms',
+          position: { x: 1050, y: 140 },
+          data: { 
+            label: 'Payment Plan SMS', 
+            persona: 'Professional Collector',
+            template: 'payment_plan_setup'
+          }
+        },
+        {
+          id: 'email-1',
+          type: 'email',
+          position: { x: 650, y: 220 },
+          data: { 
+            label: 'Missed Call Email', 
+            persona: 'Friendly Reminder',
+            template: 'missed_call_followup'
+          }
+        },
+        {
+          id: 'delay-2',
+          type: 'delay',
+          position: { x: 450, y: 320 },
+          data: { 
+            label: 'Wait 24 Hours',
+            duration: 24
+          }
+        },
+        {
+          id: 'condition-3',
+          type: 'condition',
+          position: { x: 650, y: 320 },
+          data: { 
+            label: 'Email Opened?',
+            condition: 'email_opened'
+          }
+        },
+        {
+          id: 'sms-2',
+          type: 'sms',
+          position: { x: 850, y: 280 },
+          data: { 
+            label: 'Urgent SMS', 
+            persona: 'Urgent Collector',
+            template: 'urgent_payment_reminder'
+          }
+        },
+        {
+          id: 'voice-3',
+          type: 'voice',
+          position: { x: 850, y: 380 },
+          data: { 
+            label: 'Escalated Call', 
+            persona: 'Professional Collector',
+            waitTime: 12,
+            maxAttempts: 2
+          }
+        }
       ],
-      expectedImpact: "+28% targeting accuracy, +15% conversion rate"
+      edges: [
+        { id: 'e1-2', source: 'start', target: 'voice-1' },
+        { id: 'e2-3', source: 'voice-1', target: 'condition-1' },
+        { id: 'e3-4', source: 'condition-1', target: 'voice-2', label: 'Answered' },
+        { id: 'e4-5', source: 'voice-2', target: 'condition-2' },
+        { id: 'e5-6', source: 'condition-2', target: 'delay-1', label: 'Yes' },
+        { id: 'e5-7', source: 'condition-2', target: 'sms-1', label: 'No' },
+        { id: 'e3-8', source: 'condition-1', target: 'email-1', label: 'Not Answered' },
+        { id: 'e8-9', source: 'email-1', target: 'delay-2' },
+        { id: 'e9-10', source: 'delay-2', target: 'condition-3' },
+        { id: 'e10-11', source: 'condition-3', target: 'sms-2', label: 'Opened' },
+        { id: 'e10-12', source: 'condition-3', target: 'voice-3', label: 'Not Opened' }
+      ]
     }
   },
   {
     id: 2,
-    name: "New Customers",
-    description: "Recently onboarded customers",
-    assistant: "SalesAI",
+    name: "Grace Period Overlook",
+    description: "Customers who have just missed their payment due date and are within the grace period",
+    assistant: "CarMax",
     conditions: [
-      { attribute: "account_age", condition: "less_than", value: "30" },
-      { attribute: "status", condition: "equals", value: "active" }
+      { attribute: "days_past_due", condition: "between", value: "1-5" },
+      { attribute: "credit_score", condition: "greater_than", value: "650" },
+      { attribute: "broken_ptps", condition: "equals", value: "0" }
     ],
-    customerCount: 450,
+    customerCount: 3892,
     lastUpdated: "2024-01-14",
     status: "active",
-    isAIGenerated: true,
-    aiRecommendation: null
+    isAIGenerated: false,
+    aiRecommendation: null,
+    journey: {
+      nodes: [
+        {
+          id: 'start',
+          type: 'input',
+          position: { x: 50, y: 50 },
+          data: { label: 'Start Journey' },
+          style: { background: '#22c55e', color: 'white', border: '1px solid #16a34a' }
+        },
+        {
+          id: 'sms-1',
+          type: 'sms',
+          position: { x: 250, y: 150 },
+          data: { 
+            label: 'Grace Period Notification', 
+            persona: 'Friendly Reminder',
+            template: 'grace_period_reminder'
+          }
+        },
+        {
+          id: 'delay-1',
+          type: 'delay',
+          position: { x: 450, y: 150 },
+          data: { 
+            label: 'Wait 6 Hours',
+            duration: 6
+          }
+        },
+        {
+          id: 'condition-1',
+          type: 'condition',
+          position: { x: 650, y: 150 },
+          data: { 
+            label: 'SMS Read?',
+            condition: 'sms_read'
+          }
+        },
+        {
+          id: 'voice-1',
+          type: 'voice',
+          position: { x: 850, y: 80 },
+          data: { 
+            label: 'Courtesy Call', 
+            persona: 'Empathetic Support',
+            waitTime: 2,
+            maxAttempts: 3
+          }
+        },
+        {
+          id: 'email-1',
+          type: 'email',
+          position: { x: 850, y: 220 },
+          data: { 
+            label: 'Grace Period Email', 
+            persona: 'Friendly Reminder',
+            template: 'grace_period_detailed'
+          }
+        },
+        {
+          id: 'condition-2',
+          type: 'condition',
+          position: { x: 1050, y: 80 },
+          data: { 
+            label: 'Customer Contacted?',
+            condition: 'customer_contacted'
+          }
+        },
+        {
+          id: 'delay-2',
+          type: 'delay',
+          position: { x: 1250, y: 20 },
+          data: { 
+            label: 'Wait 12 Hours',
+            duration: 12
+          }
+        },
+        {
+          id: 'condition-3',
+          type: 'condition',
+          position: { x: 1450, y: 20 },
+          data: { 
+            label: 'Payment Made?',
+            condition: 'payment_received'
+          }
+        },
+        {
+          id: 'sms-2',
+          type: 'sms',
+          position: { x: 1250, y: 140 },
+          data: { 
+            label: 'Payment Plan Offer', 
+            persona: 'Solution Focused',
+            template: 'payment_plan_offer'
+          }
+        },
+        {
+          id: 'delay-3',
+          type: 'delay',
+          position: { x: 1050, y: 220 },
+          data: { 
+            label: 'Wait 24 Hours',
+            duration: 24
+          }
+        },
+        {
+          id: 'condition-4',
+          type: 'condition',
+          position: { x: 1250, y: 280 },
+          data: { 
+            label: 'Email Engagement?',
+            condition: 'email_clicked'
+          }
+        },
+        {
+          id: 'voice-2',
+          type: 'voice',
+          position: { x: 1450, y: 240 },
+          data: { 
+            label: 'Follow-up Call', 
+            persona: 'Professional Collector',
+            waitTime: 4,
+            maxAttempts: 2
+          }
+        },
+        {
+          id: 'sms-3',
+          type: 'sms',
+          position: { x: 1450, y: 320 },
+          data: { 
+            label: 'Final Grace Notice', 
+            persona: 'Urgent Collector',
+            template: 'final_grace_notice'
+          }
+        }
+      ],
+      edges: [
+        { id: 'e1-2', source: 'start', target: 'sms-1' },
+        { id: 'e2-3', source: 'sms-1', target: 'delay-1' },
+        { id: 'e3-4', source: 'delay-1', target: 'condition-1' },
+        { id: 'e4-5', source: 'condition-1', target: 'voice-1', label: 'Read' },
+        { id: 'e4-6', source: 'condition-1', target: 'email-1', label: 'Not Read' },
+        { id: 'e5-7', source: 'voice-1', target: 'condition-2' },
+        { id: 'e7-8', source: 'condition-2', target: 'delay-2', label: 'Reached' },
+        { id: 'e8-9', source: 'delay-2', target: 'condition-3' },
+        { id: 'e9-end1', source: 'condition-3', target: 'sms-2', label: 'No Payment' },
+        { id: 'e7-10', source: 'condition-2', target: 'sms-2', label: 'Not Reached' },
+        { id: 'e6-11', source: 'email-1', target: 'delay-3' },
+        { id: 'e11-12', source: 'delay-3', target: 'condition-4' },
+        { id: 'e12-13', source: 'condition-4', target: 'voice-2', label: 'Engaged' },
+        { id: 'e12-14', source: 'condition-4', target: 'sms-3', label: 'No Engagement' }
+      ]
+    }
   },
   {
     id: 3,
-    name: "VIP Customers",
-    description: "High value customers with excellent payment history",
-    assistant: "SupportBot",
+    name: "One-off Slip-up",
+    description: "Customers in early delinquency who typically resolve accounts quickly",
+    assistant: "CarMax",
     conditions: [
-      { attribute: "account_balance", condition: "greater_than", value: "10000" },
-      { attribute: "payment_history", condition: "equals", value: "excellent" }
+      { attribute: "bucket", condition: "equals", value: "01-10" },
+      { attribute: "days_past_due", condition: "greater_than", value: "5" },
+      { attribute: "credit_score", condition: "greater_than", value: "600" }
     ],
-    customerCount: 180,
+    customerCount: 2156,
     lastUpdated: "2024-01-12",
     status: "active",
     isAIGenerated: false,
     aiRecommendation: {
-      type: "journey_update",
-      title: "Enhanced VIP journey",
-      description: "AI recommends personalized email sequence for VIP customers to increase engagement",
-      suggestedJourney: "Personalized Email → 1 Day Delay → Premium Voice Call → Thank You SMS",
-      expectedImpact: "+35% engagement rate, +20% satisfaction score"
+      type: "condition_update",
+      title: "Optimize engagement timing",
+      description: "AI suggests adjusting contact timing based on payment patterns to improve response rates by 22%",
+      suggestedConditions: [
+        { attribute: "bucket", condition: "equals", value: "01-10" },
+        { attribute: "days_past_due", condition: "greater_than", value: "5" },
+        { attribute: "credit_score", condition: "greater_than", value: "600" },
+        { attribute: "preferred_contact_time", condition: "equals", value: "evening" }
+      ],
+      expectedImpact: "+22% response rate, +18% payment completion"
+    },
+    journey: {
+      nodes: [
+        {
+          id: 'start',
+          type: 'input',
+          position: { x: 50, y: 200 },
+          data: { label: 'Start Journey' },
+          style: { background: '#22c55e', color: 'white', border: '1px solid #16a34a' }
+        },
+        {
+          id: 'condition-0',
+          type: 'condition',
+          position: { x: 250, y: 200 },
+          data: { 
+            label: 'Time of Day?',
+            condition: 'current_time'
+          }
+        },
+        {
+          id: 'email-1',
+          type: 'email',
+          position: { x: 450, y: 120 },
+          data: { 
+            label: 'Morning Email Alert', 
+            persona: 'Professional Collector',
+            template: 'early_stage_morning'
+          }
+        },
+        {
+          id: 'sms-1',
+          type: 'sms',
+          position: { x: 450, y: 280 },
+          data: { 
+            label: 'Evening SMS Alert', 
+            persona: 'Friendly Reminder',
+            template: 'early_stage_evening'
+          }
+        },
+        {
+          id: 'delay-1',
+          type: 'delay',
+          position: { x: 650, y: 120 },
+          data: { 
+            label: 'Wait 4 Hours',
+            duration: 4
+          }
+        },
+        {
+          id: 'delay-2',
+          type: 'delay',
+          position: { x: 650, y: 280 },
+          data: { 
+            label: 'Wait 2 Hours',
+            duration: 2
+          }
+        },
+        {
+          id: 'condition-1',
+          type: 'condition',
+          position: { x: 850, y: 120 },
+          data: { 
+            label: 'Email Opened?',
+            condition: 'email_opened'
+          }
+        },
+        {
+          id: 'condition-2',
+          type: 'condition',
+          position: { x: 850, y: 280 },
+          data: { 
+            label: 'SMS Read?',
+            condition: 'sms_read'
+          }
+        },
+        {
+          id: 'voice-1',
+          type: 'voice',
+          position: { x: 1050, y: 60 },
+          data: { 
+            label: 'Priority Call', 
+            persona: 'Solution Focused',
+            waitTime: 1,
+            maxAttempts: 3
+          }
+        },
+        {
+          id: 'voice-2',
+          type: 'voice',
+          position: { x: 1050, y: 180 },
+          data: { 
+            label: 'Standard Call', 
+            persona: 'Professional Collector',
+            waitTime: 4,
+            maxAttempts: 2
+          }
+        },
+        {
+          id: 'voice-3',
+          type: 'voice',
+          position: { x: 1050, y: 240 },
+          data: { 
+            label: 'Evening Call', 
+            persona: 'Empathetic Support',
+            waitTime: 2,
+            maxAttempts: 3
+          }
+        },
+        {
+          id: 'email-2',
+          type: 'email',
+          position: { x: 1050, y: 340 },
+          data: { 
+            label: 'Detailed Notice', 
+            persona: 'Professional Collector',
+            template: 'detailed_payment_notice'
+          }
+        },
+        {
+          id: 'condition-3',
+          type: 'condition',
+          position: { x: 1250, y: 60 },
+          data: { 
+            label: 'Call Connected?',
+            condition: 'call_connected'
+          }
+        },
+        {
+          id: 'condition-4',
+          type: 'condition',
+          position: { x: 1250, y: 180 },
+          data: { 
+            label: 'Payment Arranged?',
+            condition: 'payment_arranged'
+          }
+        },
+        {
+          id: 'condition-5',
+          type: 'condition',
+          position: { x: 1250, y: 290 },
+          data: { 
+            label: 'Customer Response?',
+            condition: 'customer_responded'
+          }
+        },
+        {
+          id: 'sms-2',
+          type: 'sms',
+          position: { x: 1450, y: 20 },
+          data: { 
+            label: 'Payment Confirmation', 
+            persona: 'Friendly Reminder',
+            template: 'payment_confirmation'
+          }
+        },
+        {
+          id: 'voice-4',
+          type: 'voice',
+          position: { x: 1450, y: 100 },
+          data: { 
+            label: 'Callback Attempt', 
+            persona: 'Professional Collector',
+            waitTime: 12,
+            maxAttempts: 1
+          }
+        },
+        {
+          id: 'sms-3',
+          type: 'sms',
+          position: { x: 1450, y: 180 },
+          data: { 
+            label: 'Payment Plan Setup', 
+            persona: 'Solution Focused',
+            template: 'payment_plan_details'
+          }
+        },
+        {
+          id: 'email-3',
+          type: 'email',
+          position: { x: 1450, y: 250 },
+          data: { 
+            label: 'Alternative Options', 
+            persona: 'Professional Collector',
+            template: 'payment_alternatives'
+          }
+        },
+        {
+          id: 'voice-5',
+          type: 'voice',
+          position: { x: 1450, y: 330 },
+          data: { 
+            label: 'Escalation Call', 
+            persona: 'Urgent Collector',
+            waitTime: 6,
+            maxAttempts: 2
+          }
+        },
+        {
+          id: 'sms-4',
+          type: 'sms',
+          position: { x: 1450, y: 400 },
+          data: { 
+            label: 'Final Notice', 
+            persona: 'Urgent Collector',
+            template: 'final_notice_sms'
+          }
+        }
+      ],
+      edges: [
+        { id: 'e0-1', source: 'start', target: 'condition-0' },
+        { id: 'e1-2', source: 'condition-0', target: 'email-1', label: 'Morning' },
+        { id: 'e1-3', source: 'condition-0', target: 'sms-1', label: 'Evening' },
+        { id: 'e2-4', source: 'email-1', target: 'delay-1' },
+        { id: 'e3-5', source: 'sms-1', target: 'delay-2' },
+        { id: 'e4-6', source: 'delay-1', target: 'condition-1' },
+        { id: 'e5-7', source: 'delay-2', target: 'condition-2' },
+        { id: 'e6-8', source: 'condition-1', target: 'voice-1', label: 'Opened' },
+        { id: 'e6-9', source: 'condition-1', target: 'voice-2', label: 'Not Opened' },
+        { id: 'e7-10', source: 'condition-2', target: 'voice-3', label: 'Read' },
+        { id: 'e7-11', source: 'condition-2', target: 'email-2', label: 'Not Read' },
+        { id: 'e8-12', source: 'voice-1', target: 'condition-3' },
+        { id: 'e9-13', source: 'voice-2', target: 'condition-4' },
+        { id: 'e10-14', source: 'voice-3', target: 'condition-5' },
+        { id: 'e12-15', source: 'condition-3', target: 'sms-2', label: 'Connected' },
+        { id: 'e12-16', source: 'condition-3', target: 'voice-4', label: 'No Answer' },
+        { id: 'e13-17', source: 'condition-4', target: 'sms-3', label: 'Arranged' },
+        { id: 'e13-18', source: 'condition-4', target: 'email-3', label: 'Not Arranged' },
+        { id: 'e14-19', source: 'condition-5', target: 'voice-5', label: 'Responded' },
+        { id: 'e14-20', source: 'condition-5', target: 'sms-4', label: 'No Response' },
+        { id: 'e11-21', source: 'email-2', target: 'voice-5' }
+      ]
     }
   },
   {
     id: 4,
-    name: "Late Payment Follow-up",
-    description: "Customers requiring payment reminders",
-    assistant: "ReminderBot",
+    name: "Emergent Hardship",
+    description: "Customers facing new, genuine, and significant financial challenges preventing payment",
+    assistant: "CarMax",
     conditions: [
-      { attribute: "dpd_bucket", condition: "greater_than", value: "30" },
-      { attribute: "last_contact", condition: "greater_than", value: "7" }
+      { attribute: "bucket", condition: "in", value: "01-10,11-20" },
+      { attribute: "dq_reason", condition: "in", value: "LOSS OF JOB,REDUCED INCOME,MEDICAL ISSUES" }
     ],
-    customerCount: 890,
+    customerCount: 1543,
     lastUpdated: "2024-01-13",
     status: "active",
-    isAIGenerated: true,
-    aiRecommendation: null
+    isAIGenerated: false,
+    aiRecommendation: null,
+    journey: {
+      nodes: [
+        {
+          id: 'start',
+          type: 'input',
+          position: { x: 250, y: 25 },
+          data: { label: 'Start Journey' },
+          style: { background: '#22c55e', color: 'white', border: '1px solid #16a34a' }
+        }
+      ],
+      edges: []
+    }
+  },
+  {
+    id: 5,
+    name: "Consistent Late-payer",
+    description: "Frequently in early-to-mid delinquency stages with history of breaking payment promises",
+    assistant: "CarMax",
+    conditions: [
+      { attribute: "bucket", condition: "in", value: "11-20,21-25" },
+      { attribute: "nbr_times_15_29", condition: "greater_than_equal", value: "3" },
+      { attribute: "broken_ptps", condition: "greater_than", value: "1" }
+    ],
+    customerCount: 2743,
+    lastUpdated: "2024-01-11",
+    status: "active",
+    isAIGenerated: false,
+    aiRecommendation: {
+      type: "journey_update",
+      title: "Enhanced PTP management flow",
+      description: "AI recommends shorter PTP terms and increased follow-up frequency for better compliance",
+      suggestedJourney: "Initial Contact → 24hr PTP → 2-Day Follow-up → Alternative Payment Plan",
+      expectedImpact: "+31% PTP compliance, +25% collection efficiency"
+    },
+    journey: {
+      nodes: [
+        {
+          id: 'start',
+          type: 'input',
+          position: { x: 250, y: 25 },
+          data: { label: 'Start Journey' },
+          style: { background: '#22c55e', color: 'white', border: '1px solid #16a34a' }
+        }
+      ],
+      edges: []
+    }
+  },
+  {
+    id: 6,
+    name: "Avoidant / Non-Engaged",
+    description: "Customers in mid-stage delinquency who show low engagement with communication attempts",
+    assistant: "CarMax",
+    conditions: [
+      { attribute: "bucket", condition: "in", value: "26-30,31-60" },
+      { attribute: "dq_reason", condition: "equals", value: "REASON FOR DELQ UNKNOWN" },
+      { attribute: "broken_ptps", condition: "greater_than", value: "3" }
+    ],
+    customerCount: 1832,
+    lastUpdated: "2024-01-10",
+    status: "active",
+    isAIGenerated: false,
+    aiRecommendation: null,
+    journey: {
+      nodes: [
+        {
+          id: 'start',
+          type: 'input',
+          position: { x: 250, y: 25 },
+          data: { label: 'Start Journey' },
+          style: { background: '#22c55e', color: 'white', border: '1px solid #16a34a' }
+        }
+      ],
+      edges: []
+    }
+  },
+  {
+    id: 7,
+    name: "PTP Promised",
+    description: "Customers who have made a payment promise and are within the agreed timeframe",
+    assistant: "CarMax",
+    conditions: [
+      { attribute: "ptp_status", condition: "equals", value: "ACTIVE" },
+      { attribute: "ptp_date", condition: "greater_than_equal", value: "TODAY" },
+      { attribute: "broken_ptps", condition: "less_than", value: "2" }
+    ],
+    customerCount: 3154,
+    lastUpdated: "2024-01-16",
+    status: "active",
+    isAIGenerated: false,
+    aiRecommendation: null,
+    journey: {
+      nodes: [
+        {
+          id: 'start',
+          type: 'input',
+          position: { x: 250, y: 25 },
+          data: { label: 'Start Journey' },
+          style: { background: '#22c55e', color: 'white', border: '1px solid #16a34a' }
+        }
+      ],
+      edges: []
+    }
+  },
+  {
+    id: 8,
+    name: "PTP Promise Broken",
+    description: "Customers who have broken payment promises and require immediate follow-up",
+    assistant: "CarMax",
+    conditions: [
+      { attribute: "ptp_status", condition: "equals", value: "BROKEN" },
+      { attribute: "broken_ptps", condition: "greater_than_equal", value: "1" },
+      { attribute: "days_since_broken_ptp", condition: "less_than_equal", value: "7" }
+    ],
+    customerCount: 1967,
+    lastUpdated: "2024-01-16",
+    status: "active",
+    isAIGenerated: false,
+    aiRecommendation: null,
+    journey: {
+      nodes: [
+        {
+          id: 'start',
+          type: 'input',
+          position: { x: 250, y: 25 },
+          data: { label: 'Start Journey' },
+          style: { background: '#22c55e', color: 'white', border: '1px solid #16a34a' }
+        }
+      ],
+      edges: []
+    }
+  },
+  {
+    id: 9,
+    name: "New / Insufficient Insights",
+    description: "New customers with limited payment history requiring careful assessment",
+    assistant: "CarMax",
+    conditions: [
+      { attribute: "account_age", condition: "less_than", value: "6" },
+      { attribute: "payment_history", condition: "equals", value: "LIMITED" },
+      { attribute: "total_payments", condition: "less_than_equal", value: "3" }
+    ],
+    customerCount: 1243,
+    lastUpdated: "2024-01-15",
+    status: "active",
+    isAIGenerated: false,
+    aiRecommendation: null,
+    journey: {
+      nodes: [
+        {
+          id: 'start',
+          type: 'input',
+          position: { x: 250, y: 25 },
+          data: { label: 'Start Journey' },
+          style: { background: '#22c55e', color: 'white', border: '1px solid #16a34a' }
+        }
+      ],
+      edges: []
+    }
+  },
+  {
+    id: 10,
+    name: "Predictable Delayer",
+    description: "Customers with predictable patterns of late payments but eventual resolution",
+    assistant: "CarMax",
+    conditions: [
+      { attribute: "payment_pattern", condition: "equals", value: "PREDICTABLE_LATE" },
+      { attribute: "nbr_times_15_29", condition: "greater_than", value: "3" },
+      { attribute: "eventual_payment_rate", condition: "greater_than", value: "80" }
+    ],
+    customerCount: 2891,
+    lastUpdated: "2024-01-14",
+    status: "active",
+    isAIGenerated: false,
+    aiRecommendation: null,
+    journey: {
+      nodes: [
+        {
+          id: 'start',
+          type: 'input',
+          position: { x: 250, y: 25 },
+          data: { label: 'Start Journey' },
+          style: { background: '#22c55e', color: 'white', border: '1px solid #16a34a' }
+        }
+      ],
+      edges: []
+    }
+  },
+  {
+    id: 11,
+    name: "Intermittent Payer",
+    description: "Customers with irregular payment patterns requiring flexible approaches",
+    assistant: "CarMax",
+    conditions: [
+      { attribute: "payment_frequency", condition: "equals", value: "IRREGULAR" },
+      { attribute: "nbr_times_30_59", condition: "greater_than", value: "2" },
+      { attribute: "payment_variance", condition: "greater_than", value: "HIGH" }
+    ],
+    customerCount: 1756,
+    lastUpdated: "2024-01-13",
+    status: "active",
+    isAIGenerated: false,
+    aiRecommendation: null,
+    journey: {
+      nodes: [
+        {
+          id: 'start',
+          type: 'input',
+          position: { x: 250, y: 25 },
+          data: { label: 'Start Journey' },
+          style: { background: '#22c55e', color: 'white', border: '1px solid #16a34a' }
+        }
+      ],
+      edges: []
+    }
+  },
+  {
+    id: 12,
+    name: "Emerging Deterioration",
+    description: "Previously good customers showing signs of declining payment behavior",
+    assistant: "CarMax",
+    conditions: [
+      { attribute: "credit_score_trend", condition: "equals", value: "DECLINING" },
+      { attribute: "recent_delinquency_increase", condition: "equals", value: "TRUE" },
+      { attribute: "historical_performance", condition: "equals", value: "GOOD" }
+    ],
+    customerCount: 987,
+    lastUpdated: "2024-01-12",
+    status: "active",
+    isAIGenerated: false,
+    aiRecommendation: null,
+    journey: {
+      nodes: [
+        {
+          id: 'start',
+          type: 'input',
+          position: { x: 250, y: 25 },
+          data: { label: 'Start Journey' },
+          style: { background: '#22c55e', color: 'white', border: '1px solid #16a34a' }
+        }
+      ],
+      edges: []
+    }
   }
 ];
 
@@ -99,9 +854,8 @@ export default function Workflows() {
   const [selectedAssistant, setSelectedAssistant] = useState(assistantOptions[0]);
   const [showAssistantDropdown, setShowAssistantDropdown] = useState(false);
   const [showAIRecommendation, setShowAIRecommendation] = useState({});
-  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [showCreateStage, setShowCreateStage] = useState(false);
-  const [showCreateDropdown, setShowCreateDropdown] = useState(false);
+
   const [dpdStages, setDpdStages] = useState([
     {
       id: 0,
@@ -163,7 +917,8 @@ export default function Workflows() {
 
   const filteredSegments = segments.filter(segment => {
     const matchesAssistant = segment.assistant === selectedAssistant.name;
-    return matchesAssistant;
+    const isManualSegment = !segment.isAIGenerated; // Only show manually created segments
+    return matchesAssistant && isManualSegment;
   });
 
   const handleDeleteSegment = (id) => {
@@ -196,40 +951,13 @@ export default function Workflows() {
   // Tab configuration
   const tabs = [
     { value: "Segments", label: "Segments" },
-    { value: "DPD Configuration", label: "DPD Configuration" },
     { value: "Persona", label: "Persona" }
   ];
 
-  // AI Generate Segment handler
-  const handleAIGenerateSegment = async () => {
-    setIsGeneratingAI(true);
-    setShowCreateDropdown(false);
-    // Simulate AI generation
-    setTimeout(() => {
-      const newAISegment = {
-        id: Date.now(),
-        name: "AI-Generated: High Conversion Prospects",
-        description: "AI-identified customers with high likelihood of payment completion",
-        assistant: "SalesAI",
-        conditions: [
-          { attribute: "payment_history", condition: "equals", value: "good" },
-          { attribute: "income_stability", condition: "equals", value: "high" },
-          { attribute: "contact_responsiveness", condition: "greater_than", value: "70" }
-        ],
-        customerCount: 2340,
-        lastUpdated: new Date().toISOString().split('T')[0],
-        status: "active",
-        isAIGenerated: true,
-        aiRecommendation: null
-      };
-      setSegments(prev => [newAISegment, ...prev]);
-      setIsGeneratingAI(false);
-    }, 2000);
-  };
+
 
   // Handle manual segment creation
   const handleCreateManually = () => {
-    setShowCreateDropdown(false);
     navigate("/workflows/segments/create");
   };
 
@@ -259,36 +987,20 @@ export default function Workflows() {
     }));
   };
 
-  // Custom create button with dropdown for Segments
+  // Custom create button for Segments
   const renderCreateButton = () => {
     if (activeTab !== "Segments") {
       return {
-        text: activeTab === "DPD Configuration" ? "Create Stage" : "Create Persona",
+        text: "Create Persona",
         icon: PlusIcon,
-        onClick: () => {
-          if (activeTab === "DPD Configuration") setShowCreateStage(true);
-          else navigate("/workflows/persona/create");
-        }
+        onClick: () => navigate("/workflows/persona/create")
       };
     }
 
     return {
-      text: isGeneratingAI ? "Generating..." : "AI Generate Segment",
-      icon: "✨",
-      onClick: handleAIGenerateSegment,
-      disabled: isGeneratingAI,
-      loading: isGeneratingAI,
-      dropdown: {
-        show: showCreateDropdown,
-        onToggle: () => setShowCreateDropdown(!showCreateDropdown),
-        items: [
-          {
-            text: "Create Manually",
-            icon: PlusIcon,
-            onClick: handleCreateManually
-          }
-        ]
-      }
+      text: "Create Segment",
+      icon: PlusIcon,
+      onClick: handleCreateManually
     };
   };
 
@@ -335,24 +1047,7 @@ export default function Workflows() {
         </div>
       )}
 
-      {/* Create Dropdown for Segments */}
-      {showCreateDropdown && activeTab === "Segments" && (
-        <div className="relative">
-          <div className="absolute top-0 right-6 z-50">
-            <div className="bg-white border border-gray-200 rounded-lg shadow-lg w-48">
-              <div className="p-2">
-                <button
-                  onClick={handleCreateManually}
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded flex items-center"
-                >
-                  <PlusIcon className="w-4 h-4 mr-2" />
-                  Create Manually
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Tab Content */}
       <div className="max-w-8xl mx-auto p-8">
@@ -388,9 +1083,6 @@ export default function Workflows() {
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
                       Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                      Last Updated
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-zinc-500 uppercase tracking-wider">
                       Actions
@@ -433,16 +1125,10 @@ export default function Workflows() {
                           {segment.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-zinc-500">
-                          <ClockIcon className="h-4 w-4 mr-1" />
-                          {new Date(segment.lastUpdated).toLocaleDateString()}
-                        </div>
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-2">
                           <button
-                            onClick={() => navigate(`/segments/${segment.id}/edit`)}
+                            onClick={() => navigate(`/workflows/segments/${segment.id}/edit`)}
                             className="text-zinc-600 hover:text-zinc-900 p-1 hover:bg-zinc-100 rounded"
                           >
                             <PencilIcon className="h-4 w-4" />
@@ -524,18 +1210,11 @@ export default function Workflows() {
           </div>
         )}
 
-        {activeTab === "DPD Configuration" && (
-          <DPDConfiguration 
-            dpdStages={dpdStages}
-            setDpdStages={setDpdStages}
-            showCreateStage={showCreateStage}
-            setShowCreateStage={setShowCreateStage}
-          />
-        )}
-
-        {activeTab === "Persona" && (
+                {activeTab === "Persona" && (
           <PersonaManagement />
         )}
+
+ 
       </div>
     </div>
   );

@@ -22,7 +22,7 @@ const transferredCallsData = [
     startTime: "2024-01-15 14:30:25",
     transferReason: "Customer requested human agent",
     recentDisposition: "Pending",
-    assistant: "SupportBot",
+    assistant: "CarMax",
     // Call details
     callSummary: "Customer called regarding a billing dispute on their credit card statement. The automated system was unable to resolve the complex issue involving multiple transactions and requested transfer to a human agent for detailed review and resolution.",
     timeline: [
@@ -125,7 +125,7 @@ const transferredCallsData = [
     startTime: "2024-01-15 14:20:45",
     transferReason: "Technical support needed",
     recentDisposition: "Attended",
-    assistant: "SupportBot",
+    assistant: "CarMax",
     callSummary: "Customer reported technical issues with their online banking application, specifically unable to access account statements and transaction history. The automated system attempted basic troubleshooting but the issue required advanced technical support to resolve the authentication and data synchronization problems.",
     timeline: [
       {
@@ -180,7 +180,7 @@ const transferredCallsData = [
 
 // Assistant options
 const assistantOptions = [
-  { id: "support-bot", name: "SupportBot" },
+  { id: "support-bot", name: "CarMax" },
   { id: "sales-ai", name: "SalesAI" },
   { id: "feedback-bot", name: "FeedbackBot" },
   { id: "survey-genie", name: "SurveyGenie" },

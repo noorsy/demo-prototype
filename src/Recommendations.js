@@ -13,6 +13,55 @@ import { PlusIcon, LightBulbIcon } from "@heroicons/react/24/outline";
 const recommendations = [
   {
     id: 1,
+    category: "Customer Segmentation",
+    suggestion: "Approve Directly",
+    title: "Optimize Engagement Strategy for Loyal Micro Accounts",
+    targets: "Loyal Micro Accounts - Unaware/Unavailable Segment",
+    description:
+      "Analysis shows that loyal micro accounts in the 'Unaware or Unavailable' category (not delivered or not engaged at all) require multi-channel approach to improve engagement rates and payment compliance.",
+    kpis: [
+      { label: "Channel Engagement Rate", direction: "up", color: "green" },
+      { label: "Message Delivery Rate", direction: "up", color: "green" },
+      { label: "Customer Response Rate", direction: "up", color: "green" },
+    ],
+    date: "May 8, 2025",
+    actions: ["Decline", "Approve Strategy"],
+  },
+  {
+    id: 2,
+    category: "Customer Segmentation", 
+    suggestion: "Approve Directly",
+    title: "Enhance Communication Strategy for Passive Observer Accounts",
+    targets: "Loyal Micro Accounts & Repeat Defaulters - Passive Observer Segment",
+    description:
+      "Passive observers show basic engagement only. Loyal micro accounts need loss-aversion focused content while repeat defaulters require consequence-based messaging with increased frequency to drive action.",
+    kpis: [
+      { label: "Engagement Conversion", direction: "up", color: "green" },
+      { label: "Payment Compliance", direction: "up", color: "green" },
+      { label: "Message Effectiveness", direction: "up", color: "green" },
+    ],
+    date: "May 7, 2025",
+    actions: ["Decline", "Approve Content Strategy"],
+  },
+  {
+    id: 3,
+    category: "Customer Segmentation",
+    suggestion: "Run A/B Test", 
+    title: "Resolution-Focused Channel Strategy for Engaged but Unresolved Accounts",
+    targets: "Engaged & Unresolved Segment - Both Loyal Micro & Repeat Defaulters",
+    description:
+      "Customers who are engaged but haven't resolved yet need targeted resolution approaches. Loyal micro accounts benefit from doubt clearance messaging while repeat defaulters respond to potential benefits communication, both utilizing SMS/Call channels.",
+    kpis: [
+      { label: "Resolution Rate", direction: "up", color: "green" },
+      { label: "Channel Effectiveness", direction: "up", color: "green" },
+      { label: "Customer Satisfaction", direction: "up", color: "green" },
+      { label: "Time to Resolution", direction: "down", color: "red" },
+    ],
+    date: "May 6, 2025",
+    actions: ["Decline", "Setup A/B Test"],
+  },
+  {
+    id: 4,
     category: "Conversational Experience",
     suggestion: "Approve Directly",
     title:
@@ -27,10 +76,10 @@ const recommendations = [
       { label: "PTP Kept Rate", direction: "up", color: "green" },
     ],
     date: "May 8, 2025",
-    actions: ["Decline", "View Details", "Approve Intent"],
+    actions: ["Decline", "Approve Intent"],
   },
   {
-    id: 2,
+    id: 5,
     category: "Segmentation",
     suggestion: "Approve Directly",
     title:
@@ -45,10 +94,10 @@ const recommendations = [
       { label: "PTP Rate", direction: "neutral", color: "gray" },
     ],
     date: "May 1, 2025",
-    actions: ["Decline", "View Details", "Approve Merge"],
+    actions: ["Decline", "Approve Merge"],
   },
   {
-    id: 3,
+    id: 6,
     category: "Journey Strategy",
     suggestion: "Run A/B Test",
     title:
@@ -64,10 +113,10 @@ const recommendations = [
       { label: "Liquidation", direction: "up", color: "green" },
     ],
     date: "May 5, 2025",
-    actions: ["Decline", "View Details", "Setup A/B Test"],
+    actions: ["Decline", "Setup A/B Test"],
   },
   {
-    id: 4,
+    id: 7,
     category: "Journey Strategy",
     suggestion: "Approve Directly",
     title:
@@ -82,7 +131,7 @@ const recommendations = [
       { label: "Liquidation", direction: "up", color: "green" },
     ],
     date: "May 10, 2025",
-    actions: ["Decline", "View Details", "Approve Priority Change"],
+    actions: ["Decline", "Approve Priority Change"],
   },
 ];
 
@@ -150,13 +199,6 @@ export default function Recommendations() {
       />
 
       <div className="max-w-8xl mx-auto p-8">
-        <div className="flex items-center gap-2 mb-6">
-          <AiAvatar />
-          <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold tracking-wide">
-            AI Suggestion
-          </span>
-        </div>
-
         <div className="flex flex-wrap gap-2 items-center mb-8">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="w-[180px] border rounded px-3 py-2 text-sm">
@@ -164,6 +206,7 @@ export default function Recommendations() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="customer">Customer Segmentation</SelectItem>
               <SelectItem value="segmentation">Segmentation</SelectItem>
               <SelectItem value="journey">Journey Strategy</SelectItem>
               <SelectItem value="conversational">
@@ -194,6 +237,8 @@ export default function Recommendations() {
             Export
           </Button>
         </div>
+
+
 
         <div className="flex flex-col gap-8">
         {filteredRecommendations.map((rec) => (

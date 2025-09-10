@@ -256,7 +256,7 @@ function AIMagicProgress({ tasksList, onComplete }) {
 // Sample segments that will be shown after AI processing
 const generatedSegments = [
   {
-    id: "Segment 1: On-Track / Pre-Delinquent Reminder",
+    id: "Segment 1: Recently On-track",
     logic: "CreditScore > 700 AND Bucket IS NULL AND NbrTimes15-29 = 0 AND NbrTimes30-59 = 0 AND NbrTimes60-89 = 0 AND NbrTimes90-119 = 0",
     characteristics: "High-performing customers with excellent payment histories who are not yet delinquent. Goal is to proactively prevent delinquency due to oversight, fostering goodwill and strong customer relationships.",
     focus: "Automated reminders with gentle, proactive approach to maintain excellent relationship.",
@@ -270,7 +270,7 @@ const generatedSegments = [
     accounts: 3892
   },
   {
-    id: "Segment 3: Early-Stage Slip-Up",
+    id: "Segment 3: One-off Slip-up",
     logic: "Bucket = '01-10' AND DaysPastDue > 5 AND CreditScore > 600 AND NbrTimes15-29 < 3 AND NbrTimes30-59 = 0",
     characteristics: "Customers in early delinquency (Day 6-30 past due) who typically resolve accounts quickly. May have few prior minor delinquencies but are not chronic late payers with moderate to high credit scores.",
     focus: "Professional but understanding approach with structured payment solutions and clear timelines.",
@@ -284,7 +284,7 @@ const generatedSegments = [
     accounts: 1543
   },
   {
-    id: "Segment 5: Consistent Late Payer / PTP Breaker",
+    id: "Segment 5: Consistent Late-payer",
     logic: "Bucket IN ('11-20', '21-25') AND (NbrTimes15-29 >= 3 OR (Broken_PTPs > 1 AND Broken_PTP_Severity > 0.1)) AND CreditScore BETWEEN 550 AND 650",
     characteristics: "Frequently in early-to-mid delinquency stages. Often make promises to pay (PTPs) but have history of breaking them, indicating need for more structured payment solutions or tighter follow-up.",
     focus: "Structured approach with firm but fair payment plans, shorter PTP terms, and increased follow-up frequency.",
@@ -296,58 +296,100 @@ const generatedSegments = [
     characteristics: "Customers in mid-stage delinquency (Day 26-60 past due) who show low engagement with communication attempts. May not provide DQ_Reason or consistently have 'REASON FOR DELQ UNKNOWN'.",
     focus: "Multi-channel approach with escalated urgency, legal implications mentioned, and demand for immediate response.",
     accounts: 1832
+  },
+  {
+    id: "Segment 7: PTP Promised",
+    logic: "PTP_Status = 'ACTIVE' AND PTP_Date >= TODAY AND Broken_PTPs < 2",
+    characteristics: "Customers who have made a payment promise and are within the agreed timeframe. Require monitoring to ensure compliance with agreed terms.",
+    focus: "Supportive monitoring approach with gentle reminders and payment confirmation processes.",
+    accounts: 3154
+  },
+  {
+    id: "Segment 8: PTP Promise Broken",
+    logic: "PTP_Status = 'BROKEN' AND Broken_PTPs >= 1 AND Days_Since_Broken_PTP <= 7",
+    characteristics: "Customers who have broken payment promises and require immediate follow-up. Critical for maintaining collection momentum and account resolution.",
+    focus: "Immediate escalated contact with consequence-based messaging and restructured payment arrangements.",
+    accounts: 1967
+  },
+  {
+    id: "Segment 9: New / Insufficient Insights",
+    logic: "Account_Age < 6 AND Payment_History = 'LIMITED' AND Total_Payments <= 3",
+    characteristics: "New customers with limited payment history requiring careful assessment. Approach must balance collection needs with customer retention.",
+    focus: "Educational approach with flexible payment options and relationship-building focus.",
+    accounts: 1243
+  },
+  {
+    id: "Segment 10: Predictable Delayer",
+    logic: "Payment_Pattern = 'PREDICTABLE_LATE' AND NbrTimes15-29 > 3 AND Eventual_Payment_Rate > 80",
+    characteristics: "Customers with predictable patterns of late payments but eventual resolution. Consistent behavior allows for optimized contact timing.",
+    focus: "Timing-optimized approach with automated reminders and predictive contact scheduling.",
+    accounts: 2891
+  },
+  {
+    id: "Segment 11: Intermittent Payer",
+    logic: "Payment_Frequency = 'IRREGULAR' AND NbrTimes30-59 > 2 AND Payment_Variance = 'HIGH'",
+    characteristics: "Customers with irregular payment patterns requiring flexible approaches. Unpredictable behavior necessitates adaptive strategies.",
+    focus: "Flexible approach with multiple payment options and adaptive communication strategies.",
+    accounts: 1756
+  },
+  {
+    id: "Segment 12: Emerging Deterioration",
+    logic: "Credit_Score_Trend = 'DECLINING' AND Recent_Delinquency_Increase = TRUE AND Historical_Performance = 'GOOD'",
+    characteristics: "Previously good customers showing signs of declining payment behavior. Early intervention critical to prevent further deterioration.",
+    focus: "Proactive intervention with supportive resources and early warning system monitoring.",
+    accounts: 987
   }
 ];
 
 // Pre-built segment templates
 const preBuiltSegments = [
   {
-    id: "Standard Early Bucket (1-30 DPD)",
-    logic: "Bucket IN ('01-10', '11-20', '21-30') AND CreditScore > 500",
-    characteristics: "Standard early delinquency segment covering customers 1-30 days past due with reasonable credit scores.",
-    focus: "Professional reminders with payment plan options and relationship preservation focus.",
-    accounts: 4247,
-    template: "Early Stage"
+    id: "PTP Promised",
+    logic: "PTP_Status = 'ACTIVE' AND PTP_Date >= TODAY AND Broken_PTPs < 2",
+    characteristics: "Customers who have made a payment promise and are within the agreed timeframe. Require monitoring to ensure compliance.",
+    focus: "Supportive monitoring approach with gentle reminders and payment confirmation processes.",
+    accounts: 3154,
+    template: "Promise Management"
   },
   {
-    id: "Mid-Stage Collection (31-90 DPD)",
-    logic: "Bucket IN ('31-60', '61-90') AND PaymentsMade >= 2",
-    characteristics: "Mid-stage delinquent accounts that have made some payments, indicating ability but need structured approach.",
-    focus: "Firm but fair collection strategy with structured payment arrangements and clear expectations.",
-    accounts: 2143,
-    template: "Mid Stage"
+    id: "PTP Promise Broken",
+    logic: "PTP_Status = 'BROKEN' AND Broken_PTPs >= 1 AND Days_Since_Broken_PTP <= 7",
+    characteristics: "Customers who have broken payment promises and require immediate follow-up. Critical for maintaining momentum.",
+    focus: "Immediate escalated contact with consequence-based messaging and restructured payment arrangements.",
+    accounts: 1967,
+    template: "Escalated"
   },
   {
-    id: "High-Risk / Late Stage (90+ DPD)",
-    logic: "Bucket IN ('91-120', '121+') AND Total_Outstanding > 500",
-    characteristics: "Seriously delinquent accounts requiring intensive collection efforts with potential legal consideration.",
-    focus: "Direct collection approach with legal implications, demand letters, and escalated communication.",
-    accounts: 832,
-    template: "Late Stage"
-  },
-  {
-    id: "Promise Breaker / PTP Management",
-    logic: "Broken_PTPs >= 2 AND Broken_PTP_Severity > 0.2",
-    characteristics: "Customers with history of broken payment promises requiring special handling and shorter PTP terms.",
-    focus: "Structured PTP management with shorter terms, increased follow-up, and alternative payment arrangements.",
-    accounts: 1428,
+    id: "Predictable Delayer",
+    logic: "Payment_Pattern = 'PREDICTABLE_LATE' AND NbrTimes15-29 > 3 AND Eventual_Payment_Rate > 80",
+    characteristics: "Customers with predictable patterns of late payments but eventual resolution. Consistent behavior patterns.",
+    focus: "Timing-optimized approach with automated reminders and predictive contact scheduling.",
+    accounts: 2891,
     template: "Behavioral"
   },
   {
-    id: "Credit Score Based Segmentation",
-    logic: "CreditScore < 550 AND Bucket IS NOT NULL",
-    characteristics: "Low credit score customers in delinquency requiring specialized approach due to higher risk profile.",
-    focus: "Risk-adjusted collection strategy with emphasis on immediate resolution and alternative payment methods.",
-    accounts: 967,
-    template: "Risk-Based"
+    id: "Intermittent Payer",
+    logic: "Payment_Frequency = 'IRREGULAR' AND NbrTimes30-59 > 2 AND Payment_Variance = 'HIGH'",
+    characteristics: "Customers with irregular payment patterns requiring flexible approaches. Unpredictable behavior patterns.",
+    focus: "Flexible approach with multiple payment options and adaptive communication strategies.",
+    accounts: 1756,
+    template: "Adaptive"
   },
   {
-    id: "New Customer / MOB Consideration",
-    logic: "MOB <= 6 AND Bucket IS NOT NULL",
-    characteristics: "New customers (6 months or less) who have become delinquent, requiring early intervention to prevent loss.",
-    focus: "Retention-focused approach with educational components and flexible payment solutions.",
-    accounts: 743,
+    id: "New / Insufficient Insights",
+    logic: "Account_Age < 6 AND Payment_History = 'LIMITED' AND Total_Payments <= 3",
+    characteristics: "New customers with limited payment history requiring careful assessment. Balance collection with retention.",
+    focus: "Educational approach with flexible payment options and relationship-building focus.",
+    accounts: 1243,
     template: "Retention"
+  },
+  {
+    id: "Emerging Deterioration",
+    logic: "Credit_Score_Trend = 'DECLINING' AND Recent_Delinquency_Increase = TRUE AND Historical_Performance = 'GOOD'",
+    characteristics: "Previously good customers showing signs of declining payment behavior. Early intervention critical.",
+    focus: "Proactive intervention with supportive resources and early warning system monitoring.",
+    accounts: 987,
+    template: "Risk-Based"
   }
 ];
 
@@ -382,7 +424,7 @@ const steps = [
 export default function CreateAssistant() {
   const [step, setStep] = useState(0); // Start at 0 for welcome page
   const [form, setForm] = useState({
-    name: "Q2 Auto Loan Recovery",
+    name: "CarMax",
     desc: "Automated campaign for Q2 auto loan collections.",
     creditorName: "",
     creditorPhone: "+1 555-123-4567",
@@ -487,8 +529,10 @@ export default function CreateAssistant() {
     } else if (step < 4) {
       setStep(step + 1);
     } else if (step === 4) {
-      // Complete setup and redirect to home
-      navigate("/");
+      setStep(step + 1);
+    } else if (step === 5) {
+      // Complete setup and redirect to ai agents
+      navigate("/ai-agents");
     }
   }
 
@@ -1138,7 +1182,6 @@ export default function CreateAssistant() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <img src="/images/logo.png" alt="Reference" className="w-8 h-8 opacity-30" />
                         <button className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm">
                           Choose Files
                         </button>
@@ -1174,7 +1217,6 @@ export default function CreateAssistant() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <img src="/images/logo.png" alt="Reference" className="w-8 h-8 opacity-30" />
                         <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm">
                           Choose Files
                         </button>
@@ -2399,7 +2441,7 @@ export default function CreateAssistant() {
                 onClick={handleNext}
                 disabled={!modelingChoice || !uploadedCSV}
               >
-                {modelingChoice && uploadedCSV ? 'Start Processing →' : 'Complete Requirements First'}
+                {modelingChoice && uploadedCSV ? 'Finish' : 'Complete Requirements First'}
               </button>
             </div>
           </div>
@@ -2485,7 +2527,7 @@ export default function CreateAssistant() {
                 onClick={handleNext}
                 disabled={!modelingChoice || !uploadedCSV}
               >
-                {modelingChoice && uploadedCSV ? 'Start Processing →' : 'Complete Requirements First'}
+                {modelingChoice && uploadedCSV ? 'Finish' : 'Complete Requirements First'}
               </button>
             </div>
           </div>
@@ -2513,86 +2555,55 @@ export default function CreateAssistant() {
                 Review and choose from AI-generated custom segments or pre-built templates
               </p>
 
-              {/* Segment Tabs */}
-              <div className="mb-6">
-                <div className="flex space-x-1 mb-6">
-                  <button
-                    onClick={() => setSegmentTab("custom")}
-                    className={`px-6 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      segmentTab === "custom"
-                        ? "bg-blue-500 text-white"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                    }`}
-                  >
-                    Custom Segments
-                  </button>
-                  <button
-                    onClick={() => setSegmentTab("prebuilt")}
-                    className={`px-6 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      segmentTab === "prebuilt"
-                        ? "bg-blue-500 text-white"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                    }`}
-                  >
-                    Pre-build Segments
-                  </button>
-                </div>
-              </div>
-              
-              {/* Custom Segments Tab */}
-              {segmentTab === "custom" && (
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-gray-900">AI Generated Custom Segments</h4>
-                    <span className="text-sm text-gray-500">{generatedSegments.length} segments created</span>
-                  </div>
-              <div className="space-y-4">
-                {generatedSegments.map((segment, index) => (
-                      <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                        {/* Header Section */}
-                        <div className="p-6 border-b border-gray-100">
-                          <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                  {segment.id.replace('Segment ', '').split(':')[0]}
-                                </h3>
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Early Stage
-                          </span>
-                        </div>
-                              <p className="text-sm text-gray-600 mb-3">
-                          {segment.characteristics}
-                        </p>
-                      <div className="flex items-center space-x-6 text-sm text-gray-500">
-                        <div className="flex items-center">
-                          <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                          </svg>
-                                  <span className="font-medium">{Math.floor(Math.random() * 5) + 2} Rules Applied</span>
-                        </div>
-                        <div className="flex items-center">
-                          <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                          <span>John Doe</span>
-                        </div>
-                        <div className="flex items-center">
-                          <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          <span>{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+              {/* Pre-build Segments */}
+              <div className="mb-8">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Pre-build Segments</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                  {preBuiltSegments.slice(0, 4).map((segment, index) => (
+                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {segment.id}
+                            </h3>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              {segment.template}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-4">
+                            {segment.characteristics}
+                          </p>
+                          <div className="flex items-center space-x-6 text-sm text-gray-500 mb-4">
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                              </svg>
+                              <span className="font-medium">3 Rules Applied</span>
+                            </div>
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                              <span>John Doe</span>
+                            </div>
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              <span>11th April 2025</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                            </div>
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center justify-between">
                         <button className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium">
                           View Journey
                           <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                           </svg>
                         </button>
-                              <button className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <button className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                           <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
@@ -2600,148 +2611,69 @@ export default function CreateAssistant() {
                         </button>
                       </div>
                     </div>
-                        </div>
-                        
-                        {/* Expandable Logic Details */}
-                        <details className="group">
-                          <summary className="p-4 cursor-pointer text-sm font-medium text-gray-700 hover:bg-gray-50 list-none">
-                            <div className="flex items-center justify-between">
-                              <span>View Segment Logic & Details</span>
-                              <svg className="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                              </svg>
-                            </div>
-                          </summary>
-                          <div className="px-6 pb-6 space-y-4">
-                            <div>
-                              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Logic Expression</span>
-                              <div className="text-sm text-gray-700 bg-blue-50 px-3 py-2 rounded mt-1 font-mono">
-                                {segment.logic}
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Messaging Focus</span>
-                              <div className="text-sm text-gray-700 bg-green-50 px-3 py-2 rounded mt-1">
-                                {segment.focus}
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Account Count</span>
-                              <div className="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded mt-1">
-                                <span className="font-semibold text-blue-600">{segment.accounts.toLocaleString()}</span> accounts match this segment
-                              </div>
-                            </div>
-                          </div>
-                        </details>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-                </div>
-              )}
 
-              {/* Pre-built Segments Tab */}
-              {segmentTab === "prebuilt" && (
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-gray-900">Pre-built Segment Templates</h4>
-                    <span className="text-sm text-gray-500">{preBuiltSegments.length} templates available</span>
-                  </div>
-                  <div className="space-y-4">
-                    {preBuiltSegments.map((segment, index) => (
-                      <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                        {/* Header Section */}
-                        <div className="p-6 border-b border-gray-100">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                  {segment.id}
-                                </h3>
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                  {segment.template}
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-600 mb-3">
-                                {segment.characteristics}
-                              </p>
-                              <div className="flex items-center space-x-6 text-sm text-gray-500">
-                                <div className="flex items-center">
-                                  <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                  </svg>
-                                  <span className="font-medium">Template Rules</span>
-                                </div>
-                                <div className="flex items-center">
-                                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                  </svg>
-                                  <span>System Template</span>
-                                </div>
-                                <div className="flex items-center">
-                                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                  </svg>
-                                  <span>Ready to Use</span>
-                                </div>
-                              </div>
+              {/* Custom Segments */}
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Custom Segments</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[...generatedSegments, ...preBuiltSegments.slice(4)].map((segment, index) => (
+                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {segment.id.includes('Segment') ? segment.id.replace('Segment ', '').split(':')[0] : segment.id}
+                            </h3>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              Early Stage
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-4">
+                            {segment.characteristics}
+                          </p>
+                          <div className="flex items-center space-x-6 text-sm text-gray-500 mb-4">
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                              </svg>
+                              <span className="font-medium">{Math.floor(Math.random() * 5) + 2} Rules Applied</span>
                             </div>
-                            <div className="flex items-center space-x-3">
-                              <button className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                Preview Template
-                                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                              </button>
-                              <button className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                </svg>
-                                Use Template
-                              </button>
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                              <span>John Doe</span>
+                            </div>
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              <span>11th April 2025</span>
                             </div>
                           </div>
                         </div>
-                        
-                        {/* Expandable Logic Details */}
-                        <details className="group">
-                          <summary className="p-4 cursor-pointer text-sm font-medium text-gray-700 hover:bg-gray-50 list-none">
-                            <div className="flex items-center justify-between">
-                              <span>View Template Logic & Details</span>
-                              <svg className="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                              </svg>
-                            </div>
-                          </summary>
-                          <div className="px-6 pb-6 space-y-4">
-                            <div>
-                              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Logic Expression</span>
-                              <div className="text-sm text-gray-700 bg-blue-50 px-3 py-2 rounded mt-1 font-mono">
-                                {segment.logic}
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Collection Strategy</span>
-                              <div className="text-sm text-gray-700 bg-yellow-50 px-3 py-2 rounded mt-1">
-                                {segment.focus}
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Estimated Account Count</span>
-                              <div className="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded mt-1">
-                                <span className="font-semibold text-green-600">{segment.accounts.toLocaleString()}</span> estimated accounts for this template
-                              </div>
-                            </div>
-                          </div>
-                        </details>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex items-center justify-between">
+                        <button className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium">
+                          View Journey
+                          <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                        <button className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                          <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          Edit Segment
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Completion Message */}
@@ -2769,7 +2701,7 @@ export default function CreateAssistant() {
                 className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
                 onClick={handleNext}
               >
-                Complete Setup →
+                Finish
               </button>
             </div>
           </div>
