@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import logo from "./images/logo.png";
+import monogram from "./images/monogram.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -91,8 +92,43 @@ export default function Sidebar() {
   return (
     <aside className="sticky top-0 flex flex-col justify-between h-screen w-[260px] text-base bg-gradient-to-b from-gray-50 to-gray-100">
       <div>
-        <div className="flex items-left justify-left text-base font-bold text-foreground mb-3 pl-10 border-b border-gray-100">
-          <img src={logo} alt="Logo" className="w-16 h-16 object-contain" />
+        {/* Header with Monogram and Dropdown */}
+        <div className="flex items-center justify-between text-base font-bold text-foreground mb-3 px-4 py-3 border-b border-gray-200">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <img src={monogram} alt="Monogram" className="w-5 h-5 object-contain" />
+                <span className="text-xs">CarMax</span>
+                <ChevronDown size={16} className="text-gray-400" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" side="right" align="start">
+              <DropdownMenuLabel>Organization</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <img src={monogram} alt="CarMax" className="w-6 h-6 object-contain" />
+                  <div>
+                    <div className="font-medium">CarMax</div>
+                    <div className="text-xs text-gray-500">Current Organization</div>
+                  </div>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Organization Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <Users className="mr-2 h-4 w-4" />
+                <span>Manage Users</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <Shield className="mr-2 h-4 w-4" />
+                <span>Security & Permissions</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <nav className="px-3">
           <ul className="flex flex-col gap-1">

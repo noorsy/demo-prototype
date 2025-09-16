@@ -203,6 +203,44 @@ Use / to get suggestions`);
   const [interDigitTimeout, setInterDigitTimeout] = useState(1);
 
   // Section collapse states - only Background Noise is open by default
+  // Inbound/Outbound Configuration State
+  const [callDirection, setCallDirection] = useState("outbound"); // 'inbound' or 'outbound'
+  const [outboundOption, setOutboundOption] = useState("speak_static"); // 'speak_static', 'wait_user', 'speak_dynamic'
+  const [inboundOption, setInboundOption] = useState("speak_static"); // 'speak_static', 'wait_user', 'speak_dynamic'
+  const [outboundStaticMessage, setOutboundStaticMessage] = useState("");
+  const [inboundStaticMessage, setInboundStaticMessage] = useState("");
+  
+  // Email-specific state variables
+  const [outboundEmailSubject, setOutboundEmailSubject] = useState("");
+  const [inboundEmailSubject, setInboundEmailSubject] = useState("");
+  const [outboundEmailBody, setOutboundEmailBody] = useState("");
+  const [inboundEmailBody, setInboundEmailBody] = useState("");
+  
+  // Email preview state
+  const [showOutboundPreview, setShowOutboundPreview] = useState(false);
+  const [showInboundPreview, setShowInboundPreview] = useState(false);
+
+  // Function to render email preview with sample data
+  const renderEmailPreview = (htmlContent, isOutbound = true) => {
+    const sampleData = isOutbound ? {
+      customer_name: "John Smith",
+      action_link: "https://example.com/action",
+      account_balance: "$1,250.00"
+    } : {
+      customer_name: "Sarah Johnson", 
+      support_link: "https://example.com/support",
+      ticket_number: "TKT-2024-001234"
+    };
+
+    let processedHtml = htmlContent;
+    Object.entries(sampleData).forEach(([key, value]) => {
+      const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+      processedHtml = processedHtml.replace(regex, value);
+    });
+
+    return processedHtml;
+  };
+
   const [collapsedSections, setCollapsedSections] = useState({
     llmConfig: true,
     languages: true,
@@ -505,6 +543,388 @@ Use / to get suggestions`);
       <div className="flex-1 p-6">
         {activeTab === "Build" && (
           <div className="max-w-8xl mx-auto">
+            {/* First Turn Configuration */}
+            <div className="mb-8">
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  First Turn Configuration
+                </h3>
+                <p className="text-sm text-gray-600 mb-6">
+                  Configure how the assistant handles the first turn in inbound and outbound calls.
+                </p>
+
+                {/* Call Type Selector */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-4">
+                    Conversation Type
+                  </label>
+                  <div className="relative inline-flex bg-gray-100 rounded-xl p-1">
+                    <button
+                      onClick={() => setCallDirection("outbound")}
+                      className={`relative px-6 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                        callDirection === "outbound"
+                          ? "bg-white text-gray-900 shadow-sm"
+                          : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      📞 Outbound
+                    </button>
+                    <button
+                      onClick={() => setCallDirection("inbound")}
+                      className={`relative px-6 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                        callDirection === "inbound"
+                          ? "bg-white text-gray-900 shadow-sm"
+                          : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      📲 Inbound
+                    </button>
+                  </div>
+                </div>
+
+                {/* Outbound Options */}
+                {callDirection === "outbound" && (
+                  <div className="space-y-4">
+                    <div className="border-t border-gray-200 pt-6">
+                      <label className="block text-sm font-medium text-gray-700 mb-4">
+                        How should the assistant start outbound calls?
+                      </label>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <label className="flex items-start space-x-3">
+                        <input
+                          type="radio"
+                          name="outbound-option"
+                          value="speak_static"
+                          checked={outboundOption === "speak_static"}
+                          onChange={(e) => setOutboundOption(e.target.value)}
+                          className="mt-1 h-4 w-4 text-blue-600"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-medium text-gray-900">
+                              Bot starts with a static message.
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            The assistant will always start with the same scripted message
+                          </p>
+                          {outboundOption === "speak_static" && (
+                            <div className="mt-2">
+                              {selectedChannel.id === "email" ? (
+                                <div className="space-y-4">
+                                  {/* Email Subject Line */}
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      Subject Line
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={outboundEmailSubject}
+                                      onChange={(e) => setOutboundEmailSubject(e.target.value)}
+                                      className="w-full p-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                      placeholder="Enter email subject..."
+                                    />
+                                  </div>
+                                  
+                                  {/* HTML Email Body Editor */}
+                                  <div>
+                                    <div className="flex items-center justify-between mb-2">
+                                      <label className="block text-sm font-medium text-gray-700">
+                                        Email Body (HTML)
+                                      </label>
+                                      <button
+                                        type="button"
+                                        onClick={() => setShowOutboundPreview(!showOutboundPreview)}
+                                        className="flex items-center space-x-1 px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                                      >
+                                        <EyeIcon className="w-3 h-3" />
+                                        <span>{showOutboundPreview ? 'Hide Preview' : 'Quick Preview'}</span>
+                                      </button>
+                                    </div>
+                                    
+                                    {showOutboundPreview && outboundEmailBody && (
+                                      <div className="mb-4 border border-gray-200 rounded-lg">
+                                        <div className="bg-gray-50 px-3 py-2 border-b border-gray-200 text-xs font-medium text-gray-700">
+                                          Email Preview - Subject: {outboundEmailSubject || "No subject"}
+                                        </div>
+                                        <div 
+                                          className="p-4 bg-white max-h-60 overflow-y-auto"
+                                          dangerouslySetInnerHTML={{ __html: renderEmailPreview(outboundEmailBody, true) }}
+                                        />
+                                      </div>
+                                    )}
+                                    
+                                    <div className="border border-gray-300 rounded-md">
+                                      <div className="bg-gray-50 px-3 py-2 border-b border-gray-300 flex items-center space-x-2 text-xs">
+                                        <button type="button" className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" title="Bold">
+                                          <strong>B</strong>
+                                        </button>
+                                        <button type="button" className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" title="Italic">
+                                          <em>I</em>
+                                        </button>
+                                        <button type="button" className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" title="Link">
+                                          🔗
+                                        </button>
+                                        <span className="text-gray-500 ml-auto">HTML Editor</span>
+                                      </div>
+                                      <textarea
+                                        value={outboundEmailBody}
+                                        onChange={(e) => setOutboundEmailBody(e.target.value)}
+                                        className="w-full h-40 p-3 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-mono"
+                                        placeholder={`<html>
+<body>
+  <h1>Hello ${"{{customer_name}}"}</h1>
+  <p>We hope this email finds you well...</p>
+  <p>
+    <a href="${"{{action_link}}"}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+      Take Action
+    </a>
+  </p>
+</body>
+</html>`}
+                                      />
+                                    </div>
+                                    <div className="mt-2 text-xs text-gray-500">
+                                      Use HTML tags for formatting. Variables: ${"{{customer_name}}"}, ${"{{action_link}}"}, ${"{{account_balance}}"}
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <textarea
+                                  value={outboundStaticMessage}
+                                  onChange={(e) => setOutboundStaticMessage(e.target.value)}
+                                  className="w-full h-24 p-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  placeholder="Enter the static message the assistant will speak..."
+                                />
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </label>
+
+                      {selectedChannel.id === "voice" && (
+                        <label className="flex items-start space-x-3">
+                          <input
+                            type="radio"
+                            name="outbound-option"
+                            value="wait_user"
+                            checked={outboundOption === "wait_user"}
+                            onChange={(e) => setOutboundOption(e.target.value)}
+                            className="mt-1 h-4 w-4 text-blue-600"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium text-gray-900">
+                                Let user start the conversation
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              The assistant will listen and wait for the customer to initiate
+                            </p>
+                          </div>
+                        </label>
+                      )}
+
+                      <label className="flex items-start space-x-3">
+                        <input
+                          type="radio"
+                          name="outbound-option"
+                          value="speak_dynamic"
+                          checked={outboundOption === "speak_dynamic"}
+                          onChange={(e) => setOutboundOption(e.target.value)}
+                          className="mt-1 h-4 w-4 text-blue-600"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-medium text-gray-900">
+                              Start with dynamic message generated by AI
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            AI will create a personalized greeting based on customer data
+                          </p>
+                          {outboundOption === "speak_dynamic" && selectedChannel.id === "email" && (
+                            <div className="mt-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Subject Line
+                              </label>
+                              <input
+                                type="text"
+                                value={outboundEmailSubject}
+                                onChange={(e) => setOutboundEmailSubject(e.target.value)}
+                                className="w-full p-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="AI will use this template for dynamic subject generation..."
+                              />
+                              <div className="mt-1 text-xs text-gray-500">
+                                AI will personalize this subject template with customer data
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {/* Inbound Options */}
+                {callDirection === "inbound" && (
+                  <div className="space-y-4">
+                    <div className="border-t border-gray-200 pt-6">
+                      <label className="block text-sm font-medium text-gray-700 mb-4">
+                        How should the assistant respond to inbound calls?
+                      </label>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <label className="flex items-start space-x-3">
+                        <input
+                          type="radio"
+                          name="inbound-option"
+                          value="speak_static"
+                          checked={inboundOption === "speak_static"}
+                          onChange={(e) => setInboundOption(e.target.value)}
+                          className="mt-1 h-4 w-4 text-blue-600"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-medium text-gray-900">
+                              Bot starts with a static message.
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            The assistant will answer with the same scripted greeting
+                          </p>
+                          {inboundOption === "speak_static" && (
+                            <div className="mt-2">
+                              {selectedChannel.id === "email" ? (
+                                <div className="space-y-4">
+                                  {/* HTML Email Body Editor */}
+                                  <div>
+                                    <div className="flex items-center justify-between mb-2">
+                                      <label className="block text-sm font-medium text-gray-700">
+                                        Email Body (HTML)
+                                      </label>
+                                      <button
+                                        type="button"
+                                        onClick={() => setShowInboundPreview(!showInboundPreview)}
+                                        className="flex items-center space-x-1 px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                                      >
+                                        <EyeIcon className="w-3 h-3" />
+                                        <span>{showInboundPreview ? 'Hide Preview' : 'Quick Preview'}</span>
+                                      </button>
+                                    </div>
+                                    
+                                    {showInboundPreview && inboundEmailBody && (
+                                      <div className="mb-4 border border-gray-200 rounded-lg">
+                                        <div className="bg-gray-50 px-3 py-2 border-b border-gray-200 text-xs font-medium text-gray-700">
+                                          📧 Email Response Preview
+                                        </div>
+                                        <div 
+                                          className="p-4 bg-white max-h-60 overflow-y-auto"
+                                          dangerouslySetInnerHTML={{ __html: renderEmailPreview(inboundEmailBody, false) }}
+                                        />
+                                      </div>
+                                    )}
+                                    
+                                    <div className="border border-gray-300 rounded-md">
+                                      <div className="bg-gray-50 px-3 py-2 border-b border-gray-300 flex items-center space-x-2 text-xs">
+                                        <button type="button" className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" title="Bold">
+                                          <strong>B</strong>
+                                        </button>
+                                        <button type="button" className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" title="Italic">
+                                          <em>I</em>
+                                        </button>
+                                        <button type="button" className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" title="Link">
+                                          🔗
+                                        </button>
+                                        <span className="text-gray-500 ml-auto">HTML Editor</span>
+                                      </div>
+                                      <textarea
+                                        value={inboundEmailBody}
+                                        onChange={(e) => setInboundEmailBody(e.target.value)}
+                                        className="w-full h-40 p-3 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-mono"
+                                        placeholder={`<html>
+<body>
+  <h1>Thank you for contacting us, ${"{{customer_name}}"}</h1>
+  <p>We've received your inquiry and will respond shortly...</p>
+  <p>
+    <a href="${"{{support_link}}"}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+      View Support Portal
+    </a>
+  </p>
+</body>
+</html>`}
+                                      />
+                                    </div>
+                                    <div className="mt-2 text-xs text-gray-500">
+                                      Use HTML tags for formatting. Variables: ${"{{customer_name}}"}, ${"{{support_link}}"}, ${"{{ticket_number}}"}
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <textarea
+                                  value={inboundStaticMessage}
+                                  onChange={(e) => setInboundStaticMessage(e.target.value)}
+                                  className="w-full h-24 p-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  placeholder="Enter the static message the assistant will speak..."
+                                />
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </label>
+
+                      {selectedChannel.id === "voice" && (
+                        <label className="flex items-start space-x-3">
+                          <input
+                            type="radio"
+                            name="inbound-option"
+                            value="wait_user"
+                            checked={inboundOption === "wait_user"}
+                            onChange={(e) => setInboundOption(e.target.value)}
+                            className="mt-1 h-4 w-4 text-blue-600"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium text-gray-900">
+                                Let user start the conversation
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              The assistant will listen and wait for the customer to start
+                            </p>
+                          </div>
+                        </label>
+                      )}
+
+                      <label className="flex items-start space-x-3">
+                        <input
+                          type="radio"
+                          name="inbound-option"
+                          value="speak_dynamic"
+                          checked={inboundOption === "speak_dynamic"}
+                          onChange={(e) => setInboundOption(e.target.value)}
+                          className="mt-1 h-4 w-4 text-blue-600"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-medium text-gray-900">
+                              Start with dynamic message generated by AI
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            AI will create a personalized greeting based on call context
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Header and Action Button on Same Line */}
             <div className="flex items-center justify-between mb-6">
               <div>

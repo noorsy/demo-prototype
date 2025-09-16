@@ -132,21 +132,23 @@ function MetricCard({
 const sampleQueries = [
   "How many accounts were fully resolved (cured + paid off) this month?",
   "Which channels (AI voice, SMS, WhatsApp, agents) are generating the highest PTP fulfillment?",
-  "How many accounts have broken 2+ PTPs and are still active?",
-  "How is this month's portfolio cohort performing compared to previous cohorts?",
-  "How many accounts were escalated to humans, and did that improve recovery?",
+  "Show me early warning signs of compliance risks and violations detected this week",
+  "How many cease communication or do-not-call requests were flagged today?",
+  "Which accounts have potential wrong party or third-party disclosure issues?",
+  "How many debt validation requests have we received this month?",
   "What is our current Cure Rate, and how has it changed over the last 30 days?",
-  "What's our forecasted vs actual collections this month?",
-  "Which DPD bucket has the highest conversion rate?",
+  "Identify any time-barred debt or statute of limitations mentions in conversations",
   "How has our contact rate improved compared to last quarter?",
-  "What's the average handle time for successful PTP calls?",
+  "Show me accounts with bankruptcy mentions or attorney representation claims",
   "Which communication channel generates the most collections?",
-  "Show me the compliance score for voice interactions this week",
+  "Detect any FDCPA violation claims or harassment complaints this week",
+  "Show me potential identity theft or fraud claims requiring investigation",
+  "Alert me to any active regulator mentions or CFPB complaints",
 ];
 
 const exampleQuestions = [
   "What is our current Cure Rate, and how has it changed over the last 30 days?",
-  "What's our forecasted vs actual collections this month?",
+  "Show me early warning signs of compliance risks and violations detected this week",
   "Which DPD bucket has the highest conversion rate?",
   "How has our contact rate improved compared to last quarter?",
 ];
@@ -164,6 +166,7 @@ export default function Analytics() {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   
   // AI Search states
+  const [showAiModal, setShowAiModal] = useState(false);
   const [aiQuery, setAiQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isTypingAnimation, setIsTypingAnimation] = useState(false);
@@ -211,24 +214,161 @@ export default function Analytics() {
       setRecentSearches(prev => [aiQuery, ...prev.slice(0, 3)]);
     }
     
-    // Simulate AI search
+    // Simulate AI search with different responses based on query type
     setTimeout(() => {
-      setSearchResults({
-        query: aiQuery,
-        answer: "Based on your data from the last 30 days, your current Cure Rate is 14.8%, which represents a +2.3% increase compared to the previous period. This improvement indicates enhanced collection effectiveness.",
-        metrics: [
-          { label: "Current Cure Rate", value: "14.8%", trend: "+2.3%" },
-          { label: "Previous Period", value: "12.5%", trend: "" },
-          { label: "Accounts Cured", value: "6,689", trend: "+185" },
-        ],
-        chartData: [
-          { day: "Day 1", rate: 12.1 },
-          { day: "Day 7", rate: 12.8 },
-          { day: "Day 14", rate: 13.5 },
-          { day: "Day 21", rate: 14.2 },
-          { day: "Day 30", rate: 14.8 },
-        ]
-      });
+      let response;
+      
+      // Check if the query is compliance-related
+      if (aiQuery.toLowerCase().includes('compliance') || 
+          aiQuery.toLowerCase().includes('violation') || 
+          aiQuery.toLowerCase().includes('early warning') ||
+          aiQuery.toLowerCase().includes('cease communication') ||
+          aiQuery.toLowerCase().includes('do-not-call') ||
+          aiQuery.toLowerCase().includes('fdcpa') ||
+          aiQuery.toLowerCase().includes('bankruptcy') ||
+          aiQuery.toLowerCase().includes('debt validation')) {
+        
+        response = {
+          query: aiQuery,
+          answer: "Early Warning Dashboard detected 20 compliance risk indicators this week across all communication channels. All flagged conversations have been automatically escalated to legal compliance team for immediate review and action.",
+          complianceCards: [
+            {
+              name: "Robert Johnson",
+              avatar: "RJ",
+              time: "00:41:10",
+              type: "Cease Communication",
+              description: "'Stop calling me', 'Remove my number', Do-Not-Call Request, Opt-out Violation, TCPA Risk",
+              severity: "high",
+              color: "bg-red-500",
+              callId: "CALL-2024-001789",
+              recordingUrl: "#"
+            },
+            {
+              name: "Maria Gonzalez",
+              avatar: "MG",
+              time: "00:35:22",
+              type: "Wrong Party Contact",
+              description: "'You have the wrong number', Third-party Disclosure, 'This isn't [name]', Privacy Violation",
+              severity: "high",
+              color: "bg-red-500",
+              callId: "CALL-2024-001823",
+              recordingUrl: "#"
+            },
+            {
+              name: "David Chen",
+              avatar: "DC",
+              time: "00:28:45",
+              type: "Debt Validation",
+              description: "'Send validation', 'Prove I owe this', Original Creditor Request, FDCPA Section 809",
+              severity: "high",
+              color: "bg-red-500",
+              callId: "CALL-2024-001756",
+              recordingUrl: "#"
+            },
+            {
+              name: "Jennifer Williams",
+              avatar: "JW",
+              time: "00:52:18",
+              type: "FDCPA Violation",
+              description: "'You're harassing me', Excessive Calling, Threatening Language, Unfair Practice",
+              severity: "high",
+              color: "bg-red-500",
+              callId: "CALL-2024-001902",
+              recordingUrl: "#"
+            },
+            {
+              name: "Michael Brown",
+              avatar: "MB",
+              time: "00:19:33",
+              type: "Time-Barred Debt",
+              description: "'This is too old', Statute of Limitations, 'Last payment was 2018', SOL Defense",
+              severity: "high",
+              color: "bg-red-500",
+              callId: "CALL-2024-001634",
+              recordingUrl: "#"
+            },
+            {
+              name: "Sarah Davis",
+              avatar: "SD",
+              time: "00:44:07",
+              type: "Bankruptcy Filed",
+              description: "'I filed Chapter 7', Automatic Stay, 'Talk to my trustee', Bankruptcy Protection",
+              severity: "medium",
+              color: "bg-yellow-500",
+              callId: "CALL-2024-001845",
+              recordingUrl: "#"
+            },
+            {
+              name: "James Wilson",
+              avatar: "JW",
+              time: "00:31:55",
+              type: "Attorney Representation",
+              description: "'Speak to my lawyer', Power of Attorney, Legal Representation, Cease & Desist",
+              severity: "medium",
+              color: "bg-yellow-500",
+              callId: "CALL-2024-001734",
+              recordingUrl: "#"
+            },
+            {
+              name: "Lisa Anderson",
+              avatar: "LA",
+              time: "00:26:12",
+              type: "Recording Consent",
+              description: "'I don't consent to recording', Two-party Consent State, Privacy Rights Violation",
+              severity: "medium",
+              color: "bg-yellow-500",
+              callId: "CALL-2024-001678",
+              recordingUrl: "#"
+            },
+            {
+              name: "Kevin Taylor",
+              avatar: "KT",
+              time: "00:38:41",
+              type: "Identity Theft",
+              description: "'Not my account', 'Someone opened this', FTC Report Filed, Fraud Claim",
+              severity: "low",
+              color: "bg-green-500",
+              callId: "CALL-2024-001812",
+              recordingUrl: "#"
+            },
+            {
+              name: "Amanda Martinez",
+              avatar: "AM",
+              time: "00:15:29",
+              type: "CFPB Complaint",
+              description: "'I filed CFPB complaint', Regulator Mention, 'Going to the news', Media Threat",
+              severity: "low",
+              color: "bg-green-500",
+              callId: "CALL-2024-001567",
+              recordingUrl: "#"
+            },
+            {
+              name: "Thomas Lee",
+              avatar: "TL",
+              time: "00:47:16",
+              type: "Deceased Consumer",
+              description: "'Account holder passed away', Estate/Probate, Death Certificate Required",
+              severity: "low",
+              color: "bg-green-500",
+              callId: "CALL-2024-001889",
+              recordingUrl: "#"
+            }
+          ],
+        };
+      } else {
+        // Default response for other queries
+        response = {
+          query: aiQuery,
+          answer: "Based on your data from the last 30 days, your current Cure Rate is 14.8%, which represents a +2.3% increase compared to the previous period. This improvement indicates enhanced collection effectiveness.",
+          metrics: [
+            { label: "Current Cure Rate", value: "14.8%", trend: "+2.3%" },
+            { label: "Previous Period", value: "12.5%", trend: "" },
+            { label: "Accounts Cured", value: "6,689", trend: "+185" },
+          ],
+        };
+      }
+      
+      setSearchResults(response);
       setIsSearching(false);
     }, 1500);
   };
@@ -236,6 +376,32 @@ export default function Analytics() {
   const handleSuggestionClick = (suggestion) => {
     setAiQuery(suggestion);
     setShowSuggestions(false);
+  };
+
+  const handleViewCall = (card) => {
+    // In a real app, this would navigate to a call detail page or open a call player modal
+    const callDetails = {
+      callId: card.callId,
+      customerName: card.name,
+      complianceType: card.type,
+      duration: card.time,
+      riskLevel: card.severity,
+      transcript: `Customer: ${card.description.split(',')[0]}\nAgent: I understand your concern...\nCustomer: ${card.description.split(',')[1] || 'Additional compliance issue mentioned'}`,
+      timestamp: new Date().toLocaleString(),
+      recordingUrl: `/recordings/${card.callId}.mp3`
+    };
+    
+    // For demo purposes, show detailed call information
+    alert(`📞 Call Recording Details\n\n` +
+          `Call ID: ${callDetails.callId}\n` +
+          `Customer: ${callDetails.customerName}\n` +
+          `Compliance Risk: ${callDetails.complianceType}\n` +
+          `Duration: ${callDetails.duration}\n` +
+          `Risk Level: ${callDetails.riskLevel.toUpperCase()}\n` +
+          `Timestamp: ${callDetails.timestamp}\n\n` +
+          `🎵 Recording URL: ${callDetails.recordingUrl}\n\n` +
+          `📝 Transcript Preview:\n${callDetails.transcript}\n\n` +
+          `⚠️  This call has been flagged for legal review.`);
   };
 
   const filteredSuggestions = sampleQueries.filter(query =>
@@ -291,180 +457,12 @@ export default function Analytics() {
         tabs={[]}
         filters={filters}
         showSearch={false}
-        createButtonText="Export Data"
-        createButtonIcon={ArrowDownTrayIcon}
-        onCreateClick={() => {}}
+        createButtonText="AI Analytics"
+        createButtonIcon={SparklesIcon}
+        onCreateClick={() => setShowAiModal(true)}
       />
 
-      {/* AI Queryable Search Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200 px-6 py-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-6">
-            <div className="flex items-center justify-center mb-3">
-              <SparklesIcon className="w-6 h-6 text-blue-600 mr-2" />
-              <h2 className="text-2xl font-bold text-gray-900">Ask Analytics AI</h2>
-              <SparklesIcon className="w-6 h-6 text-blue-600 ml-2" />
-            </div>
-            <p className="text-gray-600 text-lg">
-              Get instant insights from your collection data using natural language queries
-            </p>
-          </div>
 
-          {/* Example Questions */}
-          <div className="mb-6">
-            <div className="flex items-center mb-4">
-              <LightBulbIcon className="w-5 h-5 text-yellow-500 mr-2" />
-              <span className="text-sm font-medium text-gray-700">Try asking:</span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {exampleQuestions.map((question, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    setAiQuery(question);
-                    setShowSuggestions(false);
-                  }}
-                  className="text-left p-3 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors text-sm text-gray-700"
-                >
-                  "{question}"
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Search Input */}
-          <div className="relative max-w-4xl mx-auto">
-            <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
-              <input
-                type="text"
-                value={aiQuery}
-                onChange={(e) => {
-                  setAiQuery(e.target.value);
-                }}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => {
-                  // Delay hiding to allow clicking on suggestions
-                  setTimeout(() => setShowSuggestions(false), 200);
-                }}
-                onKeyPress={(e) => e.key === 'Enter' && handleAiSearch()}
-                placeholder={currentPlaceholder || "Type your question here..."}
-                className="w-full pl-12 pr-32 py-4 text-lg border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all"
-              />
-              <button
-                onClick={handleAiSearch}
-                disabled={!aiQuery.trim() || isSearching}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
-              >
-                {isSearching ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                    Searching...
-                  </div>
-                ) : (
-                  "Search"
-                )}
-              </button>
-            </div>
-
-            {/* Suggestions Dropdown */}
-            {showSuggestions && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
-                {/* Recent Searches */}
-                {recentSearches.length > 0 && (
-                  <div className="border-b border-gray-100">
-                    <div className="flex items-center px-4 py-3 border-b border-gray-100">
-                      <div className="w-4 h-4 mr-3 text-gray-400">
-                        <svg fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Recent Searches</span>
-                    </div>
-                    {recentSearches.map((search, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleSuggestionClick(search)}
-                        className="w-full text-left px-4 py-3 text-sm text-gray-900 hover:bg-gray-50"
-                      >
-                        {search}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {/* Suggested Queries */}
-                <div>
-                  <div className="flex items-center px-4 py-3 border-b border-gray-100">
-                    <div className="w-4 h-4 mr-3 text-gray-400">
-                      <svg fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">Suggested Queries</span>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-1 p-2">
-                    {sampleQueries.slice(0, 6).map((suggestion, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        className="text-left p-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg flex items-start"
-                      >
-                        <div className="w-4 h-4 mr-3 mt-0.5 text-gray-400 flex-shrink-0">
-                          <svg fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                        <span>{suggestion}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Search Results */}
-          {searchResults && (
-            <div className="mt-6 max-w-4xl mx-auto">
-              <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-                <div className="flex items-start mb-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                    <SparklesIcon className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-2">AI Analysis</h3>
-                    <p className="text-gray-700 leading-relaxed">{searchResults.answer}</p>
-                  </div>
-                </div>
-
-                {/* Metrics */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                  {searchResults.metrics.map((metric, index) => (
-                    <div key={index} className="bg-gray-50 rounded-lg p-4 text-center">
-                      <div className="text-sm text-gray-600 mb-1">{metric.label}</div>
-                      <div className="text-2xl font-bold text-gray-900">{metric.value}</div>
-                      {metric.trend && (
-                        <div className="text-sm text-green-600 mt-1">{metric.trend}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Close Button */}
-                <div className="mt-4 text-center">
-                  <button
-                    onClick={() => setSearchResults(null)}
-                    className="text-sm text-gray-500 hover:text-gray-700"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Tab Navigation */}
       <div className="sticky top-[72px] z-10 bg-white px-6  flex gap-0 py-0">
@@ -2243,6 +2241,273 @@ export default function Analytics() {
           </>
         )}
       </div>
+
+      {/* AI Analytics Modal */}
+      {showAiModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center">
+                <SparklesIcon className="w-6 h-6 text-blue-600 mr-2" />
+                <h2 className="text-2xl font-bold text-gray-900">Ask Analytics AI</h2>
+                <span className="ml-2 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                  Beta
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  setShowAiModal(false);
+                  setSearchResults(null);
+                  setShowSuggestions(false);
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <p className="text-gray-600 text-lg">
+                  Get instant insights from your collection data using natural language queries
+                </p>
+              </div>
+
+              {/* Example Questions */}
+              <div className="mb-6">
+                <div className="flex items-center mb-4">
+                  <LightBulbIcon className="w-5 h-5 text-yellow-500 mr-2" />
+                  <span className="text-sm font-medium text-gray-700">Try asking:</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {exampleQuestions.map((question, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setAiQuery(question);
+                        setShowSuggestions(false);
+                      }}
+                      className="text-left p-3 bg-gray-50 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors text-sm text-gray-700"
+                    >
+                      "{question}"
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Search Input */}
+              <div className="relative max-w-4xl mx-auto">
+                <div className="relative">
+                  <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
+                  <input
+                    type="text"
+                    value={aiQuery}
+                    onChange={(e) => {
+                      setAiQuery(e.target.value);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() => {
+                      // Delay hiding to allow clicking on suggestions
+                      setTimeout(() => setShowSuggestions(false), 200);
+                    }}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAiSearch()}
+                    placeholder={currentPlaceholder || "Type your question here..."}
+                    className="w-full pl-12 pr-32 py-4 text-lg border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all"
+                  />
+                  <button
+                    onClick={handleAiSearch}
+                    disabled={!aiQuery.trim() || isSearching}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+                  >
+                    {isSearching ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                        Searching...
+                      </div>
+                    ) : (
+                      "Search"
+                    )}
+                  </button>
+                </div>
+
+                {/* Suggestions Dropdown */}
+                {showSuggestions && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
+                    {/* Recent Searches */}
+                    {recentSearches.length > 0 && (
+                      <div className="border-b border-gray-100">
+                        <div className="flex items-center px-4 py-3 border-b border-gray-100">
+                          <div className="w-4 h-4 mr-3 text-gray-400">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <span className="text-sm font-medium text-gray-700">Recent Searches</span>
+                        </div>
+                        {recentSearches.map((search, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleSuggestionClick(search)}
+                            className="w-full text-left px-4 py-3 text-sm text-gray-900 hover:bg-gray-50"
+                          >
+                            {search}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Suggested Queries */}
+                    <div>
+                      <div className="flex items-center px-4 py-3 border-b border-gray-100">
+                        <div className="w-4 h-4 mr-3 text-gray-400">
+                          <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                        </div>
+                        <span className="text-sm font-medium text-gray-700">Suggested Queries</span>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-1 p-2">
+                        {sampleQueries.slice(0, 6).map((suggestion, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            className="text-left p-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg flex items-start"
+                          >
+                            <div className="w-4 h-4 mr-3 mt-0.5 text-gray-400 flex-shrink-0">
+                              <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span>{suggestion}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Search Results */}
+              {searchResults && (
+                <div className="mt-6">
+                  <div className="bg-gray-50 border border-gray-200 rounded-xl shadow-sm p-6">
+                    <div className="flex items-start mb-4">
+                      <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <SparklesIcon className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 mb-2">AI Analysis</h3>
+                        <p className="text-gray-700 leading-relaxed">{searchResults.answer}</p>
+                      </div>
+                    </div>
+
+                    {/* Compliance Cards or Regular Metrics */}
+                    {searchResults.complianceCards ? (
+                      <div className="mt-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-lg font-semibold text-gray-900">📊 Early Warning Dashboard (20)</h4>
+                          <button className="text-gray-400 hover:text-gray-600">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                            </svg>
+                          </button>
+                        </div>
+                        
+                                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                           {searchResults.complianceCards.map((card, index) => {
+                             return (
+                             <div key={index} className={`${card.color} rounded-lg p-4 text-white shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1`}>
+                               {/* Card Header */}
+                               <div className="flex items-center justify-between mb-3">
+                                 <div className="flex items-center">
+                                   <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-2">
+                                     <span className="text-xs font-bold text-white">{card.avatar}</span>
+                                   </div>
+                                   <div>
+                                     <div className="font-semibold text-sm">{card.name}</div>
+                                   </div>
+                                 </div>
+                                 <div className="text-xs font-mono bg-white bg-opacity-20 px-2 py-1 rounded">
+                                   {card.time}
+                                 </div>
+                               </div>
+                               
+                               {/* Card Content */}
+                               <div className="mb-4">
+                                 <div className="font-semibold text-sm mb-2">{card.type}</div>
+                                 <div className="text-xs leading-relaxed opacity-90">
+                                   {card.description}
+                                 </div>
+                               </div>
+
+                                                              {/* Call Information & Actions */}
+                               <div className="border-t border-white border-opacity-20 pt-3 mt-3">
+                                 <div className="flex items-center justify-between mb-2">
+                                   <div className="text-xs opacity-90 font-mono">
+                                     ID: {card.callId}
+                                   </div>
+                                   <div className="text-xs opacity-75">
+                                     🔴 Recorded
+                                   </div>
+                                 </div>
+                                 <div className="flex items-center justify-between">
+                                   <div className="text-xs opacity-75">
+                                     Risk: {card.severity.toUpperCase()}
+                                   </div>
+                                   <button
+                                     onClick={() => handleViewCall(card)}
+                                     className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-xs px-3 py-1 rounded-full flex items-center gap-1 transition-all duration-200 hover:scale-105"
+                                   >
+                                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                                     </svg>
+                                     View Call
+                                   </button>
+                                 </div>
+                               </div>
+                             </div>
+                             );
+                           })}
+                         </div>
+                        
+                        {/* Summary Statistics */}
+                      
+                      </div>
+                    ) : (
+                      /* Regular Metrics */
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                        {searchResults.metrics && searchResults.metrics.map((metric, index) => (
+                          <div key={index} className="bg-white rounded-lg p-4 text-center border border-gray-200">
+                            <div className="text-sm text-gray-600 mb-1">{metric.label}</div>
+                            <div className="text-2xl font-bold text-gray-900">{metric.value}</div>
+                            {metric.trend && (
+                              <div className={`text-sm mt-1 font-medium ${
+                                metric.trend.includes('🚨') || metric.trend.includes('High Risk') || metric.trend.includes('Immediate') 
+                                  ? 'text-red-600' 
+                                  : metric.trend.includes('Action') || metric.trend.includes('Required') || metric.trend.includes('Stop')
+                                  ? 'text-orange-600'
+                                  : metric.trend.includes('Review') || metric.trend.includes('Documentation') || metric.trend.includes('Verify')
+                                  ? 'text-yellow-600'
+                                  : 'text-green-600'
+                              }`}>
+                                {metric.trend}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
