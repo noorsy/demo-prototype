@@ -25,6 +25,7 @@ import DemoTranscript from "./DemoTranscript";
 import Workflows from "./Workflows";
 import CreateSegment from "./CreateSegment";
 import AccountData from "./AccountData";
+import Integration from "./Integration";
 
 const Placeholder = ({ title }) => (
   <div className="p-8 text-lg">{title} Page</div>
@@ -39,7 +40,7 @@ function App() {
         <Route path="/setup-creditor" element={<SetupCreditor />} />
         <Route path="/agent-portal" element={<AgentPortal />} />
         <Route path="/voice-widget" element={<VoiceWidget />} />
-        
+
         {/* All other routes use the main app layout with sidebar */}
         <Route
           path="*"
@@ -75,18 +76,12 @@ function App() {
                         element={<ConversationDetail />}
                       />
                       <Route path="/analytics" element={<Analytics />} />
-                      <Route
-                        path="/accounts-data"
-                        element={<AccountData />}
-                      />
+                      <Route path="/accounts-data" element={<AccountData />} />
                       <Route
                         path="/journeys"
                         element={<Placeholder title="Journeys" />}
                       />
-                      <Route
-                        path="/workflows"
-                        element={<Workflows />}
-                      />
+                      <Route path="/workflows" element={<Workflows />} />
                       <Route
                         path="/workflows/segments/create"
                         element={<CreateSegment />}
@@ -123,6 +118,7 @@ function App() {
                         path="/access-management/edit"
                         element={<EditUser />}
                       />
+                      <Route path="/integrations" element={<Integration />} />
                     </Routes>
                   </main>
                 </div>

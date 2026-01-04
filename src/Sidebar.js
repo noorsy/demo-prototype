@@ -20,6 +20,7 @@ import {
   Shield,
   Bell,
   HelpCircle,
+  Plug,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import logo from "./images/logo.png";
@@ -65,6 +66,11 @@ const navLinks = [
     label: "Access Management",
     to: "/access-management",
   },
+  {
+    icon: <Plug size={20} />,
+    label: "Integrations",
+    to: "/integrations",
+  },
 ];
 
 const countries = [
@@ -97,7 +103,11 @@ export default function Sidebar() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                <img src={monogram} alt="Monogram" className="w-5 h-5 object-contain" />
+                <img
+                  src={monogram}
+                  alt="Monogram"
+                  className="w-5 h-5 object-contain"
+                />
                 <span className="text-xs">CarMax</span>
                 <ChevronDown size={16} className="text-gray-400" />
               </button>
@@ -107,10 +117,16 @@ export default function Sidebar() {
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer">
                 <div className="flex items-center gap-3">
-                  <img src={monogram} alt="CarMax" className="w-6 h-6 object-contain" />
+                  <img
+                    src={monogram}
+                    alt="CarMax"
+                    className="w-6 h-6 object-contain"
+                  />
                   <div>
                     <div className="font-medium">CarMax</div>
-                    <div className="text-xs text-gray-500">Current Organization</div>
+                    <div className="text-xs text-gray-500">
+                      Current Organization
+                    </div>
                   </div>
                 </div>
               </DropdownMenuItem>
@@ -153,7 +169,7 @@ export default function Sidebar() {
           </ul>
         </nav>
       </div>
-      
+
       {/* Improved Footer */}
       <div className="p-4 border-t border-gray-200">
         {/* User Dropdown with integrated region */}
@@ -169,22 +185,26 @@ export default function Sidebar() {
                 <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
               </div>
               <div className="flex-1 text-left">
-                <div className="text-sm font-semibold text-gray-900">Harvey</div>
+                <div className="text-sm font-semibold text-gray-900">
+                  Harvey
+                </div>
                 <div className="text-xs text-gray-500">harvey@example.com</div>
                 <div className="flex items-center gap-1 mt-1">
                   <span className="text-xs">{selectedCountry.flag}</span>
-                  <span className="text-xs text-gray-500">{selectedCountry.name}</span>
+                  <span className="text-xs text-gray-500">
+                    {selectedCountry.name}
+                  </span>
                 </div>
               </div>
-              <ChevronDown 
-                size={16} 
+              <ChevronDown
+                size={16}
                 className="text-gray-400 group-hover:text-gray-600 transition-colors"
               />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            className="w-56 mb-2" 
-            side="top" 
+          <DropdownMenuContent
+            className="w-56 mb-2"
+            side="top"
             align="start"
             sideOffset={8}
           >
@@ -196,18 +216,20 @@ export default function Sidebar() {
                 </p>
                 <div className="flex items-center gap-1 mt-1">
                   <span className="text-xs">{selectedCountry.flag}</span>
-                  <span className="text-xs text-muted-foreground">{selectedCountry.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {selectedCountry.name}
+                  </span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            
+
             {/* Region Selection */}
             <DropdownMenuLabel className="text-xs font-medium text-gray-500 px-2 py-1">
               Change Region
             </DropdownMenuLabel>
             {countries.map((country) => (
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 key={country.code}
                 className="cursor-pointer text-xs"
                 onClick={() => handleCountryChange(country)}
@@ -219,7 +241,7 @@ export default function Sidebar() {
                 )}
               </DropdownMenuItem>
             ))}
-            
+
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer">
               <User className="mr-2 h-4 w-4" />
