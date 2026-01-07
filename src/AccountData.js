@@ -724,38 +724,38 @@ function AccountData() {
                     const isAutoPilot = journeyData.mode === "auto-pilot";
 
                     return (
-                      <div className="space-y-6">
+                      <div className="space-y-4">
                         {/* Journey Mode Header */}
                         <div
-                          className={`rounded-xl p-6 border-2 ${
+                          className={`rounded-lg p-4 border ${
                             isAutoPilot
                               ? "bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200"
                               : "bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200"
                           }`}
                         >
                           <div className="flex items-start justify-between">
-                            <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-3">
                               <div
-                                className={`w-14 h-14 rounded-xl flex items-center justify-center ${
+                                className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                                   isAutoPilot ? "bg-purple-100" : "bg-amber-100"
                                 }`}
                               >
                                 {isAutoPilot ? (
                                   <RocketLaunchIcon
-                                    className={`w-8 h-8 ${
+                                    className={`w-5 h-5 ${
                                       isAutoPilot
                                         ? "text-purple-600"
                                         : "text-amber-600"
                                     }`}
                                   />
                                 ) : (
-                                  <CursorArrowRaysIcon className="w-8 h-8 text-amber-600" />
+                                  <CursorArrowRaysIcon className="w-5 h-5 text-amber-600" />
                                 )}
                               </div>
                               <div>
-                                <div className="flex items-center space-x-3">
+                                <div className="flex items-center space-x-2">
                                   <h3
-                                    className={`text-xl font-bold ${
+                                    className={`text-base font-semibold ${
                                       isAutoPilot
                                         ? "text-purple-900"
                                         : "text-amber-900"
@@ -766,7 +766,7 @@ function AccountData() {
                                       : "Co-pilot Mode"}
                                   </h3>
                                   <span
-                                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                    className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                                       isAutoPilot
                                         ? "bg-purple-200 text-purple-800"
                                         : "bg-amber-200 text-amber-800"
@@ -776,7 +776,7 @@ function AccountData() {
                                   </span>
                                 </div>
                                 <p
-                                  className={`mt-1 text-sm ${
+                                  className={`mt-1 text-xs ${
                                     isAutoPilot
                                       ? "text-purple-700"
                                       : "text-amber-700"
@@ -790,12 +790,12 @@ function AccountData() {
 
                           {/* Journey Name for Co-pilot */}
                           {!isAutoPilot && (
-                            <div className="mt-4 pt-4 border-t border-amber-200">
+                            <div className="mt-3 pt-3 border-t border-amber-200">
                               <div className="flex items-center space-x-2">
-                                <span className="text-sm font-medium text-amber-800">
+                                <span className="text-xs font-medium text-amber-800">
                                   Active Journey:
                                 </span>
-                                <span className="px-3 py-1 bg-white rounded-lg text-sm font-semibold text-amber-900 border border-amber-300">
+                                <span className="px-2 py-0.5 bg-white rounded text-xs font-semibold text-amber-900 border border-amber-300">
                                   {journeyData.journeyName}
                                 </span>
                               </div>
@@ -805,52 +805,52 @@ function AccountData() {
 
                         {/* Next 5 Communications */}
                         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                            <h4 className="text-lg font-semibold text-gray-900">
+                          <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+                            <h4 className="text-sm font-semibold text-gray-900">
                               Next 5 Planned Communications
                             </h4>
-                            <p className="text-sm text-gray-600 mt-1">
+                            <p className="text-xs text-gray-600 mt-0.5">
                               {isAutoPilot
                                 ? "These communications will be executed automatically at scheduled times"
                                 : "Review and approve each communication before execution"}
                             </p>
                           </div>
 
-                          <div className="p-6">
+                          <div className="p-4">
                             <div className="relative">
                               {journeyData.communications.map((comm, index) => (
                                 <div key={comm.id} className="relative">
                                   {/* Connection Line */}
                                   {index <
                                     journeyData.communications.length - 1 && (
-                                    <div className="absolute left-6 top-16 h-24 w-0.5 bg-gray-200" />
+                                    <div className="absolute left-4 top-12 h-16 w-0.5 bg-gray-200" />
                                   )}
 
                                   {/* Delay Indicator */}
                                   {index > 0 && (
-                                    <div className="flex items-center justify-center py-3">
-                                      <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full">
-                                        <ClockIcon className="w-4 h-4 text-gray-500" />
-                                        <span className="text-xs font-medium text-gray-600">
+                                    <div className="flex items-center justify-center py-2">
+                                      <div className="flex items-center space-x-1.5 px-2 py-0.5 bg-gray-100 rounded-full">
+                                        <ClockIcon className="w-3 h-3 text-gray-500" />
+                                        <span className="text-[10px] font-medium text-gray-600">
                                           {comm.delay} day
                                           {comm.delay > 1 ? "s" : ""} delay
                                         </span>
-                                        <ArrowRightIcon className="w-3 h-3 text-gray-400" />
+                                        <ArrowRightIcon className="w-2.5 h-2.5 text-gray-400" />
                                       </div>
                                     </div>
                                   )}
 
                                   {/* Communication Card */}
                                   <div
-                                    className={`relative flex items-start space-x-4 p-4 rounded-xl border-2 transition-all ${
+                                    className={`relative flex items-start space-x-3 p-3 rounded-lg border transition-all ${
                                       comm.status === "next"
-                                        ? "bg-blue-50 border-blue-300 shadow-md"
+                                        ? "bg-blue-50 border-blue-300 shadow-sm"
                                         : "bg-white border-gray-200 hover:border-gray-300"
                                     }`}
                                   >
                                     {/* Step Number */}
                                     <div
-                                      className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold ${
+                                      className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${
                                         comm.status === "next"
                                           ? "bg-blue-500 text-white"
                                           : "bg-gray-100 text-gray-600"
@@ -863,9 +863,9 @@ function AccountData() {
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-start justify-between">
                                         <div>
-                                          <div className="flex items-center space-x-2">
+                                          <div className="flex items-center space-x-1.5">
                                             <span
-                                              className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${
+                                              className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                                                 comm.channel === "Voice Call"
                                                   ? "bg-blue-100 text-blue-800"
                                                   : comm.channel === "SMS"
@@ -880,17 +880,17 @@ function AccountData() {
                                               {comm.channel}
                                             </span>
                                             {comm.status === "next" && (
-                                              <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-500 text-white animate-pulse">
+                                              <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-500 text-white animate-pulse">
                                                 NEXT UP
                                               </span>
                                             )}
                                           </div>
-                                          <h5 className="mt-2 text-sm font-semibold text-gray-900">
+                                          <h5 className="mt-1 text-xs font-semibold text-gray-900">
                                             {comm.focus}
                                           </h5>
                                         </div>
                                         <div className="text-right">
-                                          <div className="text-sm font-medium text-gray-900">
+                                          <div className="text-xs font-medium text-gray-900">
                                             {new Date(
                                               comm.scheduledDate
                                             ).toLocaleDateString("en-US", {
@@ -899,7 +899,7 @@ function AccountData() {
                                               year: "numeric",
                                             })}
                                           </div>
-                                          <div className="text-xs text-gray-500">
+                                          <div className="text-[10px] text-gray-500">
                                             {new Date(
                                               comm.scheduledDate
                                             ).toLocaleTimeString("en-US", {
@@ -911,21 +911,21 @@ function AccountData() {
                                       </div>
 
                                       {/* Details Grid */}
-                                      <div className="mt-3 grid grid-cols-2 gap-3">
-                                        <div className="flex items-center space-x-2">
-                                          <span className="text-xs text-gray-500">
+                                      <div className="mt-2 grid grid-cols-2 gap-2">
+                                        <div className="flex items-center space-x-1">
+                                          <span className="text-[10px] text-gray-500">
                                             Tonality:
                                           </span>
-                                          <span className="text-xs font-medium text-gray-800 bg-gray-100 px-2 py-0.5 rounded">
+                                          <span className="text-[10px] font-medium text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded">
                                             {comm.tonality}
                                           </span>
                                         </div>
-                                        <div className="flex items-center space-x-2">
-                                          <span className="text-xs text-gray-500">
+                                        <div className="flex items-center space-x-1">
+                                          <span className="text-[10px] text-gray-500">
                                             Status:
                                           </span>
                                           <span
-                                            className={`text-xs font-medium px-2 py-0.5 rounded ${
+                                            className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
                                               comm.status === "next"
                                                 ? "bg-blue-100 text-blue-700"
                                                 : "bg-gray-100 text-gray-600"
@@ -939,8 +939,8 @@ function AccountData() {
                                       {/* Co-pilot Skip Button */}
                                       {!isAutoPilot &&
                                         comm.status === "next" && (
-                                          <div className="mt-4 flex items-center">
-                                            <button className="px-4 py-2 text-red-600 text-sm font-medium border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
+                                          <div className="mt-2 flex items-center">
+                                            <button className="px-3 py-1 text-red-600 text-xs font-medium border border-red-200 rounded hover:bg-red-50 transition-colors">
                                               Skip
                                             </button>
                                           </div>
@@ -954,37 +954,37 @@ function AccountData() {
                         </div>
 
                         {/* Journey Summary Stats */}
-                        <div className="grid grid-cols-3 gap-4">
-                          <div className="bg-white rounded-xl border border-gray-200 p-4">
-                            <div className="text-sm text-gray-500">
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="bg-white rounded-lg border border-gray-200 p-3">
+                            <div className="text-xs text-gray-500">
                               Total Communications
                             </div>
-                            <div className="mt-1 text-2xl font-bold text-gray-900">
+                            <div className="mt-0.5 text-lg font-bold text-gray-900">
                               5
                             </div>
-                            <div className="text-xs text-gray-500 mt-1">
+                            <div className="text-[10px] text-gray-500">
                               Planned in journey
                             </div>
                           </div>
-                          <div className="bg-white rounded-xl border border-gray-200 p-4">
-                            <div className="text-sm text-gray-500">
+                          <div className="bg-white rounded-lg border border-gray-200 p-3">
+                            <div className="text-xs text-gray-500">
                               Journey Duration
                             </div>
-                            <div className="mt-1 text-2xl font-bold text-gray-900">
+                            <div className="mt-0.5 text-lg font-bold text-gray-900">
                               12 days
                             </div>
-                            <div className="text-xs text-gray-500 mt-1">
+                            <div className="text-[10px] text-gray-500">
                               Total timeline
                             </div>
                           </div>
-                          <div className="bg-white rounded-xl border border-gray-200 p-4">
-                            <div className="text-sm text-gray-500">
+                          <div className="bg-white rounded-lg border border-gray-200 p-3">
+                            <div className="text-xs text-gray-500">
                               Next Action
                             </div>
-                            <div className="mt-1 text-2xl font-bold text-blue-600">
+                            <div className="mt-0.5 text-lg font-bold text-blue-600">
                               Tomorrow
                             </div>
-                            <div className="text-xs text-gray-500 mt-1">
+                            <div className="text-[10px] text-gray-500">
                               {journeyData.communications[0].channel}
                             </div>
                           </div>
