@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Home,
   Bot,
@@ -89,6 +90,7 @@ const countries = [
 ];
 
 export default function Sidebar() {
+  const navigate = useNavigate();
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
 
   const handleCountryChange = (country) => {
@@ -131,7 +133,7 @@ export default function Sidebar() {
                 </div>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/settings", { state: { background: window.location.pathname } })}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Organization Settings</span>
               </DropdownMenuItem>
@@ -247,7 +249,7 @@ export default function Sidebar() {
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/settings", { state: { background: window.location.pathname } })}>
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
             </DropdownMenuItem>

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getVoicemailTemplates, getCampaignVoicemailPreference, setCampaignVoicemailPreference } from "./data/voicemailTemplates";
 import {
   ArrowLeftIcon,
   ArrowDownTrayIcon,
@@ -262,6 +263,27 @@ export default function CreateCampaign() {
     endDate: "",
     runContinuously: false,
   });
+
+  // Voicemail template state
+  const [selectedVoicemailTemplate, setSelectedVoicemailTemplate] = useState("");
+  const [rememberVoicemailPreference, setRememberVoicemailPreference] = useState(false);
+  
+  // Mock: Check if voicemail drop is enabled for assistant (in real app, this would come from assistant config)
+  // For demo, we'll assume it's enabled if assistant is selected
+  const isVoicemailDropEnabled = form.assistant !== "";
+
+  // Get templates safely
+  const voicemailTemplates = getVoicemailTemplates ? getVoicemailTemplates() : [];
+
+  // Load saved preference on mount or when assistant changes
+  useEffect(() => {
+    if (isVoicemailDropEnabled && form.assistant && getCampaignVoicemailPreference) {
+      const savedPreference = getCampaignVoicemailPreference(form.assistant);
+      if (savedPreference) {
+        setSelectedVoicemailTemplate(savedPreference);
+      }
+    }
+  }, [form.assistant, isVoicemailDropEnabled]);
 
   // Animation effect when step changes
   useEffect(() => {
@@ -584,6 +606,55 @@ export default function CreateCampaign() {
                   </div>
                 )}
               </div>
+
+              {/* Voicemail Template Selection - Only show if voicemail drop is enabled */}
+              {isVoicemailDropEnabled && voicemailTemplates.length > 0 && (
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Voicemail Template
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={selectedVoicemailTemplate}
+                      onChange={(e) => {
+                        setSelectedVoicemailTemplate(e.target.value);
+                        if (rememberVoicemailPreference && e.target.value) {
+                          setCampaignVoicemailPreference(form.assistant, e.target.value, true);
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent appearance-none bg-white text-sm"
+                    >
+                      <option value="">Select a voicemail template...</option>
+                      {voicemailTemplates.map((template) => (
+                        <option key={template.id} value={template.id}>
+                          {template.name} ({template.type === "dynamic" ? "Dynamic" : template.type === "static" ? "Static" : "Recording"})
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+                  {selectedVoicemailTemplate && (
+                    <div className="mt-3">
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={rememberVoicemailPreference}
+                          onChange={(e) => {
+                            setRememberVoicemailPreference(e.target.checked);
+                            if (e.target.checked && selectedVoicemailTemplate) {
+                              setCampaignVoicemailPreference(form.assistant, selectedVoicemailTemplate, true);
+                            }
+                          }}
+                          className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                        />
+                        <span className="text-xs text-gray-600">
+                          Remember my preference for the next 30 days
+                        </span>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Right side - Campaign Type Cards */}

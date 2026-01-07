@@ -26,6 +26,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { getPersonas, sampleSegments } from './Workflows';
+import { getVoicemailTemplates } from './data/voicemailTemplates';
 
 // Segments data is now imported from Workflows.js
 
@@ -217,7 +218,7 @@ const DraggableNode = ({ type, label, icon, color }) => {
 };
 
 // Properties drawer component
-const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNodeProperties }) => {
+const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNodeProperties, nodes, voicemailTemplates, isVoicemailDropEnabled }) => {
   const [localProperties, setLocalProperties] = useState({
     name: '',
     // Voice properties
@@ -226,6 +227,8 @@ const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNo
     customPrompt: '',
     maxAttempts: 3,
     waitTime: 24,
+    voicemailTemplate: '',
+    useForAllVoiceBlocks: false,
     // Email properties
     subject: '',
     template: '',
@@ -255,6 +258,8 @@ const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNo
         customPrompt: existingProps.customPrompt || '',
         maxAttempts: existingProps.maxAttempts || 3,
         waitTime: existingProps.waitTime || 24,
+        voicemailTemplate: existingProps.voicemailTemplate || '',
+        useForAllVoiceBlocks: existingProps.useForAllVoiceBlocks || false,
         // Email properties
         subject: existingProps.subject || '',
         template: existingProps.template || 'default',
@@ -276,9 +281,31 @@ const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNo
 
   const handleSave = () => {
     if (selectedNode) {
+      const updatedProperties = { ...localProperties };
+      
+      // If "use for all voice blocks" is checked and this is the first voice block
+      if (localProperties.useForAllVoiceBlocks && selectedNode.type === 'voice') {
+        // Find all voice nodes
+        const voiceNodes = nodes.filter(n => n.type === 'voice');
+        const isFirstVoiceBlock = voiceNodes.length > 0 && voiceNodes[0].id === selectedNode.id;
+        
+        if (isFirstVoiceBlock) {
+          // Apply template to all voice blocks
+          voiceNodes.forEach(node => {
+            setNodeProperties(prev => ({
+              ...prev,
+              [node.id]: {
+                ...(prev[node.id] || {}),
+                voicemailTemplate: localProperties.voicemailTemplate,
+              }
+            }));
+          });
+        }
+      }
+      
       setNodeProperties(prev => ({
         ...prev,
-        [selectedNode.id]: localProperties
+        [selectedNode.id]: updatedProperties
       }));
     }
     onClose();
@@ -428,6 +455,50 @@ const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNo
                       placeholder="Enter a custom prompt that will be used to start the conversation..."
                     />
                   </div>
+
+                  {/* Voicemail Template Selection */}
+                  {isVoicemailDropEnabled && voicemailTemplates.length > 0 && (
+                    <>
+                      <div className="border-t border-zinc-200 pt-4 mt-4">
+                        <label className="block text-sm font-medium text-zinc-700 mb-2">
+                          Voicemail Template
+                        </label>
+                        <select
+                          value={localProperties.voicemailTemplate}
+                          onChange={(e) => setLocalProperties(prev => ({ ...prev, voicemailTemplate: e.target.value }))}
+                          className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
+                        >
+                          <option value="">Select a template...</option>
+                          {voicemailTemplates.map((template) => (
+                            <option key={template.id} value={template.id}>
+                              {template.name} ({template.type === "dynamic" ? "Dynamic" : template.type === "static" ? "Static" : "Recording"})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Use for all voice blocks checkbox - only show for first voice block */}
+                      {(() => {
+                        const voiceNodes = nodes.filter(n => n.type === 'voice');
+                        const isFirstVoiceBlock = voiceNodes.length > 0 && voiceNodes[0].id === selectedNode.id;
+                        return isFirstVoiceBlock ? (
+                          <div className="mt-4">
+                            <label className="flex items-center space-x-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={localProperties.useForAllVoiceBlocks}
+                                onChange={(e) => setLocalProperties(prev => ({ ...prev, useForAllVoiceBlocks: e.target.checked }))}
+                                className="rounded border-zinc-300 focus:ring-zinc-500"
+                              />
+                              <span className="text-sm text-zinc-700">
+                                Use this template for all voice blocks in this journey
+                              </span>
+                            </label>
+                          </div>
+                        ) : null;
+                      })()}
+                    </>
+                  )}
                 </>
               )}
 
@@ -673,6 +744,10 @@ export default function CreateSegment() {
   
   // Node properties state
   const [nodeProperties, setNodeProperties] = useState({});
+  
+  // Get voicemail templates (using mock assistant ID - in real app, get from context/props)
+  const voicemailTemplates = getVoicemailTemplates("support-bot-001");
+  const isVoicemailDropEnabled = true; // In real app, check from assistant config
   
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
@@ -1153,6 +1228,9 @@ export default function CreateSegment() {
         selectedNode={selectedNode}
         nodeProperties={nodeProperties}
         setNodeProperties={setNodeProperties}
+        nodes={nodes}
+        voicemailTemplates={voicemailTemplates}
+        isVoicemailDropEnabled={isVoicemailDropEnabled}
       />
     </div>
   );

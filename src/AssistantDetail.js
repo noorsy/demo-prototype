@@ -14,6 +14,8 @@ import {
   PencilIcon,
   ArrowLeftIcon,
   CheckIcon,
+  XMarkIcon,
+  ArrowRightOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 import {
   DropdownMenu,
@@ -23,6 +25,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./components/ui/dropdown-menu";
+import {
+  getVoicemailTemplates,
+  getRawVoicemailTemplates,
+  addVoicemailTemplate,
+  updateVoicemailTemplate,
+  deleteVoicemailTemplate,
+  shareVoicemailTemplate,
+  getMockAssistants,
+  getMockClients,
+  getAssistantVariables,
+} from "./data/voicemailTemplates";
+import VariableAutocomplete from "./components/VariableAutocomplete";
+import VariableMappingEditor from "./components/VariableMappingEditor";
 
 // Mock data for different assistants - in a real app this would come from an API
 const assistantData = {
@@ -228,6 +243,241 @@ Use / to get suggestions`);
   const [footerContentType, setFooterContentType] = useState("static"); // "static" or "html"
   const [footerContent, setFooterContent] = useState("");
   const [hasUnsubscribeLink, setHasUnsubscribeLink] = useState(false);
+
+  // Voicemail detection state
+  const [voicemailDetectionEnabled, setVoicemailDetectionEnabled] = useState(false);
+  const [voicemailDropEnabled, setVoicemailDropEnabled] = useState(false);
+  
+  // Voicemail template management state
+  const [voicemailTemplates, setVoicemailTemplates] = useState([]);
+  const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [templateToShare, setTemplateToShare] = useState(null);
+  const [shareFormData, setShareFormData] = useState({
+    clientId: "",
+    assistantId: "",
+    variableMappings: {},
+  });
+  const [targetAssistantVariables, setTargetAssistantVariables] = useState([]);
+  const [templateFormData, setTemplateFormData] = useState({
+    name: "",
+    type: "dynamic",
+    content: "",
+    recording: null,
+    recordingName: "",
+  });
+  const [variableMappings, setVariableMappings] = useState({});
+  const [isEditingImported, setIsEditingImported] = useState(false);
+
+  // Load templates for current assistant
+  useEffect(() => {
+    if (selectedBot?.id) {
+      const templates = getVoicemailTemplates(selectedBot.id);
+      setVoicemailTemplates(templates);
+    }
+  }, [selectedBot?.id]);
+
+  const refreshTemplates = () => {
+    if (selectedBot?.id) {
+      const templates = getVoicemailTemplates(selectedBot.id);
+      setVoicemailTemplates(templates);
+    }
+  };
+
+  // Template management functions
+  const handleCreateTemplate = () => {
+    setEditingTemplate(null);
+    setTemplateFormData({
+      name: "",
+      type: "dynamic",
+      content: "",
+      recording: null,
+      recordingName: "",
+    });
+    setShowCreateTemplateModal(true);
+  };
+
+  const handleEditTemplate = (template) => {
+    setEditingTemplate(template);
+    setIsEditingImported(template.isImported || false);
+    
+    // If imported, check if variables are already mapped
+    if (template.isImported && template.variables && template.variables.length > 0) {
+      // Get the original template to find variable mappings
+      // Need to access the raw templates array, not the filtered one
+      const allRawTemplates = getRawVoicemailTemplates(); // Get all without filter
+      const originalTemplate = allRawTemplates.find(
+        (t) => t.id === template.importedFrom?.templateId
+      );
+      if (originalTemplate && originalTemplate.sharedWith) {
+        const shareInfo = originalTemplate.sharedWith.find(
+          (s) => s.assistantId === selectedBot?.id
+        );
+        if (shareInfo && shareInfo.variableMappings) {
+          setVariableMappings(shareInfo.variableMappings);
+        } else {
+          setVariableMappings({});
+        }
+      } else {
+        setVariableMappings({});
+      }
+    } else {
+      setVariableMappings({});
+    }
+    
+    setTemplateFormData({
+      name: template.name,
+      type: template.type,
+      content: template.content || "",
+      recording: template.type === "recording" ? { name: template.name } : null,
+      recordingName: template.type === "recording" ? template.name : "",
+    });
+    setShowCreateTemplateModal(true);
+  };
+
+  const handleDeleteTemplate = (templateId) => {
+    if (window.confirm("Are you sure you want to delete this template?")) {
+      deleteVoicemailTemplate(templateId);
+      refreshTemplates();
+    }
+  };
+
+  const handleSaveTemplate = () => {
+    if (!templateFormData.name.trim()) {
+      alert("Please enter a template name");
+      return;
+    }
+
+    if (templateFormData.type === "dynamic" || templateFormData.type === "static") {
+      if (!templateFormData.content.trim()) {
+        alert("Please enter template content");
+        return;
+      }
+    }
+
+    if (templateFormData.type === "recording" && !templateFormData.recording) {
+      alert("Please upload a recording");
+      return;
+    }
+
+    // If editing imported template, check if all original variables have been replaced
+    if (isEditingImported && editingTemplate) {
+      const template = editingTemplate;
+      if (template.variables && template.variables.length > 0) {
+        // Extract variables from the current content
+        const currentContent = templateFormData.content;
+        const variableRegex = /\{\{([^}]+)\}\}/g;
+        const currentVariables = [];
+        let match;
+        while ((match = variableRegex.exec(currentContent)) !== null) {
+          const varName = match[1].trim();
+          if (varName && !currentVariables.includes(varName)) {
+            currentVariables.push(varName);
+          }
+        }
+        
+        // Check if any original variables still exist (unmapped)
+        const unmappedVars = template.variables.filter(
+          (originalVar) => currentVariables.includes(originalVar)
+        );
+        
+        if (unmappedVars.length > 0) {
+          alert(
+            `Please replace all original variables before saving. Unmapped variables: ${unmappedVars.join(", ")}. Press / to insert new variables from this assistant.`
+          );
+          return;
+        }
+        
+        // Update the template content in the shared template
+        // Get all raw templates to find the original
+        const allRawTemplates = getRawVoicemailTemplates();
+        const originalTemplate = allRawTemplates.find(
+          (t) => t.id === template.importedFrom?.templateId
+        );
+        if (originalTemplate) {
+          // Update the content for this assistant's copy
+          // We need to store the mapped content somewhere
+          // For now, we'll update the sharedWith entry
+          const shareInfo = originalTemplate.sharedWith.find(
+            (s) => s.assistantId === selectedBot?.id
+          );
+          if (shareInfo) {
+            shareInfo.mappedContent = templateFormData.content;
+          }
+        }
+      }
+    }
+
+    const templateData = {
+      assistantId: selectedBot?.id,
+      name: templateFormData.name,
+      type: templateFormData.type,
+      content:
+        templateFormData.type === "recording"
+          ? templateFormData.recordingName
+          : templateFormData.content,
+    };
+
+    if (editingTemplate && !isEditingImported) {
+      // Only update if not imported (imported templates are read-only except for variable mapping)
+      updateVoicemailTemplate(editingTemplate.id, templateData);
+    } else if (!isEditingImported) {
+      addVoicemailTemplate(templateData);
+    }
+    // If imported, we just update the mappings (already done above)
+
+    refreshTemplates();
+    setShowCreateTemplateModal(false);
+    setTemplateFormData({
+      name: "",
+      type: "dynamic",
+      content: "",
+      recording: null,
+      recordingName: "",
+    });
+    setVariableMappings({});
+    setIsEditingImported(false);
+  };
+
+  const handleShareTemplate = (template) => {
+    setTemplateToShare(template);
+    setShareFormData({
+      clientId: "",
+      assistantId: "",
+      variableMappings: {},
+    });
+    setTargetAssistantVariables([]);
+    setShowShareModal(true);
+  };
+
+  const handleSaveShare = () => {
+    if (!shareFormData.clientId || !shareFormData.assistantId) {
+      alert("Please select both client and assistant");
+      return;
+    }
+
+    // Get the original template ID (if it's an imported template, use the original ID)
+    const originalTemplateId = templateToShare.isImported 
+      ? templateToShare.importedFrom?.templateId 
+      : templateToShare.id;
+
+    // Share template without variable mappings - mappings will be done when editing
+    const result = shareVoicemailTemplate(
+      originalTemplateId,
+      shareFormData.assistantId,
+      shareFormData.clientId,
+      {} // Empty mappings - will be done when editing
+    );
+    
+    if (result) {
+      setShowShareModal(false);
+      refreshTemplates();
+      alert(`Template shared successfully with ${getMockAssistants().find(a => a.id === shareFormData.assistantId)?.name || 'assistant'}`);
+    } else {
+      alert("Failed to share template. Please try again.");
+    }
+  };
 
   // Function to render email preview with sample data
   const renderEmailPreview = (htmlContent, isOutbound = true) => {
@@ -1504,6 +1754,170 @@ Best regards,
                 </div>
               </div>
             )}
+
+            {/* Skit's Voicemail Detection - Only show for voice channel */}
+            {selectedChannel.id === "voice" && (
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Skit's Voicemail Detection
+                </h2>
+                <p className="text-sm text-gray-600 mb-6">
+                  Configure voicemail detection and voicemail drop settings for your voice assistant.
+                </p>
+
+                {/* Voicemail Detection Toggle */}
+                <div className="mb-6 pb-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 mb-1">
+                        Voicemail Detection
+                      </label>
+                      <p className="text-xs text-gray-500">
+                        Enable detection of voicemail systems during calls
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={voicemailDetectionEnabled}
+                        onChange={(e) => {
+                          setVoicemailDetectionEnabled(e.target.checked);
+                          if (!e.target.checked) {
+                            setVoicemailDropEnabled(false);
+                          }
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Voicemail Drop Section - Only show if voicemail detection is enabled */}
+                {voicemailDetectionEnabled && (
+                  <div className="space-y-6">
+                    {/* Voicemail Drop Toggle */}
+                    <div className="mb-6 pb-6 border-b border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-900 mb-1">
+                            Voicemail Drop
+                          </label>
+                          <p className="text-xs text-gray-500">
+                            Enable leaving voicemail messages when voicemail is detected
+                          </p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={voicemailDropEnabled}
+                            onChange={(e) => setVoicemailDropEnabled(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Voicemail Templates Section - Only show if voicemail drop is enabled */}
+                    {voicemailDropEnabled && (
+                      <div className="mt-6 pt-6 border-t border-gray-200">
+                        <div className="flex items-center justify-between mb-6">
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                              Voicemail Templates
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              Create and manage voicemail templates for this assistant.
+                            </p>
+                          </div>
+                          <button
+                            onClick={handleCreateTemplate}
+                            className="flex items-center space-x-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+                          >
+                            <PlusIcon className="w-4 h-4" />
+                            <span>Create Template</span>
+                          </button>
+                        </div>
+
+                        {/* Templates List */}
+                        {voicemailTemplates.length === 0 ? (
+                          <div className="text-center py-12 border border-gray-200 rounded-lg">
+                            <p className="text-gray-500 mb-4">
+                              No templates created yet
+                            </p>
+                            <button
+                              onClick={handleCreateTemplate}
+                              className="text-blue-600 hover:text-blue-700 font-medium"
+                            >
+                              Create your first template
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {voicemailTemplates.map((template) => (
+                              <div
+                                key={template.id}
+                                className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center space-x-3 mb-2">
+                                      <h4 className="text-sm font-medium text-gray-900">
+                                        {template.name}
+                                      </h4>
+                                      <span className="px-2 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-700">
+                                        {template.type === "dynamic"
+                                          ? "Dynamic"
+                                          : template.type === "static"
+                                          ? "Static"
+                                          : "Recording"}
+                                      </span>
+                                    </div>
+                                    {template.type !== "recording" && (
+                                      <p className="text-xs text-gray-500 line-clamp-2">
+                                        {template.content.substring(0, 100)}
+                                        {template.content.length > 100 ? "..." : ""}
+                                      </p>
+                                    )}
+                                    {template.type === "recording" && (
+                                      <p className="text-xs text-gray-500">
+                                        Recording file
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <button
+                                      onClick={() => handleShareTemplate(template)}
+                                      className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                                      title="Share template"
+                                    >
+                                      <ArrowRightOnRectangleIcon className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleEditTemplate(template)}
+                                      className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                                    >
+                                      <PencilIcon className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteTemplate(template.id)}
+                                      className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                                    >
+                                      <TrashIcon className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -1558,6 +1972,347 @@ Best regards,
           </button>
         </div>
       </div>
+
+      {/* Create/Edit Template Modal */}
+      {showCreateTemplateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
+          <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {editingTemplate ? "Edit Template" : "Create Template"}
+              </h3>
+              <button
+                onClick={() => setShowCreateTemplateModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {/* Template Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Template Name
+                </label>
+                <input
+                  type="text"
+                  value={templateFormData.name}
+                  onChange={(e) =>
+                    setTemplateFormData({ ...templateFormData, name: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  placeholder="Enter template name"
+                />
+              </div>
+
+              {/* Template Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-4">
+                  Template Type
+                </label>
+                <div className="space-y-3">
+                  <label className="flex items-start space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="template-type"
+                      value="dynamic"
+                      checked={templateFormData.type === "dynamic"}
+                      onChange={(e) =>
+                        setTemplateFormData({ ...templateFormData, type: e.target.value })
+                      }
+                      className="mt-1 h-4 w-4 text-blue-600"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-900">
+                        Dynamic Messages
+                      </span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Use JINJA templates for dynamic voicemail messages. Press / to insert variables.
+                      </p>
+                    </div>
+                  </label>
+
+                  <label className="flex items-start space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="template-type"
+                      value="static"
+                      checked={templateFormData.type === "static"}
+                      onChange={(e) =>
+                        setTemplateFormData({ ...templateFormData, type: e.target.value })
+                      }
+                      className="mt-1 h-4 w-4 text-blue-600"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-900">
+                        Static Messages
+                      </span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Use Skit's TTS for static messages. Press / to insert variables.
+                      </p>
+                    </div>
+                  </label>
+
+                  <label className="flex items-start space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="template-type"
+                      value="recording"
+                      checked={templateFormData.type === "recording"}
+                      onChange={(e) =>
+                        setTemplateFormData({ ...templateFormData, type: e.target.value })
+                      }
+                      className="mt-1 h-4 w-4 text-blue-600"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-900">
+                        Static Recordings
+                      </span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Upload a static recording file
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Dynamic/Static Content with Variable Mapping Editor for Imported Templates */}
+              {(templateFormData.type === "dynamic" || templateFormData.type === "static") && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {templateFormData.type === "dynamic"
+                      ? "Instructions (JINJA Template)"
+                      : "Static Message"}
+                    {isEditingImported && editingTemplate?.variables && editingTemplate.variables.length > 0 && (
+                      <span className="text-xs text-red-600 ml-2">
+                        * Variables in red need to be replaced (press / to insert new variables)
+                      </span>
+                    )}
+                  </label>
+                  {isEditingImported ? (
+                    <VariableMappingEditor
+                      value={templateFormData.content}
+                      onChange={(value) =>
+                        setTemplateFormData({ ...templateFormData, content: value })
+                      }
+                      originalVariables={editingTemplate?.variables || []}
+                      availableVariables={systemVariables}
+                      placeholder={
+                        templateFormData.type === "dynamic"
+                          ? `{% if detailed_voicemail == "true" %}\nLeave a detailed voicemail message...\n{% else %}\nLeave a brief voicemail message...\n{% endif %}`
+                          : "Hi, this is Alex from ABC Auto..."
+                      }
+                      className="w-full h-40 p-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono"
+                      rows={8}
+                    />
+                  ) : (
+                    <>
+                      <VariableAutocomplete
+                        value={templateFormData.content}
+                        onChange={(value) =>
+                          setTemplateFormData({ ...templateFormData, content: value })
+                        }
+                        variables={systemVariables}
+                        placeholder={
+                          templateFormData.type === "dynamic"
+                            ? `{% if detailed_voicemail == "true" %}\nLeave a detailed voicemail message...\n{% else %}\nLeave a brief voicemail message...\n{% endif %}`
+                            : "Hi, this is Alex from ABC Auto..."
+                        }
+                        className="w-full h-40 p-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono"
+                        rows={8}
+                      />
+                      {templateFormData.type === "dynamic" && (
+                        <p className="mt-2 text-xs text-gray-500">
+                          Use JINJA2 syntax for conditional logic. Press / to insert variables.
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* Recording Upload */}
+              {templateFormData.type === "recording" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Upload Recording
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    {templateFormData.recording ? (
+                      <div className="space-y-2">
+                        <p className="text-sm text-gray-700">
+                          {templateFormData.recordingName || templateFormData.recording.name}
+                        </p>
+                        <button
+                          onClick={() =>
+                            setTemplateFormData({
+                              ...templateFormData,
+                              recording: null,
+                              recordingName: "",
+                            })
+                          }
+                          className="text-red-600 hover:text-red-800 text-sm"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <input
+                          type="file"
+                          accept="audio/*"
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              setTemplateFormData({
+                                ...templateFormData,
+                                recording: file,
+                                recordingName: file.name,
+                              });
+                            }
+                          }}
+                          className="hidden"
+                          id="recording-upload"
+                        />
+                        <label
+                          htmlFor="recording-upload"
+                          className="cursor-pointer"
+                        >
+                          <div className="text-gray-400 mb-2">
+                            <svg
+                              className="mx-auto h-12 w-12"
+                              stroke="currentColor"
+                              fill="none"
+                              viewBox="0 0 48 48"
+                            >
+                              <path
+                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                          <span className="text-sm text-blue-600 hover:text-blue-800">
+                            Click to upload
+                          </span>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Audio files only
+                          </p>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                onClick={() => setShowCreateTemplateModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveTemplate}
+                className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+              >
+                {editingTemplate ? "Update" : "Create"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share Template Modal */}
+      {showShareModal && templateToShare && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
+          <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Share Template: {templateToShare.name}
+              </h3>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {/* Client Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Client
+                </label>
+                <select
+                  value={shareFormData.clientId}
+                  onChange={(e) => {
+                    setShareFormData({
+                      ...shareFormData,
+                      clientId: e.target.value,
+                      assistantId: "", // Reset assistant when client changes
+                    });
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                >
+                  <option value="">Select a client...</option>
+                  {getMockClients().map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Assistant Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Assistant
+                </label>
+                <select
+                  value={shareFormData.assistantId}
+                  onChange={(e) => {
+                    setShareFormData({
+                      ...shareFormData,
+                      assistantId: e.target.value,
+                    });
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  disabled={!shareFormData.clientId}
+                >
+                  <option value="">Select an assistant...</option>
+                  {getMockAssistants()
+                    .filter((a) => a.clientId === shareFormData.clientId)
+                    .map((assistant) => (
+                      <option key={assistant.id} value={assistant.id}>
+                        {assistant.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveShare}
+                className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+              >
+                Share Template
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
