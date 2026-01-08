@@ -16,6 +16,7 @@ Leave a brief voicemail message with the customer's name ({{customer_name}}) and
     sharedWith: [], // Array of { assistantId, clientId, variableMappings, isImported: true }
     isImported: false, // true if this template is imported from another assistant
     importedFrom: null, // { assistantId, templateId } if imported
+    isDefault: true, // true if this is the default template for the assistant
     createdAt: new Date().toISOString(),
   },
   {
@@ -28,6 +29,7 @@ Leave a brief voicemail message with the customer's name ({{customer_name}}) and
     sharedWith: [],
     isImported: false,
     importedFrom: null,
+    isDefault: false,
     createdAt: new Date().toISOString(),
   },
 ];
@@ -54,8 +56,25 @@ export const getVoicemailTemplates = (assistantId = null) => {
         // Create a copy for the target assistant with their assistantId
         assistantId: assistantId,
         id: `${t.id}-imported-${assistantId}`, // Unique ID for imported template
+        isDefault: false, // Imported templates are never default
       }));
-    return [...ownedTemplates, ...sharedTemplates];
+    
+    const allTemplates = [...ownedTemplates, ...sharedTemplates];
+    
+    // Auto-set default if only one template exists and none is marked as default
+    if (allTemplates.length === 1 && !allTemplates[0].isDefault) {
+      const template = allTemplates[0];
+      if (!template.isImported) {
+        // Only set default for owned templates
+        const index = voicemailTemplates.findIndex((t) => t.id === template.id);
+        if (index !== -1) {
+          voicemailTemplates[index].isDefault = true;
+          allTemplates[0].isDefault = true;
+        }
+      }
+    }
+    
+    return allTemplates;
   }
   return voicemailTemplates;
 };
@@ -64,6 +83,10 @@ export const addVoicemailTemplate = (template) => {
   // Extract variables from content (for dynamic/static types)
   const variables = extractVariables(template.content || "");
   
+  // Check if this is the first template for this assistant
+  const assistantTemplates = voicemailTemplates.filter((t) => t.assistantId === template.assistantId);
+  const isFirstTemplate = assistantTemplates.length === 0;
+  
   const newTemplate = {
     id: `template-${Date.now()}`,
     ...template,
@@ -71,6 +94,7 @@ export const addVoicemailTemplate = (template) => {
     sharedWith: [],
     isImported: false,
     importedFrom: null,
+    isDefault: isFirstTemplate, // Auto-set as default if it's the first template
     createdAt: new Date().toISOString(),
   };
   voicemailTemplates.push(newTemplate);
@@ -94,14 +118,42 @@ const extractVariables = (content) => {
 export const updateVoicemailTemplate = (id, updates) => {
   const index = voicemailTemplates.findIndex((t) => t.id === id);
   if (index !== -1) {
-    voicemailTemplates[index] = { ...voicemailTemplates[index], ...updates };
+    const template = voicemailTemplates[index];
+    
+    // If setting as default, unset all other defaults for the same assistant
+    if (updates.isDefault === true) {
+      voicemailTemplates.forEach((t, i) => {
+        if (t.assistantId === template.assistantId && i !== index) {
+          t.isDefault = false;
+        }
+      });
+    }
+    
+    voicemailTemplates[index] = { ...template, ...updates };
     return voicemailTemplates[index];
   }
   return null;
 };
 
 export const deleteVoicemailTemplate = (id) => {
+  const template = voicemailTemplates.find((t) => t.id === id);
+  if (template && template.isDefault) {
+    // If deleting the default template, set the first remaining template as default
+    const remainingTemplates = voicemailTemplates.filter((t) => t.id !== id && t.assistantId === template.assistantId);
+    if (remainingTemplates.length > 0) {
+      const firstRemaining = voicemailTemplates.find((t) => t.id === remainingTemplates[0].id);
+      if (firstRemaining) {
+        firstRemaining.isDefault = true;
+      }
+    }
+  }
   voicemailTemplates = voicemailTemplates.filter((t) => t.id !== id);
+};
+
+// Get the default template for an assistant
+export const getDefaultVoicemailTemplate = (assistantId) => {
+  const templates = getVoicemailTemplates(assistantId);
+  return templates.find((t) => t.isDefault && !t.isImported) || templates[0] || null;
 };
 
 // 30-day preference storage (localStorage simulation)

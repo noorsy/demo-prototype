@@ -16,7 +16,11 @@ import {
   CheckIcon,
   XMarkIcon,
   ArrowRightOnRectangleIcon,
+  StarIcon,
 } from "@heroicons/react/24/outline";
+import {
+  StarIcon as StarIconSolid,
+} from "@heroicons/react/24/solid";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +39,7 @@ import {
   getMockAssistants,
   getMockClients,
   getAssistantVariables,
+  getDefaultVoicemailTemplate,
 } from "./data/voicemailTemplates";
 import VariableAutocomplete from "./components/VariableAutocomplete";
 import VariableMappingEditor from "./components/VariableMappingEditor";
@@ -339,6 +344,15 @@ Use / to get suggestions`);
   const handleDeleteTemplate = (templateId) => {
     if (window.confirm("Are you sure you want to delete this template?")) {
       deleteVoicemailTemplate(templateId);
+      refreshTemplates();
+    }
+  };
+
+  const handleSetDefaultTemplate = (templateId) => {
+    // Only allow setting default for non-imported templates
+    const template = voicemailTemplates.find((t) => t.id === templateId);
+    if (template && !template.isImported) {
+      updateVoicemailTemplate(templateId, { isDefault: true });
       refreshTemplates();
     }
   };
@@ -1866,6 +1880,12 @@ Best regards,
                                       <h4 className="text-sm font-medium text-gray-900">
                                         {template.name}
                                       </h4>
+                                      {template.isDefault && !template.isImported && (
+                                        <span className="px-2 py-0.5 text-xs font-medium rounded bg-yellow-100 text-yellow-700 flex items-center space-x-1">
+                                          <StarIconSolid className="w-3 h-3" />
+                                          <span>Default</span>
+                                        </span>
+                                      )}
                                       <span className="px-2 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-700">
                                         {template.type === "dynamic"
                                           ? "Dynamic"
@@ -1873,6 +1893,11 @@ Best regards,
                                           ? "Static"
                                           : "Recording"}
                                       </span>
+                                      {template.isImported && (
+                                        <span className="px-2 py-0.5 text-xs font-medium rounded bg-purple-100 text-purple-700">
+                                          Imported
+                                        </span>
+                                      )}
                                     </div>
                                     {template.type !== "recording" && (
                                       <p className="text-xs text-gray-500 line-clamp-2">
@@ -1887,6 +1912,23 @@ Best regards,
                                     )}
                                   </div>
                                   <div className="flex items-center space-x-2">
+                                    {!template.isImported && (
+                                      <button
+                                        onClick={() => handleSetDefaultTemplate(template.id)}
+                                        className={`p-2 transition-colors ${
+                                          template.isDefault
+                                            ? "text-yellow-500 hover:text-yellow-600"
+                                            : "text-gray-400 hover:text-yellow-500"
+                                        }`}
+                                        title={template.isDefault ? "Default template" : "Set as default"}
+                                      >
+                                        {template.isDefault ? (
+                                          <StarIconSolid className="w-4 h-4" />
+                                        ) : (
+                                          <StarIcon className="w-4 h-4" />
+                                        )}
+                                      </button>
+                                    )}
                                     <button
                                       onClick={() => handleShareTemplate(template)}
                                       className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
