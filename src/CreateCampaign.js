@@ -263,6 +263,8 @@ export default function CreateCampaign() {
     runContinuously: false,
   });
 
+  
+
   // Animation effect when step changes
   useEffect(() => {
     setStepAnimating(true);
@@ -584,6 +586,7 @@ export default function CreateCampaign() {
                   </div>
                 )}
               </div>
+
             </div>
 
             {/* Right side - Campaign Type Cards */}

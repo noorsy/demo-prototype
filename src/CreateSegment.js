@@ -26,6 +26,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { getPersonas, sampleSegments } from './Workflows';
+import { getVoicemailTemplates, getDefaultVoicemailTemplate } from './data/voicemailTemplates';
 
 // Segments data is now imported from Workflows.js
 
@@ -217,7 +218,7 @@ const DraggableNode = ({ type, label, icon, color }) => {
 };
 
 // Properties drawer component
-const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNodeProperties }) => {
+const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNodeProperties, nodes, voicemailTemplates, isVoicemailDropEnabled }) => {
   const [localProperties, setLocalProperties] = useState({
     name: '',
     // Voice properties
@@ -226,6 +227,8 @@ const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNo
     customPrompt: '',
     maxAttempts: 3,
     waitTime: 24,
+    voicemailTemplate: '',
+    useForAllVoiceBlocks: false,
     // Email properties
     subject: '',
     template: '',
@@ -242,11 +245,25 @@ const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNo
     conditionType: '',
     conditionValue: ''
   });
+  const [showTemplateChangePopup, setShowTemplateChangePopup] = useState(false);
+  const [pendingTemplateChange, setPendingTemplateChange] = useState(null);
+
+  // Get default template
+  const defaultTemplate = React.useMemo(() => {
+    return voicemailTemplates.find((t) => t.isDefault && !t.isImported) || voicemailTemplates[0] || null;
+  }, [voicemailTemplates]);
 
   // Update local properties when selectedNode changes
   React.useEffect(() => {
     if (selectedNode) {
       const existingProps = nodeProperties[selectedNode.id] || {};
+      
+      // Auto-select default template for voice blocks if voicemail drop is enabled and no template is set
+      let voicemailTemplate = existingProps.voicemailTemplate || '';
+      if (selectedNode.type === 'voice' && isVoicemailDropEnabled && !voicemailTemplate && defaultTemplate) {
+        voicemailTemplate = defaultTemplate.id;
+      }
+      
       setLocalProperties({
         name: existingProps.name || `${selectedNode.type.charAt(0).toUpperCase() + selectedNode.type.slice(1)} Block`,
         // Voice properties
@@ -255,6 +272,8 @@ const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNo
         customPrompt: existingProps.customPrompt || '',
         maxAttempts: existingProps.maxAttempts || 3,
         waitTime: existingProps.waitTime || 24,
+        voicemailTemplate: voicemailTemplate,
+        useForAllVoiceBlocks: existingProps.useForAllVoiceBlocks || false,
         // Email properties
         subject: existingProps.subject || '',
         template: existingProps.template || 'default',
@@ -272,16 +291,72 @@ const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNo
         conditionValue: existingProps.conditionValue || ''
       });
     }
-  }, [selectedNode, nodeProperties]);
+  }, [selectedNode, nodeProperties, isVoicemailDropEnabled, defaultTemplate]);
 
   const handleSave = () => {
     if (selectedNode) {
+      // Check if user is changing from default to non-default template for voice blocks
+      if (selectedNode.type === 'voice' && isVoicemailDropEnabled && defaultTemplate) {
+        const currentTemplate = nodeProperties[selectedNode.id]?.voicemailTemplate || defaultTemplate.id;
+        const newTemplate = localProperties.voicemailTemplate;
+        const isCurrentlyDefault = !currentTemplate || currentTemplate === defaultTemplate.id;
+        const isChangingToNonDefault = newTemplate && newTemplate !== defaultTemplate.id;
+        
+        if (isCurrentlyDefault && isChangingToNonDefault) {
+          // Show popup asking if they want to apply to all voice blocks
+          setPendingTemplateChange(newTemplate);
+          setShowTemplateChangePopup(true);
+          return;
+        }
+      }
+      
+      // Proceed with save
+      const updatedProperties = { ...localProperties };
       setNodeProperties(prev => ({
         ...prev,
-        [selectedNode.id]: localProperties
+        [selectedNode.id]: updatedProperties
       }));
+      onClose();
     }
-    onClose();
+  };
+
+  const handleConfirmTemplateChange = (applyToAll) => {
+    if (selectedNode && pendingTemplateChange) {
+      const updatedProperties = { ...localProperties, voicemailTemplate: pendingTemplateChange };
+      
+      if (applyToAll) {
+        // Apply template to all voice blocks
+        const voiceNodes = nodes.filter(n => n.type === 'voice');
+        voiceNodes.forEach(node => {
+          setNodeProperties(prev => ({
+            ...prev,
+            [node.id]: {
+              ...(prev[node.id] || {}),
+              voicemailTemplate: pendingTemplateChange,
+            }
+          }));
+        });
+      } else {
+        // Apply only to current block
+        setNodeProperties(prev => ({
+          ...prev,
+          [selectedNode.id]: updatedProperties
+        }));
+      }
+      
+      setShowTemplateChangePopup(false);
+      setPendingTemplateChange(null);
+      onClose();
+    }
+  };
+
+  const handleCancelTemplateChange = () => {
+    setShowTemplateChangePopup(false);
+    setPendingTemplateChange(null);
+    // Reset to default template
+    if (defaultTemplate) {
+      setLocalProperties(prev => ({ ...prev, voicemailTemplate: defaultTemplate.id }));
+    }
   };
 
   if (!isOpen) return null;
@@ -428,6 +503,30 @@ const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNo
                       placeholder="Enter a custom prompt that will be used to start the conversation..."
                     />
                   </div>
+
+                  {/* Voicemail Template Selection */}
+                  {isVoicemailDropEnabled && voicemailTemplates.length > 0 && (
+                    <>
+                      <div className="border-t border-zinc-200 pt-4 mt-4">
+                        <label className="block text-sm font-medium text-zinc-700 mb-2">
+                          Voicemail Template
+                        </label>
+                        <select
+                          value={localProperties.voicemailTemplate}
+                          onChange={(e) => setLocalProperties(prev => ({ ...prev, voicemailTemplate: e.target.value }))}
+                          className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
+                        >
+                          <option value="">Select a template...</option>
+                          {voicemailTemplates.map((template) => (
+                            <option key={template.id} value={template.id}>
+                              {template.name} {template.isDefault && !template.isImported ? "(Default)" : ""} ({template.type === "dynamic" ? "Dynamic" : template.type === "static" ? "Static" : "Recording"})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                    </>
+                  )}
                 </>
               )}
 
@@ -636,6 +735,43 @@ const PropertiesDrawer = ({ isOpen, onClose, selectedNode, nodeProperties, setNo
           )}
         </div>
       </div>
+
+      {/* Template Change Popup */}
+      {showTemplateChangePopup && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={handleCancelTemplateChange} />
+          <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-zinc-900 mb-2">
+                Apply Template to All Voice Blocks?
+              </h3>
+              <p className="text-sm text-zinc-600 mb-6">
+                You've selected a different voicemail template for this voice block. Would you like to apply this template to all voice blocks in this journey? This will ensure consistency across your entire workflow.
+              </p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={handleCancelTemplateChange}
+                  className="px-4 py-2 border border-zinc-300 rounded-md text-sm font-medium text-zinc-700 bg-white hover:bg-zinc-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleConfirmTemplateChange(false)}
+                  className="px-4 py-2 border border-zinc-300 rounded-md text-sm font-medium text-zinc-700 bg-white hover:bg-zinc-50"
+                >
+                  Apply to This Block Only
+                </button>
+                <button
+                  onClick={() => handleConfirmTemplateChange(true)}
+                  className="px-4 py-2 bg-zinc-900 text-white rounded-md text-sm font-medium hover:bg-zinc-800"
+                >
+                  Apply to All Voice Blocks
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -673,6 +809,10 @@ export default function CreateSegment() {
   
   // Node properties state
   const [nodeProperties, setNodeProperties] = useState({});
+  
+  // Get voicemail templates (using mock assistant ID - in real app, get from context/props)
+  const voicemailTemplates = getVoicemailTemplates("support-bot-001");
+  const isVoicemailDropEnabled = true; // In real app, check from assistant config
   
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
@@ -1153,6 +1293,9 @@ export default function CreateSegment() {
         selectedNode={selectedNode}
         nodeProperties={nodeProperties}
         setNodeProperties={setNodeProperties}
+        nodes={nodes}
+        voicemailTemplates={voicemailTemplates}
+        isVoicemailDropEnabled={isVoicemailDropEnabled}
       />
     </div>
   );
