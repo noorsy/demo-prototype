@@ -272,7 +272,7 @@ const transferredCallsData = [
         timestamp: "14:34:10",
         aiRecommendation:
           "Good approach. Consider breaking down the billing structure step by step, starting with the base charges, then explaining any service fees, and finally showing how promotional discounts were applied.",
-      },
+    },
     ],
   },
   {
@@ -375,7 +375,7 @@ const transferredCallsData = [
         timestamp: "14:29:30",
         aiRecommendation:
           "Good diagnosis. Consider offering to verify their identity and then guide them through a password reset or account unlock process if needed.",
-      },
+    },
     ],
   },
 ];
@@ -551,6 +551,352 @@ Sarah Johnson`,
   },
 ];
 
+// Mock SMS/Chat data
+const smsData = [
+  {
+    id: 1,
+    recipientPhone: "+919876543210",
+    virtualId: "+919800012345",
+    lastMessage: "I need help with my data pack",
+    receivedTime: "2025-01-12 10:15:30",
+    status: "Pending",
+    assistant: "Vi",
+    smsSummary:
+      "Customer inquired about data pack options and pricing. AI assistant provided initial information but customer has follow-up questions requiring human assistance.",
+    timeline: [
+      {
+        id: 1,
+        timestamp: "10:15:30",
+        action: "SMS Received",
+        description: "Customer initiated SMS conversation",
+        status: "completed",
+      },
+      {
+        id: 2,
+        timestamp: "10:15:35",
+        action: "Auto-Response",
+        description: "AI assistant acknowledged and asked for details",
+        status: "completed",
+      },
+      {
+        id: 3,
+        timestamp: "10:18:45",
+        action: "Customer Reply",
+        description: "Customer asked about unlimited data packs",
+        status: "completed",
+      },
+      {
+        id: 4,
+        timestamp: "10:20:00",
+        action: "Escalated",
+        description: "Complex query requires human agent",
+        status: "pending",
+      },
+    ],
+    userAttributes: {
+      name: "Priya Sharma",
+      phone: "+919876543210",
+      email: "priya.sharma@email.com",
+      accountNumber: "VI-456789012",
+      customerSince: "2021-06-10",
+      lastInteraction: "2025-01-10",
+      preferredLanguage: "English, Hindi",
+      accountType: "Prepaid",
+      riskLevel: "Low",
+    },
+    conversation: [
+      {
+        id: 1,
+        speaker: "customer",
+        message: "Hi, I need help with my data pack. My current plan is expiring tomorrow.",
+        timestamp: "10:15:30",
+      },
+      {
+        id: 2,
+        speaker: "virtual",
+        message: "Hello! Thank you for reaching out to Vi. I'd be happy to help you with your data pack. Could you please let me know what type of plan you're looking for? We have daily, weekly, and monthly options.",
+        timestamp: "10:15:35",
+      },
+      {
+        id: 3,
+        speaker: "customer",
+        message: "I want an unlimited data pack for a month. What options do you have under ₹500?",
+        timestamp: "10:18:45",
+      },
+      {
+        id: 4,
+        speaker: "virtual",
+        message: "We have several options under ₹500. Our most popular plan is ₹449 with 1.5GB/day + unlimited calls. Would you like me to connect you with an agent for more personalized recommendations?",
+        timestamp: "10:19:00",
+      },
+      {
+        id: 5,
+        speaker: "customer",
+        message: "Yes please, I also want to know about any student discounts available.",
+        timestamp: "10:19:30",
+      },
+    ],
+  },
+  {
+    id: 2,
+    recipientPhone: "+919876543211",
+    virtualId: "+919800012345",
+    lastMessage: "Payment confirmation needed",
+    receivedTime: "2025-01-12 09:45:20",
+    status: "Pending",
+    assistant: "Vi",
+    smsSummary:
+      "Customer made a payment but hasn't received confirmation. AI assistant checked system but requires human verification for payment reconciliation.",
+    timeline: [
+      {
+        id: 1,
+        timestamp: "09:45:20",
+        action: "SMS Received",
+        description: "Customer reported missing payment confirmation",
+        status: "completed",
+      },
+      {
+        id: 2,
+        timestamp: "09:45:25",
+        action: "Auto-Response",
+        description: "AI assistant acknowledged and started verification",
+        status: "completed",
+      },
+      {
+        id: 3,
+        timestamp: "09:48:10",
+        action: "System Check",
+        description: "AI checked payment system - inconclusive",
+        status: "completed",
+      },
+      {
+        id: 4,
+        timestamp: "09:50:00",
+        action: "Escalated",
+        description: "Payment verification requires human agent",
+        status: "pending",
+      },
+    ],
+    userAttributes: {
+      name: "Amit Patel",
+      phone: "+919876543211",
+      email: "amit.patel@email.com",
+      accountNumber: "VI-789012345",
+      customerSince: "2020-03-15",
+      lastInteraction: "2025-01-11",
+      preferredLanguage: "English",
+      accountType: "Postpaid",
+      riskLevel: "Low",
+    },
+    conversation: [
+      {
+        id: 1,
+        speaker: "customer",
+        message: "I made a payment of ₹599 an hour ago but haven't received any confirmation SMS",
+        timestamp: "09:45:20",
+      },
+      {
+        id: 2,
+        speaker: "virtual",
+        message: "I understand your concern. Let me check your payment status. Could you please confirm the payment method you used?",
+        timestamp: "09:45:25",
+      },
+      {
+        id: 3,
+        speaker: "customer",
+        message: "I paid through UPI - Google Pay. Transaction ID is 234567890123",
+        timestamp: "09:46:00",
+      },
+      {
+        id: 4,
+        speaker: "virtual",
+        message: "Thank you for the details. I'm checking our payment system now. This may take a moment.",
+        timestamp: "09:46:10",
+      },
+      {
+        id: 5,
+        speaker: "virtual",
+        message: "I can see a pending transaction but need to verify it with our payment team. Let me connect you with an agent who can help resolve this immediately.",
+        timestamp: "09:48:10",
+      },
+      {
+        id: 6,
+        speaker: "customer",
+        message: "Ok please do it fast, I need my recharge activated urgently",
+        timestamp: "09:49:00",
+      },
+    ],
+  },
+  {
+    id: 3,
+    recipientPhone: "+13365551234",
+    virtualId: "+18005551234",
+    lastMessage: "Vehicle pickup scheduling",
+    receivedTime: "2025-01-12 11:30:15",
+    status: "Attended",
+    assistant: "CarMax",
+    smsSummary:
+      "Customer wants to schedule a vehicle pickup after online purchase. Agent confirmed pickup slot and provided necessary documentation details.",
+    timeline: [
+      {
+        id: 1,
+        timestamp: "11:30:15",
+        action: "SMS Received",
+        description: "Customer requested pickup scheduling",
+        status: "completed",
+      },
+      {
+        id: 2,
+        timestamp: "11:30:20",
+        action: "Auto-Response",
+        description: "AI assistant greeted and asked for order details",
+        status: "completed",
+      },
+      {
+        id: 3,
+        timestamp: "11:35:00",
+        action: "Agent Assigned",
+        description: "Human agent took over conversation",
+        status: "completed",
+      },
+      {
+        id: 4,
+        timestamp: "11:45:00",
+        action: "Resolved",
+        description: "Pickup scheduled for Jan 15, 2025",
+        status: "completed",
+      },
+    ],
+    userAttributes: {
+      name: "Michael Brown",
+      phone: "+13365551234",
+      email: "michael.brown@email.com",
+      accountNumber: "CMX-123456789",
+      customerSince: "2025-01-10",
+      lastInteraction: "2025-01-12",
+      preferredLanguage: "English",
+      accountType: "New Customer",
+      riskLevel: "Low",
+    },
+    conversation: [
+      {
+        id: 1,
+        speaker: "customer",
+        message: "Hi, I just purchased a 2023 Honda Accord online. Order #CMX-2025-001234. When can I pick it up?",
+        timestamp: "11:30:15",
+      },
+      {
+        id: 2,
+        speaker: "virtual",
+        message: "Congratulations on your purchase! I'd be happy to help you schedule your pickup. Let me connect you with our delivery team for available time slots.",
+        timestamp: "11:30:20",
+      },
+      {
+        id: 3,
+        speaker: "agent",
+        message: "Hi Michael! This is Sarah from CarMax. I can see your order for the 2023 Honda Accord. We have pickup slots available on Jan 14th (2PM-6PM) or Jan 15th (10AM-2PM). Which works better for you?",
+        timestamp: "11:35:00",
+      },
+      {
+        id: 4,
+        speaker: "customer",
+        message: "Jan 15th at 10AM works great for me!",
+        timestamp: "11:36:30",
+      },
+      {
+        id: 5,
+        speaker: "agent",
+        message: "Perfect! I've scheduled your pickup for January 15th at 10:00 AM at our Charlotte location. Please bring: 1) Valid driver's license 2) Proof of insurance 3) Payment confirmation. See you then! 🚗",
+        timestamp: "11:38:00",
+      },
+      {
+        id: 6,
+        speaker: "customer",
+        message: "Thank you so much! Very excited!",
+        timestamp: "11:40:00",
+      },
+    ],
+  },
+  {
+    id: 4,
+    recipientPhone: "+13365559876",
+    virtualId: "+18005551234",
+    lastMessage: "Trade-in value question",
+    receivedTime: "2025-01-12 14:20:00",
+    status: "Pending",
+    assistant: "CarMax",
+    smsSummary:
+      "Customer inquiring about trade-in value for their current vehicle. AI provided instant estimate but customer wants detailed appraisal.",
+    timeline: [
+      {
+        id: 1,
+        timestamp: "14:20:00",
+        action: "SMS Received",
+        description: "Customer asked about trade-in value",
+        status: "completed",
+      },
+      {
+        id: 2,
+        timestamp: "14:20:05",
+        action: "Auto-Response",
+        description: "AI provided instant estimate tool link",
+        status: "completed",
+      },
+      {
+        id: 3,
+        timestamp: "14:25:30",
+        action: "Follow-up",
+        description: "Customer wants in-person appraisal",
+        status: "completed",
+      },
+      {
+        id: 4,
+        timestamp: "14:26:00",
+        action: "Pending Agent",
+        description: "Waiting for agent to schedule appraisal",
+        status: "pending",
+      },
+    ],
+    userAttributes: {
+      name: "Jennifer Wilson",
+      phone: "+13365559876",
+      email: "jennifer.wilson@email.com",
+      accountNumber: "CMX-987654321",
+      customerSince: "2023-08-15",
+      lastInteraction: "2024-12-20",
+      preferredLanguage: "English",
+      accountType: "Returning Customer",
+      riskLevel: "Low",
+    },
+    conversation: [
+      {
+        id: 1,
+        speaker: "customer",
+        message: "What's my 2020 Toyota Camry worth? 45,000 miles, excellent condition",
+        timestamp: "14:20:00",
+      },
+      {
+        id: 2,
+        speaker: "virtual",
+        message: "Great question! Based on the details you provided, the estimated trade-in value for your 2020 Toyota Camry is $18,500 - $21,000. For an exact offer, you can get an instant online offer at carmax.com/trade-in or visit us for an in-person appraisal.",
+        timestamp: "14:20:05",
+      },
+      {
+        id: 3,
+        speaker: "customer",
+        message: "I'd prefer an in-person appraisal. Can I schedule one?",
+        timestamp: "14:25:30",
+      },
+      {
+        id: 4,
+        speaker: "virtual",
+        message: "Absolutely! Let me connect you with our team to schedule your free appraisal appointment. An agent will be with you shortly.",
+        timestamp: "14:25:45",
+      },
+    ],
+  },
+];
+
 export default function AgentPortal() {
   const navigate = useNavigate();
   const [selectedAssistant, setSelectedAssistant] = useState(
@@ -564,7 +910,28 @@ export default function AgentPortal() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedCall, setSelectedCall] = useState(null);
   const [selectedEmail, setSelectedEmail] = useState(null);
+  const [selectedSMS, setSelectedSMS] = useState(null);
   const [replyText, setReplyText] = useState("");
+  const [selectedDispositions, setSelectedDispositions] = useState([]);
+  const [showDispositionDropdown, setShowDispositionDropdown] = useState(false);
+
+  // Available dispositions for agents
+  const dispositionOptions = [
+    { id: "promise_to_pay", label: "Promise to Pay", color: "bg-green-100 text-green-800 border-green-200" },
+    { id: "payment_made", label: "Payment Made", color: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+    { id: "callback_requested", label: "Callback Requested", color: "bg-blue-100 text-blue-800 border-blue-200" },
+    { id: "dispute", label: "Dispute", color: "bg-red-100 text-red-800 border-red-200" },
+    { id: "wrong_number", label: "Wrong Number", color: "bg-orange-100 text-orange-800 border-orange-200" },
+    { id: "no_answer", label: "No Answer", color: "bg-gray-100 text-gray-800 border-gray-200" },
+    { id: "voicemail", label: "Voicemail Left", color: "bg-purple-100 text-purple-800 border-purple-200" },
+    { id: "hardship", label: "Hardship", color: "bg-amber-100 text-amber-800 border-amber-200" },
+    { id: "deceased", label: "Deceased", color: "bg-slate-100 text-slate-800 border-slate-200" },
+    { id: "bankruptcy", label: "Bankruptcy", color: "bg-rose-100 text-rose-800 border-rose-200" },
+    { id: "payment_plan", label: "Payment Plan Setup", color: "bg-cyan-100 text-cyan-800 border-cyan-200" },
+    { id: "follow_up_needed", label: "Follow-up Needed", color: "bg-yellow-100 text-yellow-800 border-yellow-200" },
+    { id: "resolved", label: "Resolved", color: "bg-teal-100 text-teal-800 border-teal-200" },
+    { id: "escalated", label: "Escalated", color: "bg-pink-100 text-pink-800 border-pink-200" },
+  ];
 
   // Filter data based on selected assistant
   const filteredCalls = transferredCallsData.filter(
@@ -575,6 +942,10 @@ export default function AgentPortal() {
     (email) => email.assistant === selectedAssistant.name
   );
 
+  const filteredSMS = smsData.filter(
+    (sms) => sms.assistant === selectedAssistant.name
+  );
+
   // Get current data based on active tab
   const getCurrentData = () => {
     switch (activeTab) {
@@ -583,7 +954,7 @@ export default function AgentPortal() {
       case "email":
         return filteredEmails;
       case "chat":
-        return [];
+        return filteredSMS;
       default:
         return filteredCalls;
     }
@@ -598,7 +969,9 @@ export default function AgentPortal() {
   const pendingEmails = filteredEmails.filter(
     (email) => email.status === "Pending"
   ).length;
-  const pendingChats = 0;
+  const pendingChats = filteredSMS.filter(
+    (sms) => sms.status === "Pending"
+  ).length;
 
   // Tab configuration with notification counts
   const tabs = [
@@ -650,7 +1023,32 @@ export default function AgentPortal() {
       console.log(`Marked call ${itemId} as attended`);
     } else if (activeTab === "email") {
       console.log(`Marked email ${itemId} as attended`);
+    } else if (activeTab === "chat") {
+      console.log(`Marked SMS ${itemId} as attended`);
     }
+  };
+
+  const handleToggleDisposition = (dispositionId) => {
+    setSelectedDispositions(prev => {
+      if (prev.includes(dispositionId)) {
+        return prev.filter(id => id !== dispositionId);
+      } else {
+        return [...prev, dispositionId];
+      }
+    });
+  };
+
+  const clearDispositions = () => {
+    setSelectedDispositions([]);
+    setShowDispositionDropdown(false);
+  };
+
+  const getDispositionInfo = (dispositionId) => {
+    return dispositionOptions.find(d => d.id === dispositionId);
+  };
+
+  const getSelectedDispositionsInfo = () => {
+    return selectedDispositions.map(id => dispositionOptions.find(d => d.id === id)).filter(Boolean);
   };
 
   const handleSendReply = () => {
@@ -804,6 +1202,7 @@ export default function AgentPortal() {
                     setActiveTab(tab.id);
                     setSelectedCall(null);
                     setSelectedEmail(null);
+                    setSelectedSMS(null);
                   }}
                   className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                     activeTab === tab.id
@@ -921,6 +1320,27 @@ export default function AgentPortal() {
                           Actions
                         </th>
                       </>
+                    ) : activeTab === "chat" ? (
+                      <>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Phone Number
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Virtual ID
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Last Message
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Received Time
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </>
                     ) : (
                       <>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -943,7 +1363,10 @@ export default function AgentPortal() {
                         onClick={() => {
                           setSelectedCall(call);
                           setSelectedEmail(null);
+                          setSelectedSMS(null);
                           setDetailTab("details");
+                          setSelectedDispositions([]);
+                          setShowDispositionDropdown(false);
                         }}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -1008,6 +1431,9 @@ export default function AgentPortal() {
                         onClick={() => {
                           setSelectedEmail(email);
                           setSelectedCall(null);
+                          setSelectedSMS(null);
+                          setSelectedDispositions([]);
+                          setShowDispositionDropdown(false);
                         }}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -1045,6 +1471,74 @@ export default function AgentPortal() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleMarkAsAttended(email.id);
+                              }}
+                              size="sm"
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              Mark as Attended
+                            </Button>
+                          ) : (
+                            <span className="text-sm text-gray-500">
+                              Completed
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+
+                  {activeTab === "chat" &&
+                    currentData.map((sms) => (
+                      <tr
+                        key={sms.id}
+                        className={`hover:bg-gray-50 cursor-pointer transition-colors ${
+                          selectedSMS?.id === sms.id
+                            ? "bg-blue-50 border-l-4 border-l-blue-500"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          setSelectedSMS(sms);
+                          setSelectedCall(null);
+                          setSelectedEmail(null);
+                          setDetailTab("details");
+                          setSelectedDispositions([]);
+                          setShowDispositionDropdown(false);
+                        }}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900 font-mono">
+                            {sms.recipientPhone}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-600 font-mono">
+                            {sms.virtualId}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 max-w-xs truncate">
+                            {sms.lastMessage}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-600">
+                            {sms.receivedTime}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full border ${getDispositionColor(
+                              sms.status
+                            )}`}
+                          >
+                            {sms.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {sms.status === "Pending" ? (
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMarkAsAttended(sms.id);
                               }}
                               size="sm"
                               className="bg-green-600 hover:bg-green-700 text-white"
@@ -1111,16 +1605,16 @@ export default function AgentPortal() {
             <div className="flex-1 min-w-0 bg-white border-l border-gray-200 flex flex-col h-full overflow-hidden">
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900">
                   Call Details
-                </h3>
-                <button
+              </h3>
+              <button
                   onClick={() => setSelectedCall(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <XMarkIcon className="w-5 h-5" />
-                </button>
-              </div>
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
 
               {/* Tabs */}
               <div className="flex border-b border-gray-200 px-6">
@@ -1165,9 +1659,9 @@ export default function AgentPortal() {
                       <div className="bg-gray-50 rounded-lg p-4">
                         <p className="text-sm text-gray-700 leading-relaxed">
                           {selectedCall.callSummary}
-                        </p>
-                      </div>
-                    </div>
+                </p>
+              </div>
+            </div>
 
                     {/* Timeline */}
                     <div className="mb-6">
@@ -1181,39 +1675,39 @@ export default function AgentPortal() {
                             key={event.id}
                             className="flex items-start space-x-3"
                           >
-                            <div
-                              className={`w-2 h-2 rounded-full mt-2 ${
-                                event.status === "completed"
-                                  ? "bg-green-500"
-                                  : event.status === "pending"
-                                  ? "bg-yellow-500"
-                                  : "bg-gray-400"
-                              }`}
-                            ></div>
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-gray-900">
-                                  {event.action}
-                                </span>
-                                <span className="text-xs text-gray-500">
-                                  {event.timestamp}
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-600 mt-1">
-                                {event.description}
-                              </p>
-                              <span
-                                className={`inline-flex px-2 py-1 text-xs font-medium rounded-full mt-1 ${getTimelineStatusColor(
-                                  event.status
-                                )}`}
-                              >
-                                {event.status}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
+                      <div
+                        className={`w-2 h-2 rounded-full mt-2 ${
+                          event.status === "completed"
+                            ? "bg-green-500"
+                            : event.status === "pending"
+                            ? "bg-yellow-500"
+                            : "bg-gray-400"
+                        }`}
+                      ></div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-gray-900">
+                            {event.action}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {event.timestamp}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {event.description}
+                        </p>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full mt-1 ${getTimelineStatusColor(
+                            event.status
+                          )}`}
+                        >
+                          {event.status}
+                        </span>
                       </div>
                     </div>
+                        ))}
+              </div>
+            </div>
 
                     {/* Customer Information */}
                     <div>
@@ -1301,6 +1795,98 @@ export default function AgentPortal() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Set Disposition */}
+                    <div className="mt-6">
+                      <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
+                        <CheckCircleIcon className="w-4 h-4 mr-2" />
+                        Set Disposition(s)
+                      </h4>
+                      
+                      {/* Selected Dispositions Display */}
+                      {selectedDispositions.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {getSelectedDispositionsInfo().map((disposition) => (
+                            <span
+                              key={disposition.id}
+                              className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full border ${disposition.color}`}
+                            >
+                              {disposition.label}
+                              <button
+                                onClick={() => handleToggleDisposition(disposition.id)}
+                                className="ml-1.5 hover:opacity-70"
+                              >
+                                <XMarkIcon className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowDispositionDropdown(!showDispositionDropdown)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg text-left text-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center justify-between"
+                        >
+                          <span className="text-gray-500">
+                            {selectedDispositions.length === 0 
+                              ? "Select disposition(s) (optional)" 
+                              : `${selectedDispositions.length} selected - click to add more`}
+                          </span>
+                          <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform ${showDispositionDropdown ? "rotate-180" : ""}`} />
+                        </button>
+
+                        {showDispositionDropdown && (
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            <div className="p-2">
+                              {selectedDispositions.length > 0 && (
+                                <>
+                                  <button
+                                    onClick={clearDispositions}
+                                    className="w-full text-left px-3 py-2 text-sm text-gray-500 hover:bg-gray-50 rounded flex items-center"
+                                  >
+                                    <XMarkIcon className="w-4 h-4 mr-2" />
+                                    Clear all dispositions
+                                  </button>
+                                  <div className="border-t border-gray-100 my-1"></div>
+                                </>
+                              )}
+                              {dispositionOptions.map((disposition) => (
+                                <button
+                                  key={disposition.id}
+                                  onClick={() => handleToggleDisposition(disposition.id)}
+                                  className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded flex items-center justify-between ${
+                                    selectedDispositions.includes(disposition.id) ? "bg-blue-50" : ""
+                                  }`}
+                                >
+                                  <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full border ${disposition.color}`}>
+                                    {disposition.label}
+                                  </span>
+                                  {selectedDispositions.includes(disposition.id) && (
+                                    <CheckCircleIcon className="w-4 h-4 text-green-500" />
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      {selectedDispositions.length > 0 && (
+                        <div className="mt-3">
+                          <Button
+                            onClick={() => {
+                              const dispositions = getSelectedDispositionsInfo();
+                              const labels = dispositions.map(d => d.label).join(", ");
+                              console.log(`Saving dispositions for call ${selectedCall.id}: ${labels}`);
+                              alert(`Dispositions saved: ${labels}`);
+                            }}
+                            className="w-full bg-gray-900 hover:bg-gray-800 text-white"
+                          >
+                            Save Disposition{selectedDispositions.length > 1 ? "s" : ""} ({selectedDispositions.length})
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -1323,8 +1909,8 @@ export default function AgentPortal() {
                                 className={`max-w-[75%] rounded-lg p-3 ${
                                   message.speaker === "agent" ||
                                   message.speaker === "virtual"
-                                    ? "bg-gray-100 text-gray-900"
-                                    : "bg-gray-900 text-white"
+                                  ? "bg-gray-100 text-gray-900"
+                                  : "bg-gray-900 text-white"
                                 }`}
                               >
                                 <div className="flex items-center justify-between mb-1">
@@ -1395,81 +1981,81 @@ export default function AgentPortal() {
             {/* Quick Actions Panel (only show on Conversation tab) */}
             {detailTab === "conversation" && (
               <div className="w-[400px] flex-shrink-0 bg-white border-l border-gray-200 flex flex-col h-full overflow-y-auto">
-                <div className="p-6 space-y-6">
-                  {/* Sentiment Meter */}
-                  {(() => {
+              <div className="p-6 space-y-6">
+                {/* Sentiment Meter */}
+                {(() => {
                     if (
                       !selectedCall.conversation ||
                       selectedCall.conversation.length === 0
                     )
                       return null;
-
+                  
                     const customerMessages = selectedCall.conversation.filter(
                       (msg) => msg.speaker === "customer"
                     );
-                    if (customerMessages.length === 0) return null;
-
+                  if (customerMessages.length === 0) return null;
+                  
                     const recentCustomerMessage =
                       customerMessages[customerMessages.length - 1];
                     let currentSentiment =
                       recentCustomerMessage?.sentiment || "Neutral";
-
+                  
                     if (
                       currentSentiment === "Frustrated but Patient" ||
                       currentSentiment === "Frustrated" ||
                       currentSentiment === "Urgent" ||
                       currentSentiment === "Angry"
                     ) {
-                      currentSentiment = "Frustrated";
+                    currentSentiment = "Frustrated";
                     } else if (
                       currentSentiment === "Positive" ||
                       currentSentiment === "Satisfied" ||
                       currentSentiment === "Happy"
                     ) {
-                      currentSentiment = "Happy";
-                    } else {
-                      currentSentiment = "Neutral";
-                    }
-
-                    return (
-                      <div className="border-b border-gray-200 pb-6">
+                    currentSentiment = "Happy";
+                  } else {
+                    currentSentiment = "Neutral";
+                  }
+                  
+                  return (
+                    <div className="border-b border-gray-200 pb-6">
                         <h4 className="text-sm font-semibold text-gray-900 mb-4">
                           Customer Sentiment
                         </h4>
-
-                        <div className="relative w-full">
-                          <div className="flex justify-between items-start mb-2 px-2">
+                      
+                      <div className="relative w-full">
+                        <div className="flex justify-between items-start mb-2 px-2">
                             <div
                               className="flex flex-col items-center"
                               style={{ width: "33.33%" }}
                             >
-                              <div className="text-4xl mb-1">😞</div>
+                            <div className="text-4xl mb-1">😞</div>
                               <div className="text-xs font-medium text-gray-700">
                                 Negative
                               </div>
-                            </div>
-
+                          </div>
+                          
                             <div
                               className="flex flex-col items-center"
                               style={{ width: "33.33%" }}
                             >
-                              <div className="text-4xl mb-1">😐</div>
+                            <div className="text-4xl mb-1">😐</div>
                               <div className="text-xs font-medium text-gray-700">
                                 Neutral
                               </div>
-                            </div>
-
+                          </div>
+                          
                             <div
                               className="flex flex-col items-center"
                               style={{ width: "33.33%" }}
                             >
-                              <div className="text-4xl mb-1">😄</div>
+                            <div className="text-4xl mb-1">😄</div>
                               <div className="text-xs font-medium text-gray-700">
                                 Positive
                               </div>
-                            </div>
                           </div>
-
+                        </div>
+                        
                           <div
                             className="relative h-8 rounded-full overflow-hidden"
                             style={{
@@ -1477,9 +2063,9 @@ export default function AgentPortal() {
                                 "linear-gradient(to right, #ef4444 0%, #ef4444 33.33%, #f59e0b 33.33%, #f59e0b 66.66%, #10b981 66.66%, #10b981 100%)",
                             }}
                           >
-                            <div
-                              className="absolute top-0 bottom-0 flex flex-col items-center"
-                              style={{
+                          <div 
+                            className="absolute top-0 bottom-0 flex flex-col items-center"
+                            style={{ 
                                 left:
                                   currentSentiment === "Frustrated"
                                     ? "16.66%"
@@ -1488,23 +2074,23 @@ export default function AgentPortal() {
                                     : "83.33%",
                                 transform: "translateX(-50%)",
                                 transition: "left 0.3s ease-in-out",
-                              }}
-                            >
-                              <div
-                                className="w-0 h-0 border-l-4 border-r-4 border-b-6 border-l-transparent border-r-transparent border-b-gray-800"
+                            }}
+                          >
+                            <div 
+                              className="w-0 h-0 border-l-4 border-r-4 border-b-6 border-l-transparent border-r-transparent border-b-gray-800"
                                 style={{ marginTop: "-6px" }}
-                              />
-                              <div className="w-0.5 h-full bg-gray-800" />
-                            </div>
+                            />
+                            <div className="w-0.5 h-full bg-gray-800" />
                           </div>
-
-                          <div className="flex justify-between mt-2 px-2">
+                        </div>
+                        
+                        <div className="flex justify-between mt-2 px-2">
                             <div
                               className="text-xs font-medium text-gray-600"
                               style={{ width: "33.33%", textAlign: "left" }}
                             >
                               Negative
-                            </div>
+                        </div>
                             <div
                               className="text-xs font-medium text-gray-600"
                               style={{ width: "33.33%", textAlign: "center" }}
@@ -1518,129 +2104,129 @@ export default function AgentPortal() {
                               Positive
                             </div>
                           </div>
-                        </div>
                       </div>
-                    );
-                  })()}
+                    </div>
+                  );
+                })()}
 
-                  {/* AI Suggestion */}
-                  {(() => {
+                {/* AI Suggestion */}
+                {(() => {
                     const latestRecommendation =
                       selectedCall.conversation &&
                       [...selectedCall.conversation]
-                        .reverse()
+                    .reverse()
                         .find((msg) => msg.aiRecommendation);
-
-                    return latestRecommendation ? (
-                      <div className="border-b border-gray-200 pb-6">
-                        <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-xl border border-indigo-200 shadow-sm overflow-hidden">
-                          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3 flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                                <LightBulbIcon className="w-5 h-5 text-white" />
-                              </div>
+                  
+                  return latestRecommendation ? (
+                    <div className="border-b border-gray-200 pb-6">
+                      <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-xl border border-indigo-200 shadow-sm overflow-hidden">
+                        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3 flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                              <LightBulbIcon className="w-5 h-5 text-white" />
+                            </div>
                               <h4 className="text-sm font-semibold text-white">
                                 AI Suggestion
                               </h4>
-                            </div>
-                            <button
-                              onClick={() => {
+                          </div>
+                          <button
+                            onClick={() => {
                                 navigator.clipboard.writeText(
                                   latestRecommendation.aiRecommendation
                                 );
-                              }}
-                              className="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-1.5 transition-colors"
-                              title="Copy suggestion"
-                            >
-                              <ClipboardDocumentIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-
-                          <div className="p-4">
-                            <div className="flex items-start space-x-3">
-                              <div className="flex-shrink-0 mt-0.5">
-                                <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                                  <SparklesIcon className="w-5 h-5 text-indigo-600" />
-                                </div>
+                            }}
+                            className="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-1.5 transition-colors"
+                            title="Copy suggestion"
+                          >
+                            <ClipboardDocumentIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+                        
+                        <div className="p-4">
+                          <div className="flex items-start space-x-3">
+                            <div className="flex-shrink-0 mt-0.5">
+                              <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                                <SparklesIcon className="w-5 h-5 text-indigo-600" />
                               </div>
-                              <div className="flex-1">
-                                <p className="text-sm text-gray-800 leading-relaxed">
-                                  {latestRecommendation.aiRecommendation}
-                                </p>
-                                <div className="mt-3 flex items-center text-xs text-gray-500">
-                                  <ClockIcon className="w-3 h-3 mr-1" />
-                                  <span>{latestRecommendation.timestamp}</span>
-                                </div>
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm text-gray-800 leading-relaxed">
+                                {latestRecommendation.aiRecommendation}
+                              </p>
+                              <div className="mt-3 flex items-center text-xs text-gray-500">
+                                <ClockIcon className="w-3 h-3 mr-1" />
+                                <span>{latestRecommendation.timestamp}</span>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    ) : null;
-                  })()}
+                    </div>
+                  ) : null;
+                })()}
 
-                  {/* Quick Actions */}
-                  <div>
+                {/* Quick Actions */}
+                <div>
                     <h4 className="text-sm font-semibold text-gray-900 mb-3">
                       Quick Actions
                     </h4>
-                    <div className="space-y-2">
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start border-gray-300 text-gray-700 hover:bg-gray-50"
+                  <div className="space-y-2">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start border-gray-300 text-gray-700 hover:bg-gray-50"
                         onClick={() =>
                           window.open(
                             "https://kb.vi.com/network-troubleshooting",
                             "_blank"
                           )
                         }
-                      >
-                        <BookOpenIcon className="w-4 h-4 mr-2" />
-                        Network Troubleshooting Guide
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      <BookOpenIcon className="w-4 h-4 mr-2" />
+                      Network Troubleshooting Guide
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start border-gray-300 text-gray-700 hover:bg-gray-50"
                         onClick={() =>
                           window.open(
                             "https://kb.vi.com/outage-status",
                             "_blank"
                           )
                         }
-                      >
-                        <ChartBarIcon className="w-4 h-4 mr-2" />
-                        Check Network Outage Status
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      <ChartBarIcon className="w-4 h-4 mr-2" />
+                      Check Network Outage Status
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start border-gray-300 text-gray-700 hover:bg-gray-50"
                         onClick={() =>
                           window.open(
                             "https://kb.vi.com/escalation-procedures",
                             "_blank"
                           )
                         }
-                      >
-                        <WrenchScrewdriverIcon className="w-4 h-4 mr-2" />
-                        Escalation Procedures
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      <WrenchScrewdriverIcon className="w-4 h-4 mr-2" />
+                      Escalation Procedures
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start border-gray-300 text-gray-700 hover:bg-gray-50"
                         onClick={() =>
                           window.open(
                             "https://kb.vi.com/pin-code-coverage",
                             "_blank"
                           )
                         }
-                      >
-                        <InformationCircleIcon className="w-4 h-4 mr-2" />
-                        PIN Code Coverage Map
-                      </Button>
-                    </div>
+                    >
+                      <InformationCircleIcon className="w-4 h-4 mr-2" />
+                      PIN Code Coverage Map
+                    </Button>
                   </div>
                 </div>
               </div>
+            </div>
             )}
           </>
         )}
@@ -1850,6 +2436,457 @@ export default function AgentPortal() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Set Disposition */}
+            <div className="mt-6">
+              <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
+                <CheckCircleIcon className="w-4 h-4 mr-2" />
+                Set Disposition(s)
+              </h4>
+              
+              {/* Selected Dispositions Display */}
+              {selectedDispositions.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {getSelectedDispositionsInfo().map((disposition) => (
+                    <span
+                      key={disposition.id}
+                      className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full border ${disposition.color}`}
+                    >
+                      {disposition.label}
+                      <button
+                        onClick={() => handleToggleDisposition(disposition.id)}
+                        className="ml-1.5 hover:opacity-70"
+                      >
+                        <XMarkIcon className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              <div className="relative">
+                <button
+                  onClick={() => setShowDispositionDropdown(!showDispositionDropdown)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-left text-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center justify-between"
+                >
+                  <span className="text-gray-500">
+                    {selectedDispositions.length === 0 
+                      ? "Select disposition(s) (optional)" 
+                      : `${selectedDispositions.length} selected - click to add more`}
+                  </span>
+                  <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform ${showDispositionDropdown ? "rotate-180" : ""}`} />
+                </button>
+
+                {showDispositionDropdown && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <div className="p-2">
+                      {selectedDispositions.length > 0 && (
+                        <>
+                          <button
+                            onClick={clearDispositions}
+                            className="w-full text-left px-3 py-2 text-sm text-gray-500 hover:bg-gray-50 rounded flex items-center"
+                          >
+                            <XMarkIcon className="w-4 h-4 mr-2" />
+                            Clear all dispositions
+                          </button>
+                          <div className="border-t border-gray-100 my-1"></div>
+                        </>
+                      )}
+                      {dispositionOptions.map((disposition) => (
+                        <button
+                          key={disposition.id}
+                          onClick={() => handleToggleDisposition(disposition.id)}
+                          className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded flex items-center justify-between ${
+                            selectedDispositions.includes(disposition.id) ? "bg-blue-50" : ""
+                          }`}
+                        >
+                          <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full border ${disposition.color}`}>
+                            {disposition.label}
+                          </span>
+                          {selectedDispositions.includes(disposition.id) && (
+                            <CheckCircleIcon className="w-4 h-4 text-green-500" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              {selectedDispositions.length > 0 && (
+                <div className="mt-3">
+                  <Button
+                    onClick={() => {
+                      const dispositions = getSelectedDispositionsInfo();
+                      const labels = dispositions.map(d => d.label).join(", ");
+                      console.log(`Saving dispositions for email ${selectedEmail.id}: ${labels}`);
+                      alert(`Dispositions saved: ${labels}`);
+                    }}
+                    className="w-full bg-gray-900 hover:bg-gray-800 text-white"
+                  >
+                    Save Disposition{selectedDispositions.length > 1 ? "s" : ""} ({selectedDispositions.length})
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Right Panel - Details (SMS/Chat) */}
+        {selectedSMS && (
+          <div className="flex-1 min-w-0 bg-white border-l border-gray-200 flex flex-col h-full overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                SMS Details
+              </h3>
+              <button
+                onClick={() => setSelectedSMS(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex border-b border-gray-200 px-6">
+              <button
+                onClick={() => setDetailTab("details")}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  detailTab === "details"
+                    ? "border-gray-900 text-gray-900"
+                    : "border-transparent text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <DocumentTextIcon className="w-4 h-4" />
+                  <span>SMS Details</span>
+                </div>
+              </button>
+              <button
+                onClick={() => setDetailTab("conversation")}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  detailTab === "conversation"
+                    ? "border-gray-900 text-gray-900"
+                    : "border-transparent text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <ChatBubbleLeftRightIcon className="w-4 h-4" />
+                  <span>Conversation</span>
+                </div>
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {detailTab === "details" && (
+                <div className="flex-1 overflow-y-auto p-6">
+                  {/* SMS Summary */}
+                  <div className="mb-6">
+                    <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
+                      <DocumentTextIcon className="w-4 h-4 mr-2" />
+                      SMS Summary
+                    </h4>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        {selectedSMS.smsSummary}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Timeline */}
+                  <div className="mb-6">
+                    <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
+                      <ClockIcon className="w-4 h-4 mr-2" />
+                      Timeline
+                    </h4>
+                    <div className="space-y-3">
+                      {selectedSMS.timeline.map((event) => (
+                        <div
+                          key={event.id}
+                          className="flex items-start space-x-3"
+                        >
+                          <div
+                            className={`w-2 h-2 rounded-full mt-2 ${
+                              event.status === "completed"
+                                ? "bg-green-500"
+                                : event.status === "pending"
+                                ? "bg-yellow-500"
+                                : "bg-gray-400"
+                            }`}
+                          ></div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-900">
+                                {event.action}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {event.timestamp}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {event.description}
+                            </p>
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-medium rounded-full mt-1 ${getTimelineStatusColor(
+                                event.status
+                              )}`}
+                            >
+                              {event.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Customer Information */}
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
+                      <UserIcon className="w-4 h-4 mr-2" />
+                      Customer Information
+                    </h4>
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                      <div>
+                        <span className="text-sm text-gray-600">Name:</span>
+                        <div className="text-sm font-medium text-gray-900">
+                          {selectedSMS.userAttributes.name}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">Phone:</span>
+                        <div className="text-sm font-medium text-gray-900 font-mono">
+                          {selectedSMS.userAttributes.phone}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">Email:</span>
+                        <div className="text-sm font-medium text-gray-900">
+                          {selectedSMS.userAttributes.email}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">
+                          Account Number:
+                        </span>
+                        <div className="text-sm font-medium text-gray-900 font-mono">
+                          {selectedSMS.userAttributes.accountNumber}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">
+                          Customer Since:
+                        </span>
+                        <div className="text-sm font-medium text-gray-900">
+                          {selectedSMS.userAttributes.customerSince}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">
+                          Preferred Language:
+                        </span>
+                        <div className="text-sm font-medium text-gray-900">
+                          {selectedSMS.userAttributes.preferredLanguage}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">
+                          Account Type:
+                        </span>
+                        <div className="text-sm font-medium text-gray-900">
+                          {selectedSMS.userAttributes.accountType}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">
+                          Risk Level:
+                        </span>
+                        <div
+                          className={`text-sm font-medium ${
+                            selectedSMS.userAttributes.riskLevel === "Low"
+                              ? "text-green-600"
+                              : selectedSMS.userAttributes.riskLevel === "Medium"
+                              ? "text-yellow-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {selectedSMS.userAttributes.riskLevel}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Set Disposition */}
+                  <div className="mt-6">
+                    <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
+                      <CheckCircleIcon className="w-4 h-4 mr-2" />
+                      Set Disposition(s)
+                    </h4>
+                    
+                    {/* Selected Dispositions Display */}
+                    {selectedDispositions.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {getSelectedDispositionsInfo().map((disposition) => (
+                          <span
+                            key={disposition.id}
+                            className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full border ${disposition.color}`}
+                          >
+                            {disposition.label}
+                            <button
+                              onClick={() => handleToggleDisposition(disposition.id)}
+                              className="ml-1.5 hover:opacity-70"
+                            >
+                              <XMarkIcon className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowDispositionDropdown(!showDispositionDropdown)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-left text-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center justify-between"
+                      >
+                        <span className="text-gray-500">
+                          {selectedDispositions.length === 0 
+                            ? "Select disposition(s) (optional)" 
+                            : `${selectedDispositions.length} selected - click to add more`}
+                        </span>
+                        <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform ${showDispositionDropdown ? "rotate-180" : ""}`} />
+                      </button>
+
+                      {showDispositionDropdown && (
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                          <div className="p-2">
+                            {selectedDispositions.length > 0 && (
+                              <>
+                                <button
+                                  onClick={clearDispositions}
+                                  className="w-full text-left px-3 py-2 text-sm text-gray-500 hover:bg-gray-50 rounded flex items-center"
+                                >
+                                  <XMarkIcon className="w-4 h-4 mr-2" />
+                                  Clear all dispositions
+                                </button>
+                                <div className="border-t border-gray-100 my-1"></div>
+                              </>
+                            )}
+                            {dispositionOptions.map((disposition) => (
+                              <button
+                                key={disposition.id}
+                                onClick={() => handleToggleDisposition(disposition.id)}
+                                className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded flex items-center justify-between ${
+                                  selectedDispositions.includes(disposition.id) ? "bg-blue-50" : ""
+                                }`}
+                              >
+                                <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full border ${disposition.color}`}>
+                                  {disposition.label}
+                                </span>
+                                {selectedDispositions.includes(disposition.id) && (
+                                  <CheckCircleIcon className="w-4 h-4 text-green-500" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {selectedDispositions.length > 0 && (
+                      <div className="mt-3">
+                        <Button
+                          onClick={() => {
+                            const dispositions = getSelectedDispositionsInfo();
+                            const labels = dispositions.map(d => d.label).join(", ");
+                            console.log(`Saving dispositions for SMS ${selectedSMS.id}: ${labels}`);
+                            alert(`Dispositions saved: ${labels}`);
+                          }}
+                          className="w-full bg-gray-900 hover:bg-gray-800 text-white"
+                        >
+                          Save Disposition{selectedDispositions.length > 1 ? "s" : ""} ({selectedDispositions.length})
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {detailTab === "conversation" && (
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  {/* Conversation Messages */}
+                  <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+                    <div className="space-y-3">
+                      {selectedSMS.conversation.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`flex ${
+                            message.speaker === "customer"
+                              ? "justify-end"
+                              : "justify-start"
+                          }`}
+                        >
+                          <div
+                            className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                              message.speaker === "customer"
+                                ? "bg-blue-500 text-white rounded-br-md"
+                                : message.speaker === "virtual"
+                                ? "bg-gray-200 text-gray-900 rounded-bl-md"
+                                : "bg-green-500 text-white rounded-bl-md"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs font-semibold opacity-80">
+                                {message.speaker === "customer"
+                                  ? "Customer"
+                                  : message.speaker === "virtual"
+                                  ? "AI Assistant"
+                                  : "Agent"}
+                              </span>
+                              <span className="text-xs opacity-70 ml-2">
+                                {message.timestamp}
+                              </span>
+                            </div>
+                            <p className="text-sm leading-relaxed">
+                              {message.message}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Reply Input */}
+                  <div className="p-4 border-t border-gray-200 bg-white">
+                    <div className="flex space-x-2">
+                      <input
+                        type="text"
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        placeholder="Type your message..."
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter" && replyText.trim()) {
+                            console.log(`Sending SMS reply: ${replyText}`);
+                            setReplyText("");
+                          }
+                        }}
+                      />
+                      <Button
+                        onClick={() => {
+                          if (replyText.trim()) {
+                            console.log(`Sending SMS reply: ${replyText}`);
+                            setReplyText("");
+                          }
+                        }}
+                        disabled={!replyText.trim()}
+                        className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4"
+                      >
+                        <PaperAirplaneIcon className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -6,12 +6,6 @@ import {
   PlusIcon,
   AdjustmentsHorizontalIcon,
   XMarkIcon,
-  PhoneIcon,
-  EnvelopeIcon,
-  CalendarIcon,
-  CheckIcon,
-  RocketLaunchIcon,
-  CursorArrowRaysIcon,
   ClockIcon,
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
@@ -528,8 +522,8 @@ function AccountData() {
                               }`}
                             >
                               {mode === "auto-pilot"
-                                ? "🚀 Auto-pilot"
-                                : "🎯 Co-pilot"}
+                                ? "Auto-pilot"
+                                : "Co-pilot"}
                             </span>
                           );
                         })()}
@@ -668,12 +662,9 @@ function AccountData() {
                       Cooperative & committed to pay
                     </span>
                   </div>
-                  <div className="text-sm text-gray-900 mb-2">
+                  <div className="text-sm text-gray-900">
                     Customer acknowledged debt and requested payment plan.
                     Agreed to $500 monthly payments starting next week.
-                  </div>
-                  <div className="text-xs text-blue-600 font-medium">
-                    Next: SMS Payment Link (AI recommended - ready to send)
                   </div>
                 </div>
               </div>
@@ -725,95 +716,66 @@ function AccountData() {
 
                     return (
                       <div className="space-y-4">
-                        {/* Journey Mode Header */}
+                        {/* Journey Mode Header - Subtle banner */}
                         <div
-                          className={`rounded-lg p-4 border ${
+                          className={`rounded-lg px-4 py-2.5 border ${
                             isAutoPilot
-                              ? "bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200"
-                              : "bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200"
+                              ? "bg-purple-50/50 border-purple-100"
+                              : "bg-amber-50/50 border-amber-100"
                           }`}
                         >
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-center space-x-3">
-                              <div
-                                className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                  isAutoPilot ? "bg-purple-100" : "bg-amber-100"
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <span
+                                className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                  isAutoPilot
+                                    ? "bg-purple-100 text-purple-700"
+                                    : "bg-amber-100 text-amber-700"
                                 }`}
                               >
-                                {isAutoPilot ? (
-                                  <RocketLaunchIcon
-                                    className={`w-5 h-5 ${
-                                      isAutoPilot
-                                        ? "text-purple-600"
-                                        : "text-amber-600"
-                                    }`}
-                                  />
-                                ) : (
-                                  <CursorArrowRaysIcon className="w-5 h-5 text-amber-600" />
-                                )}
-                              </div>
-                              <div>
-                                <div className="flex items-center space-x-2">
-                                  <h3
-                                    className={`text-base font-semibold ${
-                                      isAutoPilot
-                                        ? "text-purple-900"
-                                        : "text-amber-900"
-                                    }`}
-                                  >
-                                    {isAutoPilot
-                                      ? "Auto-pilot Mode"
-                                      : "Co-pilot Mode"}
-                                  </h3>
-                                  <span
-                                    className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                                      isAutoPilot
-                                        ? "bg-purple-200 text-purple-800"
-                                        : "bg-amber-200 text-amber-800"
-                                    }`}
-                                  >
-                                    {isAutoPilot ? "AUTONOMOUS" : "ASSISTED"}
-                                  </span>
-                                </div>
-                                <p
-                                  className={`mt-1 text-xs ${
-                                    isAutoPilot
-                                      ? "text-purple-700"
-                                      : "text-amber-700"
-                                  }`}
-                                >
-                                  {journeyData.description}
-                                </p>
-                              </div>
+                                {isAutoPilot ? "Auto-pilot" : "Co-pilot"}
+                              </span>
+                              <span className="text-xs text-gray-500">•</span>
+                              <span className="text-xs text-gray-600">
+                                {isAutoPilot
+                                  ? "AI autonomously managing communications"
+                                  : "AI recommends actions for approval"}
+                              </span>
                             </div>
-                          </div>
-
-                          {/* Journey Name for Co-pilot */}
-                          {!isAutoPilot && (
-                            <div className="mt-3 pt-3 border-t border-amber-200">
-                              <div className="flex items-center space-x-2">
-                                <span className="text-xs font-medium text-amber-800">
-                                  Active Journey:
+                            {!isAutoPilot && (
+                              <div className="flex items-center space-x-1.5">
+                                <span className="text-xs text-gray-500">
+                                  Active Campaign:
                                 </span>
-                                <span className="px-2 py-0.5 bg-white rounded text-xs font-semibold text-amber-900 border border-amber-300">
+                                <span className="text-xs font-medium text-gray-700">
                                   {journeyData.journeyName}
                                 </span>
                               </div>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
 
                         {/* Next 5 Communications */}
                         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                           <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
-                            <h4 className="text-sm font-semibold text-gray-900">
-                              Next 5 Planned Communications
-                            </h4>
-                            <p className="text-xs text-gray-600 mt-0.5">
-                              {isAutoPilot
-                                ? "These communications will be executed automatically at scheduled times"
-                                : "Review and approve each communication before execution"}
-                            </p>
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h4 className="text-sm font-semibold text-gray-900">
+                                  {isAutoPilot
+                                    ? "Next 5 Predicted Communications"
+                                    : "Next 5 Planned Communications"}
+                                </h4>
+                                <p className="text-xs text-gray-600 mt-0.5">
+                                  {isAutoPilot
+                                    ? "AI predicts these communications based on behavioral signals and optimal timing"
+                                    : "Review and approve each communication before execution"}
+                                </p>
+                              </div>
+                              <button className="px-3 py-1.5 text-red-600 text-xs font-medium border border-red-200 rounded-lg hover:bg-red-50 transition-colors flex items-center space-x-1">
+                                <XMarkIcon className="w-3.5 h-3.5" />
+                                <span>Cancel All</span>
+                              </button>
+                            </div>
                           </div>
 
                           <div className="p-4">
@@ -936,15 +898,14 @@ function AccountData() {
                                         </div>
                                       </div>
 
-                                      {/* Co-pilot Skip Button */}
-                                      {!isAutoPilot &&
-                                        comm.status === "next" && (
-                                          <div className="mt-2 flex items-center">
-                                            <button className="px-3 py-1 text-red-600 text-xs font-medium border border-red-200 rounded hover:bg-red-50 transition-colors">
-                                              Skip
-                                            </button>
-                                          </div>
-                                        )}
+                                      {/* Skip Button - Available for both Auto-pilot and Co-pilot */}
+                                      {comm.status === "next" && (
+                                        <div className="mt-2 flex items-center">
+                                          <button className="px-3 py-1 text-red-600 text-xs font-medium border border-red-200 rounded hover:bg-red-50 transition-colors">
+                                            Skip
+                                          </button>
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
@@ -953,42 +914,6 @@ function AccountData() {
                           </div>
                         </div>
 
-                        {/* Journey Summary Stats */}
-                        <div className="grid grid-cols-3 gap-3">
-                          <div className="bg-white rounded-lg border border-gray-200 p-3">
-                            <div className="text-xs text-gray-500">
-                              Total Communications
-                            </div>
-                            <div className="mt-0.5 text-lg font-bold text-gray-900">
-                              5
-                            </div>
-                            <div className="text-[10px] text-gray-500">
-                              Planned in journey
-                            </div>
-                          </div>
-                          <div className="bg-white rounded-lg border border-gray-200 p-3">
-                            <div className="text-xs text-gray-500">
-                              Journey Duration
-                            </div>
-                            <div className="mt-0.5 text-lg font-bold text-gray-900">
-                              12 days
-                            </div>
-                            <div className="text-[10px] text-gray-500">
-                              Total timeline
-                            </div>
-                          </div>
-                          <div className="bg-white rounded-lg border border-gray-200 p-3">
-                            <div className="text-xs text-gray-500">
-                              Next Action
-                            </div>
-                            <div className="mt-0.5 text-lg font-bold text-blue-600">
-                              Tomorrow
-                            </div>
-                            <div className="text-[10px] text-gray-500">
-                              {journeyData.communications[0].channel}
-                            </div>
-                          </div>
-                        </div>
                       </div>
                     );
                   })()}
@@ -998,14 +923,12 @@ function AccountData() {
               {activeTab === "communication" && (
                 <div className="h-full overflow-y-auto px-6 py-6">
                   <div className="space-y-4">
-                    {getCommunicationTimeline(selectedAccount.id).map(
-                      (item, index) => (
+                    {getCommunicationTimeline(selectedAccount.id)
+                      .filter((item) => item.status === "completed")
+                      .map((item, index, filteredArray) => (
                         <div key={item.id} className="relative">
                           {/* Timeline line */}
-                          {index <
-                            getCommunicationTimeline(selectedAccount.id)
-                              .length -
-                              1 && (
+                          {index < filteredArray.length - 1 && (
                             <div className="absolute left-4 top-12 bottom-0 w-0.5 bg-gray-200" />
                           )}
 
@@ -1297,22 +1220,6 @@ function AccountData() {
               )}
             </div>
 
-            {/* Footer Actions */}
-            <div className="border-t border-gray-200 px-6 py-4">
-              <div className="flex space-x-3">
-                <button className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                  <PhoneIcon className="w-4 h-4 mr-2" />
-                  Schedule Call
-                </button>
-                <button className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
-                  <EnvelopeIcon className="w-4 h-4 mr-2" />
-                  Send Email
-                </button>
-                <button className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700">
-                  💬 Send SMS
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       )}
